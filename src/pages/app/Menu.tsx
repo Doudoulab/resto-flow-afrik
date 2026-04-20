@@ -42,14 +42,21 @@ const Menu = () => {
   const [catDialog, setCatDialog] = useState(false);
   const [catName, setCatName] = useState("");
 
+  const [recipeFor, setRecipeFor] = useState<MenuItem | null>(null);
+  const [stockOpts, setStockOpts] = useState<StockOpt[]>([]);
+  const [recipeRows, setRecipeRows] = useState<RecipeRow[]>([]);
+  const [recipeSaving, setRecipeSaving] = useState(false);
+
   const load = async () => {
     if (!restaurant) return;
-    const [catsRes, itemsRes] = await Promise.all([
+    const [catsRes, itemsRes, stockRes] = await Promise.all([
       supabase.from("menu_categories").select("*").eq("restaurant_id", restaurant.id).order("sort_order"),
       supabase.from("menu_items").select("*").eq("restaurant_id", restaurant.id).order("created_at", { ascending: false }),
+      supabase.from("stock_items").select("id,name,unit,cost_per_unit").eq("restaurant_id", restaurant.id).order("name"),
     ]);
     setCategories((catsRes.data ?? []) as Category[]);
     setItems((itemsRes.data ?? []) as MenuItem[]);
+    setStockOpts((stockRes.data ?? []) as StockOpt[]);
     setLoading(false);
   };
 
@@ -126,6 +133,62 @@ const Menu = () => {
     if (error) { toast.error(error.message); return; }
     load();
   };
+
+  const openRecipe = async (item: MenuItem) => {
+    setRecipeFor(item);
+    const { data } = await supabase
+      .from("menu_item_recipes")
+      .select("id,stock_item_id,quantity")
+      .eq("menu_item_id", item.id);
+    setRecipeRows((data ?? []) as RecipeRow[]);
+  };
+
+  const addRecipeRow = () => {
+    const used = new Set(recipeRows.map((r) => r.stock_item_id));
+    const next = stockOpts.find((s) => !used.has(s.id));
+    if (!next) { toast.error("Tous les articles du stock sont déjà utilisés"); return; }
+    setRecipeRows([...recipeRows, { id: `new-${Date.now()}`, stock_item_id: next.id, quantity: 1 }]);
+  };
+
+  const updateRecipeRow = (idx: number, patch: Partial<RecipeRow>) => {
+    setRecipeRows(recipeRows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  };
+
+  const removeRecipeRow = (idx: number) => {
+    setRecipeRows(recipeRows.filter((_, i) => i !== idx));
+  };
+
+  const saveRecipe = async () => {
+    if (!restaurant || !recipeFor) return;
+    setRecipeSaving(true);
+    // Strategy: delete all existing then insert all rows. Simple & reliable for small recipes.
+    const { error: delErr } = await supabase.from("menu_item_recipes").delete().eq("menu_item_id", recipeFor.id);
+    if (delErr) { toast.error(delErr.message); setRecipeSaving(false); return; }
+    if (recipeRows.length > 0) {
+      const payload = recipeRows
+        .filter((r) => r.stock_item_id && Number(r.quantity) > 0)
+        .map((r) => ({
+          restaurant_id: restaurant.id,
+          menu_item_id: recipeFor.id,
+          stock_item_id: r.stock_item_id,
+          quantity: Number(r.quantity),
+        }));
+      if (payload.length > 0) {
+        const { error } = await supabase.from("menu_item_recipes").insert(payload);
+        if (error) { toast.error(error.message); setRecipeSaving(false); return; }
+      }
+    }
+    toast.success("Recette enregistrée");
+    setRecipeSaving(false);
+    setRecipeFor(null);
+  };
+
+  const recipeCost = recipeRows.reduce((sum, r) => {
+    const s = stockOpts.find((o) => o.id === r.stock_item_id);
+    return sum + (s ? s.cost_per_unit * Number(r.quantity || 0) : 0);
+  }, 0);
+  const recipeMargin = (recipeFor?.price ?? 0) - recipeCost;
+  const marginPct = recipeFor && recipeFor.price > 0 ? (recipeMargin / recipeFor.price) * 100 : 0;
 
   if (loading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
