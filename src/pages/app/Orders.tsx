@@ -12,11 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Minus, Printer, ChefHat } from "lucide-react";
+import { Loader2, Plus, Minus, Printer, ChefHat, Smartphone } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { KitchenTicket, CustomerReceipt } from "@/components/print/KitchenTicket";
 import { PrintStyles } from "@/components/print/PrintStyles";
-import { Smartphone } from "lucide-react";
 import { MobileMoneyDialog } from "@/components/payments/MobileMoneyDialog";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
