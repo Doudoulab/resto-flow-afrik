@@ -149,6 +149,11 @@ const Stock = () => {
                 <Input type="number" value={form.alert_threshold} onChange={(e) => setForm({ ...form, alert_threshold: e.target.value })} />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Coût d'achat par unité (FCFA)</Label>
+              <Input type="number" value={form.cost_per_unit} onChange={(e) => setForm({ ...form, cost_per_unit: e.target.value })} placeholder="ex: 800 pour 1 kg de riz" />
+              <p className="text-xs text-muted-foreground">Sert à calculer la marge réelle de chaque plat.</p>
+            </div>
           </div>
           <DialogFooter><Button onClick={save}>Enregistrer</Button></DialogFooter>
         </DialogContent>
