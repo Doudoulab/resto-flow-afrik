@@ -16,6 +16,7 @@ import {
   Clock,
   LayoutGrid,
   Sparkles,
+  BookUser,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ const navItems = [
   { to: "/app/accounting", icon: Wallet, label: "Comptabilité" },
   { to: "/app/staff", icon: Users, label: "Personnel" },
   { to: "/app/timeclock", icon: Clock, label: "Pointage" },
+  { to: "/app/customers", icon: BookUser, label: "Ardoises" },
   { to: "/app/advisor", icon: Sparkles, label: "Conseil IA" },
   { to: "/app/settings", icon: Settings, label: "Paramètres" },
 ];
