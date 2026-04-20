@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, FolderPlus } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, FolderPlus, ChefHat, X } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 
 interface Category { id: string; name: string; sort_order: number; }
@@ -24,6 +24,8 @@ interface MenuItem {
   is_available: boolean;
   category_id: string | null;
 }
+interface StockOpt { id: string; name: string; unit: string; cost_per_unit: number; }
+interface RecipeRow { id: string; stock_item_id: string; quantity: number; }
 
 const Menu = () => {
   const { restaurant } = useAuth();
