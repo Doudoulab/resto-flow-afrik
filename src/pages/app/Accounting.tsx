@@ -12,10 +12,14 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { formatFCFA } from "@/lib/currency";
-import { Loader2, Plus, Download, TrendingUp, TrendingDown, Wallet, Trash2 } from "lucide-react";
+import { Loader2, Plus, Download, TrendingUp, TrendingDown, Wallet, Trash2, FileText, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { format, startOfDay, startOfWeek, startOfMonth, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
+import { exportAccountingPDF, exportAccountingExcel } from "@/lib/exports";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Order { id: string; total: number; created_at: string; status: string; }
 interface Expense { id: string; category: string; description: string; amount: number; expense_date: string; }
@@ -109,6 +113,37 @@ const Accounting = () => {
     URL.revokeObjectURL(url);
   };
 
+  const buildExportRows = () => {
+    const rows = [
+      ...periodOrders.map((o) => ({
+        type: "Recette" as const,
+        date: format(parseISO(o.created_at), "yyyy-MM-dd"),
+        description: `Commande #${o.id.slice(0, 8)}`,
+        category: "ventes",
+        amount: Number(o.total),
+      })),
+      ...periodExpenses.map((e) => ({
+        type: "Dépense" as const,
+        date: e.expense_date,
+        description: e.description,
+        category: e.category,
+        amount: Number(e.amount),
+      })),
+    ];
+    const periodLabel = period === "day" ? "jour" : period === "week" ? "semaine" : "mois";
+    return {
+      restaurantName: restaurant?.name || "Restaurant",
+      periodLabel: `${periodLabel}-${format(new Date(), "yyyy-MM-dd")}`,
+      rows,
+      revenue,
+      expenses: totalExpenses,
+      margin,
+    };
+  };
+
+  const exportPDF = () => exportAccountingPDF(buildExportRows());
+  const exportExcel = () => exportAccountingExcel(buildExportRows());
+
   if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
   return (
@@ -119,7 +154,16 @@ const Accounting = () => {
           <p className="mt-1 text-muted-foreground">Recettes, dépenses et marge de {restaurant?.name}.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={exportCSV}><Download className="mr-2 h-4 w-4" /> Export CSV</Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Exporter</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportPDF}><FileText className="mr-2 h-4 w-4" /> PDF</DropdownMenuItem>
+              <DropdownMenuItem onClick={exportExcel}><FileSpreadsheet className="mr-2 h-4 w-4" /> Excel (.xlsx)</DropdownMenuItem>
+              <DropdownMenuItem onClick={exportCSV}><FileText className="mr-2 h-4 w-4" /> CSV</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Dépense</Button></DialogTrigger>
             <DialogContent className="max-w-md">

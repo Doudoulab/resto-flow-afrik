@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -69,6 +69,16 @@ const Orders = () => {
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [detailItems, setDetailItems] = useState<OrderItem[]>([]);
   const [printMode, setPrintMode] = useState<"kitchen" | "receipt" | null>(null);
+  const lastSeenIdsRef = useRef<Set<string>>(new Set());
+  const initializedRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Short notification beep (base64 wav, ~150ms)
+    audioRef.current = new Audio(
+      "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="
+    );
+  }, []);
 
   const load = async () => {
     if (!restaurant) return;
@@ -76,7 +86,20 @@ const Orders = () => {
       supabase.from("orders").select("*").eq("restaurant_id", restaurant.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("menu_items").select("id, name, price, is_available").eq("restaurant_id", restaurant.id).eq("is_available", true).order("name"),
     ]);
-    setOrders((oRes.data ?? []) as Order[]);
+    const incoming = (oRes.data ?? []) as Order[];
+    if (initializedRef.current) {
+      // Detect new pending orders not previously seen
+      const newOnes = incoming.filter(
+        (o) => !lastSeenIdsRef.current.has(o.id) && o.status === "pending"
+      );
+      if (newOnes.length > 0) {
+        toast.success(`🔔 Nouvelle commande #${newOnes[0].order_number}${newOnes[0].table_number ? ` — Table ${newOnes[0].table_number}` : ""}`);
+        try { audioRef.current?.play().catch(() => {}); } catch {}
+      }
+    }
+    lastSeenIdsRef.current = new Set(incoming.map((o) => o.id));
+    initializedRef.current = true;
+    setOrders(incoming);
     setMenu((mRes.data ?? []) as MenuItem[]);
     setLoading(false);
   };
