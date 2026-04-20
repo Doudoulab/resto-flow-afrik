@@ -309,6 +309,11 @@ const Orders = () => {
                   <Printer className="mr-2 h-4 w-4" /> Addition client
                 </Button>
               </div>
+              {detailOrder.status !== "paid" && detailOrder.status !== "cancelled" && (
+                <Button className="w-full" onClick={() => setMobileMoneyOpen(true)}>
+                  <Smartphone className="mr-2 h-4 w-4" /> Encaisser via Mobile Money
+                </Button>
+              )}
               <div className="space-y-2">
                 <Label>Statut</Label>
                 <Select value={detailOrder.status} onValueChange={(v) => updateStatus(detailOrder.id, v as OrderStatus)}>
@@ -345,6 +350,20 @@ const Orders = () => {
           restaurantAddress={restaurant.address}
           restaurantPhone={restaurant.phone}
           createdAt={detailOrder.created_at}
+        />
+      )}
+
+      {detailOrder && restaurant && (
+        <MobileMoneyDialog
+          open={mobileMoneyOpen}
+          onOpenChange={setMobileMoneyOpen}
+          restaurantId={restaurant.id}
+          orderId={detailOrder.id}
+          amount={Number(detailOrder.total)}
+          onPaid={() => {
+            setMobileMoneyOpen(false);
+            updateStatus(detailOrder.id, "paid");
+          }}
         />
       )}
     </div>
