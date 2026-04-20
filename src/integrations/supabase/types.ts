@@ -426,6 +426,8 @@ export type Database = {
           restaurant_id: string
           test_mode: boolean
           updated_at: string
+          wave_country_code: string
+          wave_merchant_id: string | null
           wave_number: string | null
         }
         Insert: {
@@ -446,6 +448,8 @@ export type Database = {
           restaurant_id: string
           test_mode?: boolean
           updated_at?: string
+          wave_country_code?: string
+          wave_merchant_id?: string | null
           wave_number?: string | null
         }
         Update: {
@@ -466,6 +470,8 @@ export type Database = {
           restaurant_id?: string
           test_mode?: boolean
           updated_at?: string
+          wave_country_code?: string
+          wave_merchant_id?: string | null
           wave_number?: string | null
         }
         Relationships: [

@@ -25,6 +25,8 @@ interface Config {
   cinetpay_site_id: string | null;
   cinetpay_secret_key: string | null;
   wave_number: string | null;
+  wave_merchant_id: string | null;
+  wave_country_code: string | null;
   orange_money_number: string | null;
   mtn_momo_number: string | null;
   moov_number: string | null;
@@ -34,7 +36,8 @@ const empty: Config = {
   enabled: false, provider: "direct_link", test_mode: true,
   paydunya_master_key: "", paydunya_public_key: "", paydunya_private_key: "", paydunya_token: "",
   cinetpay_apikey: "", cinetpay_site_id: "", cinetpay_secret_key: "",
-  wave_number: "", orange_money_number: "", mtn_momo_number: "", moov_number: "",
+  wave_number: "", wave_merchant_id: "", wave_country_code: "sn",
+  orange_money_number: "", mtn_momo_number: "", moov_number: "",
 };
 
 export const PaymentSettings = ({ restaurantId }: { restaurantId: string }) => {
@@ -110,9 +113,44 @@ export const PaymentSettings = ({ restaurantId }: { restaurantId: string }) => {
                 <p className="text-sm text-muted-foreground">
                   Pas de frais d'agrégateur. Wave direct ouvre un lien sur le téléphone du client ; Orange Money utilise un code à composer. Ce n'est pas un QR natif Wave.
                 </p>
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 space-y-3">
+                  <div>
+                    <Label className="text-base font-semibold">QR marchand Wave Business</Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Si vous avez un compte <strong>Wave Business</strong>, renseignez votre Merchant ID (ex. <code>M_xxxxxx</code>) pour générer un vrai QR scannable nativement par l'app Wave.
+                    </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Wave Merchant ID</Label>
+                      <Input
+                        value={cfg.wave_merchant_id ?? ""}
+                        onChange={(e) => setCfg({ ...cfg, wave_merchant_id: e.target.value })}
+                        placeholder="M_xxxxxxxx"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Pays Wave</Label>
+                      <Select
+                        value={cfg.wave_country_code ?? "sn"}
+                        onValueChange={(v) => setCfg({ ...cfg, wave_country_code: v })}
+                      >
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sn">Sénégal</SelectItem>
+                          <SelectItem value="ci">Côte d'Ivoire</SelectItem>
+                          <SelectItem value="ml">Mali</SelectItem>
+                          <SelectItem value="bf">Burkina Faso</SelectItem>
+                          <SelectItem value="gm">Gambie</SelectItem>
+                          <SelectItem value="ug">Ouganda</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>Numéro Wave</Label>
+                    <Label>Numéro Wave (compte personnel — fallback)</Label>
                     <Input value={cfg.wave_number ?? ""} onChange={(e) => setCfg({ ...cfg, wave_number: e.target.value })} placeholder="+221 77..." />
                   </div>
                   <div className="space-y-2">
