@@ -26,7 +26,7 @@ export interface Restaurant {
   instagram_url?: string | null;
   facebook_url?: string | null;
   theme_color?: string | null;
-  opening_hours?: Record<string, { open: string; close: string; closed?: boolean }> | null;
+  opening_hours?: unknown;
   accepts_online_orders?: boolean;
 }
 
