@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Plus, Pencil, Trash2, FolderPlus, ChefHat, X } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
+import { ImageUpload } from "@/components/ImageUpload";
 
 interface Category { id: string; name: string; sort_order: number; }
 interface MenuItem {
@@ -23,6 +24,7 @@ interface MenuItem {
   price: number;
   is_available: boolean;
   category_id: string | null;
+  image_url: string | null;
 }
 interface StockOpt { id: string; name: string; unit: string; cost_per_unit: number; }
 interface RecipeRow { id: string; stock_item_id: string; quantity: number; }
@@ -36,7 +38,7 @@ const Menu = () => {
   const [itemDialog, setItemDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [itemForm, setItemForm] = useState({
-    name: "", description: "", price: "", category_id: "", is_available: true,
+    name: "", description: "", price: "", category_id: "", is_available: true, image_url: null as string | null,
   });
 
   const [catDialog, setCatDialog] = useState(false);
@@ -71,10 +73,11 @@ const Menu = () => {
         price: item.price.toString(),
         category_id: item.category_id ?? "",
         is_available: item.is_available,
+        image_url: item.image_url ?? null,
       });
     } else {
       setEditingItem(null);
-      setItemForm({ name: "", description: "", price: "", category_id: "", is_available: true });
+      setItemForm({ name: "", description: "", price: "", category_id: "", is_available: true, image_url: null });
     }
     setItemDialog(true);
   };
@@ -88,6 +91,7 @@ const Menu = () => {
       price: parseFloat(itemForm.price) || 0,
       category_id: itemForm.category_id || null,
       is_available: itemForm.is_available,
+      image_url: itemForm.image_url,
     };
     const res = editingItem
       ? await supabase.from("menu_items").update(payload).eq("id", editingItem.id)
