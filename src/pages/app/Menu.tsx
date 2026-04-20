@@ -43,6 +43,8 @@ const Menu = () => {
   const [recipeRows, setRecipeRows] = useState<RecipeRow[]>([]);
   const [recipeSaving, setRecipeSaving] = useState(false);
 
+  const [variantsFor, setVariantsFor] = useState<MenuItem | null>(null);
+
   const load = async () => {
     if (!restaurant) return;
     const [catsRes, itemsRes, stockRes] = await Promise.all([
