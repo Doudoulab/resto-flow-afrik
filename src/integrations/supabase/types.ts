@@ -281,6 +281,7 @@ export type Database = {
         Row: {
           created_at: string
           first_name: string | null
+          hourly_rate: number
           id: string
           is_owner: boolean
           last_name: string | null
@@ -290,6 +291,7 @@ export type Database = {
         Insert: {
           created_at?: string
           first_name?: string | null
+          hourly_rate?: number
           id: string
           is_owner?: boolean
           last_name?: string | null
@@ -299,6 +301,7 @@ export type Database = {
         Update: {
           created_at?: string
           first_name?: string | null
+          hourly_rate?: number
           id?: string
           is_owner?: boolean
           last_name?: string | null
