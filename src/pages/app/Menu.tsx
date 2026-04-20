@@ -296,6 +296,73 @@ const Menu = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!recipeFor} onOpenChange={(o) => !o && setRecipeFor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Recette — {recipeFor?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {stockOpts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Aucun article en stock. Ajoutez d'abord des ingrédients dans la page Stock.
+              </p>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  {recipeRows.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Aucun ingrédient. Ajoutez-en pour calculer le coût matière.</p>
+                  )}
+                  {recipeRows.map((row, idx) => {
+                    const stock = stockOpts.find((s) => s.id === row.stock_item_id);
+                    return (
+                      <div key={row.id} className="flex items-center gap-2">
+                        <Select value={row.stock_item_id} onValueChange={(v) => updateRecipeRow(idx, { stock_item_id: v })}>
+                          <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {stockOpts.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          className="w-24"
+                          value={row.quantity}
+                          onChange={(e) => updateRecipeRow(idx, { quantity: parseFloat(e.target.value) || 0 })}
+                        />
+                        <span className="w-10 text-xs text-muted-foreground">{stock?.unit ?? ""}</span>
+                        <Button variant="ghost" size="sm" onClick={() => removeRecipeRow(idx)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <Button variant="outline" size="sm" onClick={addRecipeRow}>
+                  <Plus className="mr-2 h-4 w-4" />Ajouter un ingrédient
+                </Button>
+
+                <div className="rounded-md border border-border bg-muted/30 p-3 text-sm">
+                  <div className="flex justify-between"><span>Prix de vente</span><span className="font-medium">{formatFCFA(recipeFor?.price ?? 0)}</span></div>
+                  <div className="flex justify-between"><span>Coût matière</span><span className="font-medium">{formatFCFA(recipeCost)}</span></div>
+                  <div className="mt-1 flex justify-between border-t border-border pt-1">
+                    <span>Marge</span>
+                    <span className={`font-bold ${recipeMargin >= 0 ? "text-success" : "text-destructive"}`}>
+                      {formatFCFA(recipeMargin)} ({marginPct.toFixed(0)}%)
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRecipeFor(null)}>Annuler</Button>
+            <Button onClick={saveRecipe} disabled={recipeSaving || stockOpts.length === 0}>
+              {recipeSaving ? "..." : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
