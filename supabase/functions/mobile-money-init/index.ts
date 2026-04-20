@@ -131,12 +131,17 @@ Deno.serve(async (req: Request) => {
     } else {
       // direct_link: build a wave.com pay link if available, else USSD instructions
       if (cfg.wave_number) {
-        // Wave deep link: https://pay.wave.com/m/<merchantId>/c/<country>?amount=...
-        // For personal numbers we use the public format
-        checkoutUrl = `https://pay.wave.com/m/${encodeURIComponent(cfg.wave_number)}/c/sn?amount=${body.amount}`;
+        // Wave personal pay link: normalise number to E.164 (+221...)
+        let phone = cfg.wave_number.replace(/[\s\-().]/g, "");
+        if (!phone.startsWith("+")) {
+          // assume Senegal if 9 digits, else prepend + as-is
+          phone = phone.length === 9 ? `+221${phone}` : `+${phone.replace(/^00/, "")}`;
+        }
+        checkoutUrl = `https://pay.wave.com/?phone=${encodeURIComponent(phone)}&amount=${body.amount}`;
       } else if (cfg.orange_money_number) {
-        // OM USSD code (Senegal) - displayed as info
-        checkoutUrl = `tel:${encodeURIComponent(`#144#391*${cfg.orange_money_number}*${body.amount}#`)}`;
+        // OM USSD code (Senegal). tel: needs encoded # as %23
+        const ussd = `#144#391*${cfg.orange_money_number}*${body.amount}#`;
+        checkoutUrl = `tel:${ussd.replace(/#/g, "%23").replace(/\*/g, "*")}`;
       } else {
         throw new Error("no_direct_link_configured");
       }
