@@ -134,6 +134,36 @@ export type Database = {
           },
         ]
       }
+      menu_item_recipes: {
+        Row: {
+          created_at: string
+          id: string
+          menu_item_id: string
+          quantity: number
+          restaurant_id: string
+          stock_item_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          menu_item_id: string
+          quantity?: number
+          restaurant_id: string
+          stock_item_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          menu_item_id?: string
+          quantity?: number
+          restaurant_id?: string
+          stock_item_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           category_id: string | null
@@ -448,6 +478,7 @@ export type Database = {
       stock_items: {
         Row: {
           alert_threshold: number
+          cost_per_unit: number
           created_at: string
           id: string
           name: string
@@ -458,6 +489,7 @@ export type Database = {
         }
         Insert: {
           alert_threshold?: number
+          cost_per_unit?: number
           created_at?: string
           id?: string
           name: string
@@ -468,6 +500,7 @@ export type Database = {
         }
         Update: {
           alert_threshold?: number
+          cost_per_unit?: number
           created_at?: string
           id?: string
           name?: string
