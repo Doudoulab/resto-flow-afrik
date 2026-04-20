@@ -257,10 +257,12 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          image_url: string | null
           is_available: boolean
           name: string
           price: number
           restaurant_id: string
+          sort_order: number
           updated_at: string
         }
         Insert: {
@@ -268,10 +270,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           is_available?: boolean
           name: string
           price?: number
           restaurant_id: string
+          sort_order?: number
           updated_at?: string
         }
         Update: {
@@ -279,10 +283,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           is_available?: boolean
           name?: string
           price?: number
           restaurant_id?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: [
@@ -295,6 +301,62 @@ export type Database = {
           },
           {
             foreignKeyName: "menu_items_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mobile_money_operators: {
+        Row: {
+          account_number: string | null
+          created_at: string
+          deeplink_template: string | null
+          display_name: string | null
+          enabled: boolean
+          id: string
+          merchant_id: string | null
+          notes: string | null
+          operator_code: string
+          restaurant_id: string
+          sort_order: number
+          updated_at: string
+          ussd_template: string | null
+        }
+        Insert: {
+          account_number?: string | null
+          created_at?: string
+          deeplink_template?: string | null
+          display_name?: string | null
+          enabled?: boolean
+          id?: string
+          merchant_id?: string | null
+          notes?: string | null
+          operator_code: string
+          restaurant_id: string
+          sort_order?: number
+          updated_at?: string
+          ussd_template?: string | null
+        }
+        Update: {
+          account_number?: string | null
+          created_at?: string
+          deeplink_template?: string | null
+          display_name?: string | null
+          enabled?: boolean
+          id?: string
+          merchant_id?: string | null
+          notes?: string | null
+          operator_code?: string
+          restaurant_id?: string
+          sort_order?: number
+          updated_at?: string
+          ussd_template?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mobile_money_operators_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
@@ -729,34 +791,67 @@ export type Database = {
       }
       restaurants: {
         Row: {
+          accepts_online_orders: boolean
           address: string | null
+          country_code: string
+          cover_url: string | null
           created_at: string
           currency: string
+          description: string | null
+          facebook_url: string | null
           id: string
+          instagram_url: string | null
+          logo_url: string | null
           name: string
+          opening_hours: Json | null
           owner_id: string
           phone: string | null
+          slug: string | null
+          theme_color: string | null
           updated_at: string
+          whatsapp: string | null
         }
         Insert: {
+          accepts_online_orders?: boolean
           address?: string | null
+          country_code?: string
+          cover_url?: string | null
           created_at?: string
           currency?: string
+          description?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          logo_url?: string | null
           name: string
+          opening_hours?: Json | null
           owner_id: string
           phone?: string | null
+          slug?: string | null
+          theme_color?: string | null
           updated_at?: string
+          whatsapp?: string | null
         }
         Update: {
+          accepts_online_orders?: boolean
           address?: string | null
+          country_code?: string
+          cover_url?: string | null
           created_at?: string
           currency?: string
+          description?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          logo_url?: string | null
           name?: string
+          opening_hours?: Json | null
           owner_id?: string
           phone?: string | null
+          slug?: string | null
+          theme_color?: string | null
           updated_at?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -885,6 +980,7 @@ export type Database = {
       accept_invitation: { Args: { _token: string }; Returns: Json }
       current_user_restaurant_id: { Args: never; Returns: string }
       get_invitation_by_token: { Args: { _token: string }; Returns: Json }
+      get_public_restaurant: { Args: { _slug: string }; Returns: Json }
       has_role: {
         Args: {
           _restaurant_id: string
