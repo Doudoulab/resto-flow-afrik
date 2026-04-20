@@ -19,6 +19,7 @@ import Accounting from "./pages/app/Accounting";
 import Floor from "./pages/app/Floor";
 import TimeClock from "./pages/app/TimeClock";
 import Advisor from "./pages/app/Advisor";
+import Customers from "./pages/app/Customers";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="accounting" element={<Accounting />} />
               <Route path="staff" element={<Staff />} />
               <Route path="timeclock" element={<TimeClock />} />
+              <Route path="customers" element={<Customers />} />
               <Route path="advisor" element={<Advisor />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
