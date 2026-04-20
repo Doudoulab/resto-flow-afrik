@@ -316,6 +316,7 @@ export type Database = {
           display_name: string | null
           enabled: boolean
           id: string
+          instructions: string | null
           merchant_id: string | null
           notes: string | null
           operator_code: string
@@ -331,6 +332,7 @@ export type Database = {
           display_name?: string | null
           enabled?: boolean
           id?: string
+          instructions?: string | null
           merchant_id?: string | null
           notes?: string | null
           operator_code: string
@@ -346,6 +348,7 @@ export type Database = {
           display_name?: string | null
           enabled?: boolean
           id?: string
+          instructions?: string | null
           merchant_id?: string | null
           notes?: string | null
           operator_code?: string

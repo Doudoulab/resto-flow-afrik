@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Globe, Smartphone } from "lucide-react";
 import { COUNTRIES, getCountry, type OperatorCode } from "@/lib/payments/operators";
@@ -20,6 +21,9 @@ interface DbOperator {
   enabled: boolean;
   notes: string | null;
   sort_order: number;
+  ussd_template: string | null;
+  deeplink_template: string | null;
+  instructions: string | null;
 }
 
 interface Props {
@@ -58,6 +62,7 @@ export const OperatorsManager = ({ restaurantId, initialCountry, onCountryChange
         operator_code: code,
         display_name: null, account_number: null, merchant_id: null,
         enabled: true, notes: null, sort_order: 0,
+        ussd_template: null, deeplink_template: null, instructions: null,
         ...prev[code],
         ...patch,
       },
@@ -83,6 +88,9 @@ export const OperatorsManager = ({ restaurantId, initialCountry, onCountryChange
         enabled: r.enabled,
         notes: r.notes,
         sort_order: idx,
+        ussd_template: r.ussd_template,
+        deeplink_template: r.deeplink_template,
+        instructions: r.instructions,
       }));
     if (payload.length > 0) {
       const { error } = await supabase
@@ -127,6 +135,7 @@ export const OperatorsManager = ({ restaurantId, initialCountry, onCountryChange
               operator_code: op.code, enabled: false,
               display_name: null, account_number: null, merchant_id: null,
               notes: null, sort_order: 0,
+              ussd_template: null, deeplink_template: null, instructions: null,
             };
             return (
               <div key={op.code} className="rounded-lg border bg-card p-4 space-y-3">
@@ -173,6 +182,39 @@ export const OperatorsManager = ({ restaurantId, initialCountry, onCountryChange
                     {op.helpText && (
                       <p className="sm:col-span-2 text-xs text-muted-foreground">{op.helpText}</p>
                     )}
+                    <div className="sm:col-span-2 space-y-1.5 pt-2 border-t">
+                      <Label className="text-xs">
+                        {op.action === "ussd" ? "Code USSD personnalisé (optionnel)" : "Lien deeplink personnalisé (optionnel)"}
+                      </Label>
+                      {op.action === "ussd" ? (
+                        <Input
+                          value={r.ussd_template ?? ""}
+                          onChange={(e) => upd(op.code, { ussd_template: e.target.value })}
+                          placeholder="*144*1*{number}*{amount}#"
+                        />
+                      ) : (
+                        <Input
+                          value={r.deeplink_template ?? ""}
+                          onChange={(e) => upd(op.code, { deeplink_template: e.target.value })}
+                          placeholder="https://pay.exemple.com/{merchant}?amount={amount}"
+                        />
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Variables : <code>{"{amount}"}</code>, <code>{"{number}"}</code>, <code>{"{merchant}"}</code>. Si rempli, remplace le code automatique.
+                      </p>
+                    </div>
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <Label className="text-xs">Instructions pour le caissier (optionnel)</Label>
+                      <Textarea
+                        value={r.instructions ?? ""}
+                        onChange={(e) => upd(op.code, { instructions: e.target.value })}
+                        placeholder="Ex: Composez *144#, choisissez 1 (Marchand), saisissez le code 39112, puis le montant."
+                        rows={3}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Affiché au caissier dans la fenêtre de paiement.
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

@@ -1,0 +1,1 @@
+ALTER TABLE public.mobile_money_operators ADD COLUMN IF NOT EXISTS instructions text;
