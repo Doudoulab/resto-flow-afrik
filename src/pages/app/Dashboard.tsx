@@ -150,15 +150,14 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2 shadow-sm">
+      <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">Recettes des 7 derniers jours</CardTitle>
           </CardHeader>
           <CardContent>
             <ChartContainer
               config={{ revenue: { label: "Recettes", color: "hsl(var(--primary))" } }}
-              className="h-[220px] w-full"
+              className="h-[240px] w-full"
             >
               <AreaChart data={stats.weekRevenue} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
                 <defs>
@@ -198,7 +197,8 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg">Plats les plus commandés aujourd'hui</CardTitle>
           </CardHeader>
