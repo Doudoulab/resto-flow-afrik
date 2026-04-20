@@ -130,7 +130,11 @@ Deno.serve(async (req: Request) => {
       externalRef = transactionId;
     } else {
       // direct_link: build a wave.com pay link if available, else USSD instructions
-      if (cfg.wave_number) {
+      if (cfg.wave_merchant_id) {
+        // Vrai QR marchand Wave (Wave Business)
+        const country = (cfg.wave_country_code ?? "sn").toLowerCase();
+        checkoutUrl = `https://pay.wave.com/m/${encodeURIComponent(cfg.wave_merchant_id)}/c/${country}?amount=${body.amount}`;
+      } else if (cfg.wave_number) {
         // Wave personal pay link: normalise number to E.164 (+221...)
         let phone = cfg.wave_number.replace(/[\s\-().]/g, "");
         if (!phone.startsWith("+")) {
