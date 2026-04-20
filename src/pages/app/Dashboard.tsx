@@ -153,6 +153,53 @@ const Dashboard = () => {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2 shadow-sm">
           <CardHeader>
+            <CardTitle className="text-lg">Recettes des 7 derniers jours</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer
+              config={{ revenue: { label: "Recettes", color: "hsl(var(--primary))" } }}
+              className="h-[220px] w-full"
+            >
+              <AreaChart data={stats.weekRevenue} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  width={60}
+                  tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : `${v}`)}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => (
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {formatFCFA(Number(value))}
+                        </span>
+                      )}
+                    />
+                  }
+                />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#revFill)"
+                />
+              </AreaChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader>
             <CardTitle className="text-lg">Plats les plus commandés aujourd'hui</CardTitle>
           </CardHeader>
           <CardContent>
