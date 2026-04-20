@@ -19,10 +19,11 @@ import {
   BookUser,
   Bell,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
+import { prefetchForOffline } from "@/lib/offline/prefetch";
 
 const navItems = [
   { to: "/app", end: true, icon: LayoutDashboard, label: "Tableau de bord" },
@@ -44,6 +45,15 @@ export const AppLayout = () => {
   const { restaurant, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (restaurant?.id) {
+      prefetchForOffline(restaurant.id);
+      const onOnline = () => restaurant?.id && prefetchForOffline(restaurant.id);
+      window.addEventListener("online", onOnline);
+      return () => window.removeEventListener("online", onOnline);
+    }
+  }, [restaurant?.id]);
 
   const handleSignOut = async () => {
     await signOut();
