@@ -301,12 +301,13 @@ const Menu = () => {
 };
 
 const ItemCard = ({
-  item, onEdit, onDelete, onToggle,
+  item, onEdit, onDelete, onToggle, onRecipe,
 }: {
   item: MenuItem;
   onEdit: (i: MenuItem) => void;
   onDelete: (id: string) => void;
   onToggle: (i: MenuItem) => void;
+  onRecipe: (i: MenuItem) => void;
 }) => (
   <Card className="shadow-sm">
     <CardContent className="p-4">
@@ -319,6 +320,7 @@ const ItemCard = ({
         <Switch checked={item.is_available} onCheckedChange={() => onToggle(item)} />
       </div>
       <div className="mt-3 flex justify-end gap-1">
+        <Button variant="ghost" size="sm" onClick={() => onRecipe(item)} title="Recette"><ChefHat className="h-4 w-4" /></Button>
         <Button variant="ghost" size="sm" onClick={() => onEdit(item)}><Pencil className="h-4 w-4" /></Button>
         <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)}><Trash2 className="h-4 w-4" /></Button>
       </div>
