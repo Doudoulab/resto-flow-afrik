@@ -17,6 +17,8 @@ import { formatFCFA } from "@/lib/currency";
 import { KitchenTicket, CustomerReceipt } from "@/components/print/KitchenTicket";
 import { PrintStyles } from "@/components/print/PrintStyles";
 import { MobileMoneyDialog } from "@/components/payments/MobileMoneyDialog";
+import { enqueue } from "@/lib/offline/db";
+import { triggerFlush } from "@/lib/offline/sync";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
 
@@ -133,6 +135,32 @@ const Orders = () => {
 
   const submitOrder = async () => {
     if (!restaurant || cart.length === 0) return;
+    const lines = cart.map((c) => ({
+      menu_item_id: c.menu_item_id,
+      name_snapshot: c.name,
+      unit_price: c.price,
+      quantity: c.quantity,
+    }));
+
+    // Offline: queue and resolve immediately
+    if (!navigator.onLine) {
+      await enqueue({
+        kind: "order_create",
+        payload: {
+          restaurant_id: restaurant.id,
+          table_number: tableNumber || null,
+          notes: notes || null,
+          total: cartTotal,
+          created_by: user?.id ?? null,
+          items: lines,
+        },
+      });
+      toast.success("Commande enregistrée hors-ligne, synchro auto au retour");
+      setCart([]); setTableNumber(""); setNotes("");
+      setNewOrderOpen(false);
+      return;
+    }
+
     const { data: order, error: orderErr } = await supabase.from("orders").insert({
       restaurant_id: restaurant.id,
       table_number: tableNumber || null,
@@ -144,19 +172,15 @@ const Orders = () => {
 
     if (orderErr || !order) { toast.error(orderErr?.message || "Erreur"); return; }
 
-    const lines = cart.map((c) => ({
-      order_id: order.id,
-      menu_item_id: c.menu_item_id,
-      name_snapshot: c.name,
-      unit_price: c.price,
-      quantity: c.quantity,
-    }));
-    const { error: liErr } = await supabase.from("order_items").insert(lines);
+    const { error: liErr } = await supabase.from("order_items").insert(
+      lines.map((l) => ({ ...l, order_id: order.id })),
+    );
     if (liErr) { toast.error(liErr.message); return; }
 
     toast.success(`Commande #${order.order_number} créée`);
     setCart([]); setTableNumber(""); setNotes("");
     setNewOrderOpen(false);
+    triggerFlush();
     load();
   };
 
