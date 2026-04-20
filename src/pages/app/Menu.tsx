@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, FolderPlus } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, FolderPlus, ChefHat, X } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 
 interface Category { id: string; name: string; sort_order: number; }
@@ -24,6 +24,8 @@ interface MenuItem {
   is_available: boolean;
   category_id: string | null;
 }
+interface StockOpt { id: string; name: string; unit: string; cost_per_unit: number; }
+interface RecipeRow { id: string; stock_item_id: string; quantity: number; }
 
 const Menu = () => {
   const { restaurant } = useAuth();
@@ -40,14 +42,21 @@ const Menu = () => {
   const [catDialog, setCatDialog] = useState(false);
   const [catName, setCatName] = useState("");
 
+  const [recipeFor, setRecipeFor] = useState<MenuItem | null>(null);
+  const [stockOpts, setStockOpts] = useState<StockOpt[]>([]);
+  const [recipeRows, setRecipeRows] = useState<RecipeRow[]>([]);
+  const [recipeSaving, setRecipeSaving] = useState(false);
+
   const load = async () => {
     if (!restaurant) return;
-    const [catsRes, itemsRes] = await Promise.all([
+    const [catsRes, itemsRes, stockRes] = await Promise.all([
       supabase.from("menu_categories").select("*").eq("restaurant_id", restaurant.id).order("sort_order"),
       supabase.from("menu_items").select("*").eq("restaurant_id", restaurant.id).order("created_at", { ascending: false }),
+      supabase.from("stock_items").select("id,name,unit,cost_per_unit").eq("restaurant_id", restaurant.id).order("name"),
     ]);
     setCategories((catsRes.data ?? []) as Category[]);
     setItems((itemsRes.data ?? []) as MenuItem[]);
+    setStockOpts((stockRes.data ?? []) as StockOpt[]);
     setLoading(false);
   };
 
@@ -125,6 +134,62 @@ const Menu = () => {
     load();
   };
 
+  const openRecipe = async (item: MenuItem) => {
+    setRecipeFor(item);
+    const { data } = await supabase
+      .from("menu_item_recipes")
+      .select("id,stock_item_id,quantity")
+      .eq("menu_item_id", item.id);
+    setRecipeRows((data ?? []) as RecipeRow[]);
+  };
+
+  const addRecipeRow = () => {
+    const used = new Set(recipeRows.map((r) => r.stock_item_id));
+    const next = stockOpts.find((s) => !used.has(s.id));
+    if (!next) { toast.error("Tous les articles du stock sont déjà utilisés"); return; }
+    setRecipeRows([...recipeRows, { id: `new-${Date.now()}`, stock_item_id: next.id, quantity: 1 }]);
+  };
+
+  const updateRecipeRow = (idx: number, patch: Partial<RecipeRow>) => {
+    setRecipeRows(recipeRows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  };
+
+  const removeRecipeRow = (idx: number) => {
+    setRecipeRows(recipeRows.filter((_, i) => i !== idx));
+  };
+
+  const saveRecipe = async () => {
+    if (!restaurant || !recipeFor) return;
+    setRecipeSaving(true);
+    // Strategy: delete all existing then insert all rows. Simple & reliable for small recipes.
+    const { error: delErr } = await supabase.from("menu_item_recipes").delete().eq("menu_item_id", recipeFor.id);
+    if (delErr) { toast.error(delErr.message); setRecipeSaving(false); return; }
+    if (recipeRows.length > 0) {
+      const payload = recipeRows
+        .filter((r) => r.stock_item_id && Number(r.quantity) > 0)
+        .map((r) => ({
+          restaurant_id: restaurant.id,
+          menu_item_id: recipeFor.id,
+          stock_item_id: r.stock_item_id,
+          quantity: Number(r.quantity),
+        }));
+      if (payload.length > 0) {
+        const { error } = await supabase.from("menu_item_recipes").insert(payload);
+        if (error) { toast.error(error.message); setRecipeSaving(false); return; }
+      }
+    }
+    toast.success("Recette enregistrée");
+    setRecipeSaving(false);
+    setRecipeFor(null);
+  };
+
+  const recipeCost = recipeRows.reduce((sum, r) => {
+    const s = stockOpts.find((o) => o.id === r.stock_item_id);
+    return sum + (s ? s.cost_per_unit * Number(r.quantity || 0) : 0);
+  }, 0);
+  const recipeMargin = (recipeFor?.price ?? 0) - recipeCost;
+  const marginPct = recipeFor && recipeFor.price > 0 ? (recipeMargin / recipeFor.price) * 100 : 0;
+
   if (loading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
@@ -180,7 +245,7 @@ const Menu = () => {
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {catItems.length === 0 ? (
               <p className="col-span-full text-sm text-muted-foreground">Aucun plat dans cette catégorie.</p>
-            ) : catItems.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} />)}
+            ) : catItems.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} />)}
           </div>
         </div>
       ))}
@@ -189,7 +254,7 @@ const Menu = () => {
         <div>
           <h2 className="mb-3 text-lg font-semibold">Sans catégorie</h2>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {uncategorized.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} />)}
+            {uncategorized.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} />)}
           </div>
         </div>
       )}
@@ -231,17 +296,85 @@ const Menu = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!recipeFor} onOpenChange={(o) => !o && setRecipeFor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Recette — {recipeFor?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {stockOpts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Aucun article en stock. Ajoutez d'abord des ingrédients dans la page Stock.
+              </p>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  {recipeRows.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Aucun ingrédient. Ajoutez-en pour calculer le coût matière.</p>
+                  )}
+                  {recipeRows.map((row, idx) => {
+                    const stock = stockOpts.find((s) => s.id === row.stock_item_id);
+                    return (
+                      <div key={row.id} className="flex items-center gap-2">
+                        <Select value={row.stock_item_id} onValueChange={(v) => updateRecipeRow(idx, { stock_item_id: v })}>
+                          <SelectTrigger className="flex-1"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {stockOpts.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          className="w-24"
+                          value={row.quantity}
+                          onChange={(e) => updateRecipeRow(idx, { quantity: parseFloat(e.target.value) || 0 })}
+                        />
+                        <span className="w-10 text-xs text-muted-foreground">{stock?.unit ?? ""}</span>
+                        <Button variant="ghost" size="sm" onClick={() => removeRecipeRow(idx)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <Button variant="outline" size="sm" onClick={addRecipeRow}>
+                  <Plus className="mr-2 h-4 w-4" />Ajouter un ingrédient
+                </Button>
+
+                <div className="rounded-md border border-border bg-muted/30 p-3 text-sm">
+                  <div className="flex justify-between"><span>Prix de vente</span><span className="font-medium">{formatFCFA(recipeFor?.price ?? 0)}</span></div>
+                  <div className="flex justify-between"><span>Coût matière</span><span className="font-medium">{formatFCFA(recipeCost)}</span></div>
+                  <div className="mt-1 flex justify-between border-t border-border pt-1">
+                    <span>Marge</span>
+                    <span className={`font-bold ${recipeMargin >= 0 ? "text-success" : "text-destructive"}`}>
+                      {formatFCFA(recipeMargin)} ({marginPct.toFixed(0)}%)
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRecipeFor(null)}>Annuler</Button>
+            <Button onClick={saveRecipe} disabled={recipeSaving || stockOpts.length === 0}>
+              {recipeSaving ? "..." : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 const ItemCard = ({
-  item, onEdit, onDelete, onToggle,
+  item, onEdit, onDelete, onToggle, onRecipe,
 }: {
   item: MenuItem;
   onEdit: (i: MenuItem) => void;
   onDelete: (id: string) => void;
   onToggle: (i: MenuItem) => void;
+  onRecipe: (i: MenuItem) => void;
 }) => (
   <Card className="shadow-sm">
     <CardContent className="p-4">
@@ -254,6 +387,7 @@ const ItemCard = ({
         <Switch checked={item.is_available} onCheckedChange={() => onToggle(item)} />
       </div>
       <div className="mt-3 flex justify-end gap-1">
+        <Button variant="ghost" size="sm" onClick={() => onRecipe(item)} title="Recette"><ChefHat className="h-4 w-4" /></Button>
         <Button variant="ghost" size="sm" onClick={() => onEdit(item)}><Pencil className="h-4 w-4" /></Button>
         <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)}><Trash2 className="h-4 w-4" /></Button>
       </div>

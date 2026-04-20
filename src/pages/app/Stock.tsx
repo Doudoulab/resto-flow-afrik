@@ -16,6 +16,7 @@ interface StockItem {
   unit: string;
   quantity: number;
   alert_threshold: number;
+  cost_per_unit: number;
 }
 
 const Stock = () => {
@@ -24,7 +25,7 @@ const Stock = () => {
   const [loading, setLoading] = useState(true);
   const [dialog, setDialog] = useState(false);
   const [editing, setEditing] = useState<StockItem | null>(null);
-  const [form, setForm] = useState({ name: "", unit: "unité", quantity: "0", alert_threshold: "0" });
+  const [form, setForm] = useState({ name: "", unit: "unité", quantity: "0", alert_threshold: "0", cost_per_unit: "0" });
 
   const load = async () => {
     if (!restaurant) return;
@@ -37,10 +38,10 @@ const Stock = () => {
   const open = (item?: StockItem) => {
     if (item) {
       setEditing(item);
-      setForm({ name: item.name, unit: item.unit, quantity: String(item.quantity), alert_threshold: String(item.alert_threshold) });
+      setForm({ name: item.name, unit: item.unit, quantity: String(item.quantity), alert_threshold: String(item.alert_threshold), cost_per_unit: String(item.cost_per_unit ?? 0) });
     } else {
       setEditing(null);
-      setForm({ name: "", unit: "unité", quantity: "0", alert_threshold: "0" });
+      setForm({ name: "", unit: "unité", quantity: "0", alert_threshold: "0", cost_per_unit: "0" });
     }
     setDialog(true);
   };
@@ -53,6 +54,7 @@ const Stock = () => {
       unit: form.unit || "unité",
       quantity: parseFloat(form.quantity) || 0,
       alert_threshold: parseFloat(form.alert_threshold) || 0,
+      cost_per_unit: parseFloat(form.cost_per_unit) || 0,
     };
     const res = editing
       ? await supabase.from("stock_items").update(payload).eq("id", editing.id)
@@ -146,6 +148,11 @@ const Stock = () => {
                 <Label>Alerte si ≤</Label>
                 <Input type="number" value={form.alert_threshold} onChange={(e) => setForm({ ...form, alert_threshold: e.target.value })} />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Coût d'achat par unité (FCFA)</Label>
+              <Input type="number" value={form.cost_per_unit} onChange={(e) => setForm({ ...form, cost_per_unit: e.target.value })} placeholder="ex: 800 pour 1 kg de riz" />
+              <p className="text-xs text-muted-foreground">Sert à calculer la marge réelle de chaque plat.</p>
             </div>
           </div>
           <DialogFooter><Button onClick={save}>Enregistrer</Button></DialogFooter>
