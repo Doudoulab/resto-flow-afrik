@@ -108,7 +108,7 @@ export const PaymentSettings = ({ restaurantId }: { restaurantId: string }) => {
 
               <TabsContent value="direct_link" className="space-y-3 pt-3">
                 <p className="text-sm text-muted-foreground">
-                  Pas de frais d'agrégateur. Le client paie directement sur votre numéro marchand.
+                  Pas de frais d'agrégateur. Wave direct ouvre un lien sur le téléphone du client ; Orange Money utilise un code à composer. Ce n'est pas un QR natif Wave.
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
