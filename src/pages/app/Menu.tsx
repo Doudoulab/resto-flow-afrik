@@ -245,7 +245,7 @@ const Menu = () => {
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {catItems.length === 0 ? (
               <p className="col-span-full text-sm text-muted-foreground">Aucun plat dans cette catégorie.</p>
-            ) : catItems.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} />)}
+            ) : catItems.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} />)}
           </div>
         </div>
       ))}
@@ -254,7 +254,7 @@ const Menu = () => {
         <div>
           <h2 className="mb-3 text-lg font-semibold">Sans catégorie</h2>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {uncategorized.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} />)}
+            {uncategorized.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} />)}
           </div>
         </div>
       )}
