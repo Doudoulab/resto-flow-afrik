@@ -16,6 +16,9 @@ import Staff from "./pages/app/Staff";
 import SettingsPage from "./pages/app/Settings";
 import Reservations from "./pages/app/Reservations";
 import Accounting from "./pages/app/Accounting";
+import Floor from "./pages/app/Floor";
+import TimeClock from "./pages/app/TimeClock";
+import Advisor from "./pages/app/Advisor";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
 
@@ -42,11 +45,14 @@ const App = () => (
             >
               <Route index element={<Dashboard />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="floor" element={<Floor />} />
               <Route path="reservations" element={<Reservations />} />
               <Route path="menu" element={<Menu />} />
               <Route path="stock" element={<Stock />} />
               <Route path="accounting" element={<Accounting />} />
               <Route path="staff" element={<Staff />} />
+              <Route path="timeclock" element={<TimeClock />} />
+              <Route path="advisor" element={<Advisor />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />

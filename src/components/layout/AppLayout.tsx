@@ -13,6 +13,9 @@ import {
   Menu as MenuIcon,
   CalendarDays,
   Wallet,
+  Clock,
+  LayoutGrid,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -20,11 +23,14 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { to: "/app", end: true, icon: LayoutDashboard, label: "Tableau de bord" },
   { to: "/app/orders", icon: ClipboardList, label: "Commandes" },
+  { to: "/app/floor", icon: LayoutGrid, label: "Salle" },
   { to: "/app/reservations", icon: CalendarDays, label: "Réservations" },
   { to: "/app/menu", icon: UtensilsCrossed, label: "Menu" },
   { to: "/app/stock", icon: Package, label: "Stock" },
   { to: "/app/accounting", icon: Wallet, label: "Comptabilité" },
   { to: "/app/staff", icon: Users, label: "Personnel" },
+  { to: "/app/timeclock", icon: Clock, label: "Pointage" },
+  { to: "/app/advisor", icon: Sparkles, label: "Conseil IA" },
   { to: "/app/settings", icon: Settings, label: "Paramètres" },
 ];
 

@@ -6,13 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
+
+interface RestaurantTable {
+  id: string;
+  label: string;
+  seats: number;
+  sort_order: number;
+}
 
 const Settings = () => {
   const { restaurant, profile, refresh } = useAuth();
   const [saving, setSaving] = useState(false);
   const [restoForm, setRestoForm] = useState({ name: "", address: "", phone: "" });
   const [profileForm, setProfileForm] = useState({ first_name: "", last_name: "" });
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const [tableForm, setTableForm] = useState({ label: "", seats: 4 });
 
   useEffect(() => {
     if (restaurant) setRestoForm({
@@ -22,6 +31,53 @@ const Settings = () => {
       first_name: profile.first_name ?? "", last_name: profile.last_name ?? "",
     });
   }, [restaurant, profile]);
+
+  useEffect(() => {
+    const loadTables = async () => {
+      if (!restaurant) return;
+      const { data } = await supabase
+        .from("restaurant_tables")
+        .select("*")
+        .eq("restaurant_id", restaurant.id)
+        .order("sort_order")
+        .order("label");
+      setTables((data ?? []) as RestaurantTable[]);
+    };
+    loadTables();
+  }, [restaurant]);
+
+  const reloadTables = async () => {
+    if (!restaurant) return;
+    const { data } = await supabase
+      .from("restaurant_tables")
+      .select("*")
+      .eq("restaurant_id", restaurant.id)
+      .order("sort_order")
+      .order("label");
+    setTables((data ?? []) as RestaurantTable[]);
+  };
+
+  const addTable = async () => {
+    if (!restaurant || !tableForm.label.trim()) {
+      toast.error("Libellé requis");
+      return;
+    }
+    const { error } = await supabase.from("restaurant_tables").insert({
+      restaurant_id: restaurant.id,
+      label: tableForm.label.trim(),
+      seats: tableForm.seats,
+      sort_order: tables.length,
+    });
+    if (error) { toast.error(error.message); return; }
+    setTableForm({ label: "", seats: 4 });
+    reloadTables();
+  };
+
+  const removeTable = async (id: string) => {
+    const { error } = await supabase.from("restaurant_tables").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    reloadTables();
+  };
 
   const saveRestaurant = async () => {
     if (!restaurant) return;
@@ -98,6 +154,58 @@ const Settings = () => {
           </Button>
         </CardContent>
       </Card>
+
+      {profile?.is_owner && (
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle>Tables de la salle</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-end gap-2">
+              <div className="flex-1 min-w-[140px] space-y-2">
+                <Label>Libellé (ex: T1, Terrasse 2)</Label>
+                <Input
+                  value={tableForm.label}
+                  onChange={(e) => setTableForm({ ...tableForm, label: e.target.value })}
+                  placeholder="T1"
+                />
+              </div>
+              <div className="w-24 space-y-2">
+                <Label>Couverts</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={tableForm.seats}
+                  onChange={(e) => setTableForm({ ...tableForm, seats: parseInt(e.target.value) || 1 })}
+                />
+              </div>
+              <Button onClick={addTable}>
+                <Plus className="mr-2 h-4 w-4" /> Ajouter
+              </Button>
+            </div>
+
+            {tables.length === 0 ? (
+              <p className="py-4 text-center text-sm text-muted-foreground">
+                Aucune table configurée. Ajoutez-en pour activer le mode salle.
+              </p>
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
+                {tables.map((t) => (
+                  <div key={t.id} className="flex items-center justify-between rounded-md border bg-card p-3">
+                    <div>
+                      <p className="font-semibold">{t.label}</p>
+                      <p className="text-xs text-muted-foreground">{t.seats} couverts</p>
+                    </div>
+                    <Button size="icon" variant="ghost" onClick={() => removeTable(t.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
