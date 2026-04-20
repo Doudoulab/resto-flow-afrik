@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      customer_credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          id: string
+          notes: string | null
+          order_id: string | null
+          restaurant_id: string
+          type: Database["public"]["Enums"]["credit_tx_type"]
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          restaurant_id: string
+          type: Database["public"]["Enums"]["credit_tx_type"]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          restaurant_id?: string
+          type?: Database["public"]["Enums"]["credit_tx_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_credit_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_credit_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          balance: number
+          created_at: string
+          credit_limit: number
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          credit_limit?: number
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          credit_limit?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employee_invitations: {
         Row: {
           accepted_at: string | null
@@ -264,9 +351,11 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          customer_id: string | null
           id: string
           notes: string | null
           order_number: number
+          payment_method: string | null
           restaurant_id: string
           status: Database["public"]["Enums"]["order_status"]
           table_number: string | null
@@ -276,9 +365,11 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          customer_id?: string | null
           id?: string
           notes?: string | null
           order_number?: number
+          payment_method?: string | null
           restaurant_id: string
           status?: Database["public"]["Enums"]["order_status"]
           table_number?: string | null
@@ -288,9 +379,11 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          customer_id?: string | null
           id?: string
           notes?: string | null
           order_number?: number
+          payment_method?: string | null
           restaurant_id?: string
           status?: Database["public"]["Enums"]["order_status"]
           table_number?: string | null
@@ -298,6 +391,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_restaurant_id_fkey"
             columns: ["restaurant_id"]
@@ -615,6 +715,7 @@ export type Database = {
     }
     Enums: {
       app_role: "manager" | "waiter" | "kitchen" | "cashier"
+      credit_tx_type: "charge" | "payment"
       order_status:
         | "pending"
         | "preparing"
@@ -752,6 +853,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["manager", "waiter", "kitchen", "cashier"],
+      credit_tx_type: ["charge", "payment"],
       order_status: [
         "pending",
         "preparing",
