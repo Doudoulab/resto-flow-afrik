@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { Download, QrCode } from "lucide-react";
 
 interface RestaurantTable {
   id: string;
@@ -203,6 +205,47 @@ const Settings = () => {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {restaurant && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" /> QR Code Menu (commande à table)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Imprimez et collez ce QR code sur chaque table. Vos clients pourront consulter le menu et passer commande directement depuis leur téléphone.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-3">
+                <div>
+                  <Label>Lien général du menu</Label>
+                  <Input readOnly value={`${window.location.origin}/m/${restaurant.id}`} />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Pour un QR par table, ajoutez <code>?table=NUMERO</code> à la fin du lien.
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-3 rounded-md border bg-card p-4">
+                <QRCodeSVG id="resto-qr" value={`${window.location.origin}/m/${restaurant.id}`} size={180} includeMargin />
+                <Button variant="outline" size="sm" onClick={() => {
+                  const svg = document.getElementById("resto-qr") as unknown as SVGElement | null;
+                  if (!svg) return;
+                  const data = new XMLSerializer().serializeToString(svg);
+                  const blob = new Blob([data], { type: "image/svg+xml" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url; a.download = `qr-menu-${restaurant.name}.svg`; a.click();
+                  URL.revokeObjectURL(url);
+                }}>
+                  <Download className="mr-2 h-4 w-4" /> Télécharger
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}

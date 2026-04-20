@@ -17,6 +17,7 @@ import {
   LayoutGrid,
   Sparkles,
   BookUser,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -25,6 +26,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 const navItems = [
   { to: "/app", end: true, icon: LayoutDashboard, label: "Tableau de bord" },
   { to: "/app/orders", icon: ClipboardList, label: "Commandes" },
+  { to: "/app/incoming", icon: Bell, label: "Commandes QR" },
   { to: "/app/floor", icon: LayoutGrid, label: "Salle" },
   { to: "/app/reservations", icon: CalendarDays, label: "Réservations" },
   { to: "/app/menu", icon: UtensilsCrossed, label: "Menu" },

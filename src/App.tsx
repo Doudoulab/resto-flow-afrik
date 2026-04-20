@@ -20,6 +20,8 @@ import Floor from "./pages/app/Floor";
 import TimeClock from "./pages/app/TimeClock";
 import Advisor from "./pages/app/Advisor";
 import Customers from "./pages/app/Customers";
+import IncomingOrders from "./pages/app/IncomingOrders";
+import PublicMenu from "./pages/PublicMenu";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +38,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/invitation/:token" element={<AcceptInvitation />} />
+            <Route path="/m/:restaurantId" element={<PublicMenu />} />
             <Route
               path="/app"
               element={
@@ -54,6 +57,7 @@ const App = () => (
               <Route path="staff" element={<Staff />} />
               <Route path="timeclock" element={<TimeClock />} />
               <Route path="customers" element={<Customers />} />
+              <Route path="incoming" element={<IncomingOrders />} />
               <Route path="advisor" element={<Advisor />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
