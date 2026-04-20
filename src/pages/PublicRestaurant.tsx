@@ -60,7 +60,7 @@ const PublicRestaurant = () => {
     const load = async () => {
       if (!slug) return;
       const { data: rpcData } = await supabase.rpc("get_public_restaurant", { _slug: slug });
-      const r = rpcData as PublicResto | null;
+      const r = rpcData as unknown as PublicResto | null;
       if (!r || !r.id) { setLoading(false); return; }
       setResto(r);
       const [c, m] = await Promise.all([
