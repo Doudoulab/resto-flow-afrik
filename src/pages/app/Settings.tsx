@@ -10,6 +10,7 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Download, QrCode } from "lucide-react";
 import { PaymentSettings } from "@/components/payments/PaymentSettings";
+import { RestaurantCustomization } from "@/components/settings/RestaurantCustomization";
 
 interface RestaurantTable {
   id: string;
@@ -137,6 +138,10 @@ const Settings = () => {
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {profile?.is_owner && restaurant && (
+        <RestaurantCustomization restaurant={restaurant} onSaved={refresh} />
       )}
 
       <Card className="shadow-sm">
