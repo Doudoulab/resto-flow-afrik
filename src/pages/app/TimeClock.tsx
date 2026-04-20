@@ -4,8 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, LogIn, LogOut, Clock } from "lucide-react";
+import { Loader2, LogIn, LogOut, Clock, FileDown } from "lucide-react";
 import { toast } from "sonner";
+import { exportPayslipPDF } from "@/lib/exports";
+import { format, startOfMonth, endOfMonth, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface TimeEntry {
   id: string;
@@ -17,6 +20,7 @@ interface EmployeeProfile {
   id: string;
   first_name: string | null;
   last_name: string | null;
+  hourly_rate?: number;
 }
 
 const formatHM = (mins: number) => {
@@ -50,7 +54,7 @@ const TimeClock = () => {
     if (isOwner) {
       pRes = await supabase
         .from("profiles")
-        .select("id, first_name, last_name")
+        .select("id, first_name, last_name, hourly_rate")
         .eq("restaurant_id", restaurant.id);
     }
 
