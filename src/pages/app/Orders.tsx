@@ -16,7 +16,8 @@ import { Loader2, Plus, Minus, Printer, ChefHat } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { KitchenTicket, CustomerReceipt } from "@/components/print/KitchenTicket";
 import { PrintStyles } from "@/components/print/PrintStyles";
-import { useState as useReactState } from "react";
+import { Smartphone } from "lucide-react";
+import { MobileMoneyDialog } from "@/components/payments/MobileMoneyDialog";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
 
@@ -69,6 +70,7 @@ const Orders = () => {
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [detailItems, setDetailItems] = useState<OrderItem[]>([]);
   const [printMode, setPrintMode] = useState<"kitchen" | "receipt" | null>(null);
+  const [mobileMoneyOpen, setMobileMoneyOpen] = useState(false);
   const lastSeenIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);

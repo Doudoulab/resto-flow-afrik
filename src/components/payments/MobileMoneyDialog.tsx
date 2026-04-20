@@ -141,7 +141,7 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
                 )}
                 {status === "success" && (
                   <div className="flex flex-col items-center gap-2 py-4">
-                    <CheckCircle2 className="h-16 w-16 text-green-600" />
+                    <CheckCircle2 className="h-16 w-16 text-primary" />
                     <p className="text-lg font-bold">Paiement reçu</p>
                   </div>
                 )}

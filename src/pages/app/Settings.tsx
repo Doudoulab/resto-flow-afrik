@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Download, QrCode } from "lucide-react";
+import { PaymentSettings } from "@/components/payments/PaymentSettings";
 
 interface RestaurantTable {
   id: string;
@@ -248,6 +249,10 @@ const Settings = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {restaurant && profile?.is_owner && (
+        <PaymentSettings restaurantId={restaurant.id} />
       )}
     </div>
   );
