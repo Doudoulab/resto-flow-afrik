@@ -12,11 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Minus, Printer, ChefHat } from "lucide-react";
+import { Loader2, Plus, Minus, Printer, ChefHat, Smartphone } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { KitchenTicket, CustomerReceipt } from "@/components/print/KitchenTicket";
 import { PrintStyles } from "@/components/print/PrintStyles";
-import { useState as useReactState } from "react";
+import { MobileMoneyDialog } from "@/components/payments/MobileMoneyDialog";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
 
@@ -69,6 +69,7 @@ const Orders = () => {
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [detailItems, setDetailItems] = useState<OrderItem[]>([]);
   const [printMode, setPrintMode] = useState<"kitchen" | "receipt" | null>(null);
+  const [mobileMoneyOpen, setMobileMoneyOpen] = useState(false);
   const lastSeenIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -307,6 +308,11 @@ const Orders = () => {
                   <Printer className="mr-2 h-4 w-4" /> Addition client
                 </Button>
               </div>
+              {detailOrder.status !== "paid" && detailOrder.status !== "cancelled" && (
+                <Button className="w-full" onClick={() => setMobileMoneyOpen(true)}>
+                  <Smartphone className="mr-2 h-4 w-4" /> Encaisser via Mobile Money
+                </Button>
+              )}
               <div className="space-y-2">
                 <Label>Statut</Label>
                 <Select value={detailOrder.status} onValueChange={(v) => updateStatus(detailOrder.id, v as OrderStatus)}>
@@ -343,6 +349,20 @@ const Orders = () => {
           restaurantAddress={restaurant.address}
           restaurantPhone={restaurant.phone}
           createdAt={detailOrder.created_at}
+        />
+      )}
+
+      {detailOrder && restaurant && (
+        <MobileMoneyDialog
+          open={mobileMoneyOpen}
+          onOpenChange={setMobileMoneyOpen}
+          restaurantId={restaurant.id}
+          orderId={detailOrder.id}
+          amount={Number(detailOrder.total)}
+          onPaid={() => {
+            setMobileMoneyOpen(false);
+            updateStatus(detailOrder.id, "paid");
+          }}
         />
       )}
     </div>

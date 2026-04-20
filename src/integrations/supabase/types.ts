@@ -407,6 +407,143 @@ export type Database = {
           },
         ]
       }
+      payment_configs: {
+        Row: {
+          cinetpay_apikey: string | null
+          cinetpay_secret_key: string | null
+          cinetpay_site_id: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          moov_number: string | null
+          mtn_momo_number: string | null
+          orange_money_number: string | null
+          paydunya_master_key: string | null
+          paydunya_private_key: string | null
+          paydunya_public_key: string | null
+          paydunya_token: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          restaurant_id: string
+          test_mode: boolean
+          updated_at: string
+          wave_number: string | null
+        }
+        Insert: {
+          cinetpay_apikey?: string | null
+          cinetpay_secret_key?: string | null
+          cinetpay_site_id?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          moov_number?: string | null
+          mtn_momo_number?: string | null
+          orange_money_number?: string | null
+          paydunya_master_key?: string | null
+          paydunya_private_key?: string | null
+          paydunya_public_key?: string | null
+          paydunya_token?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          restaurant_id: string
+          test_mode?: boolean
+          updated_at?: string
+          wave_number?: string | null
+        }
+        Update: {
+          cinetpay_apikey?: string | null
+          cinetpay_secret_key?: string | null
+          cinetpay_site_id?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          moov_number?: string | null
+          mtn_momo_number?: string | null
+          orange_money_number?: string | null
+          paydunya_master_key?: string | null
+          paydunya_private_key?: string | null
+          paydunya_public_key?: string | null
+          paydunya_token?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          restaurant_id?: string
+          test_mode?: boolean
+          updated_at?: string
+          wave_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_configs_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: true
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          checkout_url: string | null
+          created_at: string
+          currency: string
+          customer_name: string | null
+          customer_phone: string | null
+          external_ref: string | null
+          id: string
+          order_id: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          raw_response: Json | null
+          restaurant_id: string
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          external_ref?: string | null
+          id?: string
+          order_id?: string | null
+          provider: Database["public"]["Enums"]["payment_provider"]
+          raw_response?: Json | null
+          restaurant_id: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          customer_name?: string | null
+          customer_phone?: string | null
+          external_ref?: string | null
+          id?: string
+          order_id?: string | null
+          provider?: Database["public"]["Enums"]["payment_provider"]
+          raw_response?: Json | null
+          restaurant_id?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -765,6 +902,8 @@ export type Database = {
         | "served"
         | "paid"
         | "cancelled"
+      payment_provider: "paydunya" | "cinetpay" | "direct_link"
+      payment_status: "pending" | "success" | "failed" | "cancelled"
       reservation_status: "confirmed" | "cancelled" | "honored" | "no_show"
       table_status: "available" | "occupied" | "needs_cleaning" | "reserved"
     }
@@ -904,6 +1043,8 @@ export const Constants = {
         "paid",
         "cancelled",
       ],
+      payment_provider: ["paydunya", "cinetpay", "direct_link"],
+      payment_status: ["pending", "success", "failed", "cancelled"],
       reservation_status: ["confirmed", "cancelled", "honored", "no_show"],
       table_status: ["available", "occupied", "needs_cleaning", "reserved"],
     },
