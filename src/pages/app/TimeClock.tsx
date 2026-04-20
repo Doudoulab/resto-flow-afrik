@@ -4,8 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, LogIn, LogOut, Clock } from "lucide-react";
+import { Loader2, LogIn, LogOut, Clock, FileDown } from "lucide-react";
 import { toast } from "sonner";
+import { exportPayslipPDF } from "@/lib/exports";
+import { format, startOfMonth, endOfMonth, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface TimeEntry {
   id: string;
@@ -17,6 +20,7 @@ interface EmployeeProfile {
   id: string;
   first_name: string | null;
   last_name: string | null;
+  hourly_rate?: number;
 }
 
 const formatHM = (mins: number) => {
@@ -50,7 +54,7 @@ const TimeClock = () => {
     if (isOwner) {
       pRes = await supabase
         .from("profiles")
-        .select("id, first_name, last_name")
+        .select("id, first_name, last_name, hourly_rate")
         .eq("restaurant_id", restaurant.id);
     }
 
@@ -156,7 +160,7 @@ const TimeClock = () => {
       {isOwner && (
         <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle className="text-base">Heures cette semaine (depuis lundi)</CardTitle>
+            <CardTitle className="text-base">Heures & fiches de paie</CardTitle>
           </CardHeader>
           <CardContent>
             {employees.length === 0 ? (
@@ -165,10 +169,58 @@ const TimeClock = () => {
               <div className="space-y-2">
                 {employees.map((emp) => {
                   const mins = summary.get(emp.id) ?? 0;
+                  const handlePayslip = () => {
+                    const now = new Date();
+                    const monthStart = startOfMonth(now);
+                    const monthEnd = endOfMonth(now);
+                    const empEntries = entries
+                      .filter((e) => e.user_id === emp.id && e.clock_out)
+                      .filter((e) => {
+                        const ci = parseISO(e.clock_in);
+                        return ci >= monthStart && ci <= monthEnd;
+                      })
+                      .sort((a, b) => a.clock_in.localeCompare(b.clock_in))
+                      .map((e) => {
+                        const ci = parseISO(e.clock_in);
+                        const co = parseISO(e.clock_out!);
+                        return {
+                          date: format(ci, "dd/MM/yyyy"),
+                          clockIn: format(ci, "HH:mm"),
+                          clockOut: format(co, "HH:mm"),
+                          minutes: (co.getTime() - ci.getTime()) / 60000,
+                        };
+                      });
+                    if (empEntries.length === 0) {
+                      toast.error("Aucun pointage clôturé ce mois-ci");
+                      return;
+                    }
+                    if (!emp.hourly_rate || emp.hourly_rate <= 0) {
+                      toast.error("Définissez d'abord un taux horaire dans Personnel");
+                      return;
+                    }
+                    exportPayslipPDF({
+                      restaurantName: restaurant?.name || "Restaurant",
+                      employeeName: `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employé",
+                      monthLabel: format(now, "MMMM-yyyy", { locale: fr }),
+                      hourlyRate: emp.hourly_rate ?? 0,
+                      entries: empEntries,
+                    });
+                    toast.success("Fiche de paie générée");
+                  };
                   return (
-                    <div key={emp.id} className="flex items-center justify-between rounded-md border bg-card p-3">
-                      <span className="font-medium">{emp.first_name} {emp.last_name}</span>
-                      <Badge variant={mins > 0 ? "default" : "secondary"}>{formatHM(mins)}</Badge>
+                    <div key={emp.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-card p-3">
+                      <div>
+                        <p className="font-medium">{emp.first_name} {emp.last_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {Number(emp.hourly_rate ?? 0).toLocaleString("fr-FR")} FCFA / h
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={mins > 0 ? "default" : "secondary"}>{formatHM(mins)} (sem.)</Badge>
+                        <Button size="sm" variant="outline" onClick={handlePayslip}>
+                          <FileDown className="mr-2 h-3 w-3" /> Fiche de paie
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}

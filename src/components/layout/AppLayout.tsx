@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const navItems = [
   { to: "/app", end: true, icon: LayoutDashboard, label: "Tableau de bord" },
@@ -130,8 +131,13 @@ export const AppLayout = () => {
           <Button variant="ghost" size="icon" onClick={() => setMobileOpen(true)}>
             <MenuIcon className="h-5 w-5" />
           </Button>
-          <p className="font-semibold">{restaurant?.name || "RestoFlow"}</p>
+          <p className="flex-1 font-semibold">{restaurant?.name || "RestoFlow"}</p>
+          <ThemeToggle />
         </header>
+        {/* Desktop top-right theme toggle */}
+        <div className="hidden md:flex h-12 items-center justify-end border-b border-border bg-card px-4">
+          <ThemeToggle />
+        </div>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="mx-auto max-w-7xl animate-fade-in">
