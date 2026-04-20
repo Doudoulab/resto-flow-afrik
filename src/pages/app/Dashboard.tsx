@@ -6,6 +6,8 @@ import { formatFCFA } from "@/lib/currency";
 import { ClipboardList, TrendingUp, Package, UtensilsCrossed, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 interface Stats {
   todayRevenue: number;
@@ -14,6 +16,7 @@ interface Stats {
   menuCount: number;
   lowStock: number;
   topItems: { name: string; count: number }[];
+  weekRevenue: { day: string; revenue: number }[];
 }
 
 const Dashboard = () => {
@@ -27,8 +30,11 @@ const Dashboard = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString();
+      const weekStart = new Date(today);
+      weekStart.setDate(weekStart.getDate() - 6);
+      const weekStartIso = weekStart.toISOString();
 
-      const [ordersRes, menuRes, stockRes, topRes] = await Promise.all([
+      const [ordersRes, menuRes, stockRes, topRes, weekRes] = await Promise.all([
         supabase
           .from("orders")
           .select("total, status, created_at")
@@ -47,6 +53,12 @@ const Dashboard = () => {
           .select("name_snapshot, quantity, orders!inner(restaurant_id, created_at)")
           .eq("orders.restaurant_id", restaurant.id)
           .gte("orders.created_at", todayIso),
+        supabase
+          .from("orders")
+          .select("total, status, created_at")
+          .eq("restaurant_id", restaurant.id)
+          .gte("created_at", weekStartIso)
+          .neq("status", "cancelled"),
       ]);
 
       const todayOrders = ordersRes.data?.length ?? 0;
@@ -70,6 +82,20 @@ const Dashboard = () => {
         .slice(0, 5)
         .map(([name, count]) => ({ name, count }));
 
+      const dayLabels = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+      const buckets: { day: string; revenue: number }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        buckets.push({ day: dayLabels[d.getDay()], revenue: 0 });
+      }
+      (weekRes.data ?? []).forEach((o: any) => {
+        const d = new Date(o.created_at);
+        d.setHours(0, 0, 0, 0);
+        const diff = Math.round((d.getTime() - weekStart.getTime()) / 86400000);
+        if (diff >= 0 && diff < 7) buckets[diff].revenue += Number(o.total);
+      });
+
       setStats({
         todayRevenue,
         todayOrders,
@@ -77,6 +103,7 @@ const Dashboard = () => {
         menuCount: menuRes.count ?? 0,
         lowStock,
         topItems,
+        weekRevenue: buckets,
       });
       setLoading(false);
     };
