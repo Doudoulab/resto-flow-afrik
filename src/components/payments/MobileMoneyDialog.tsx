@@ -32,6 +32,10 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
   const [status, setStatus] = useState<PaymentStatus>("pending");
   const [provider, setProvider] = useState<string>("");
 
+  const isWaveLink = checkoutUrl?.startsWith("https://pay.wave.com/") ?? false;
+  const isPhoneLink = checkoutUrl?.startsWith("tel:") ?? false;
+  const showGenericQr = Boolean(checkoutUrl) && !isWaveLink && !isPhoneLink;
+
   useEffect(() => {
     if (!open) {
       setPaymentId(null); setCheckoutUrl(null); setStatus("pending");
@@ -126,12 +130,28 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
               <div className="flex flex-col items-center gap-3 rounded-lg border bg-card p-4">
                 {status === "pending" && (
                   <>
-                    <p className="text-sm font-medium">Le client scanne ce QR avec son app</p>
-                    <QRCodeSVG value={checkoutUrl} size={200} includeMargin />
+                    <p className="text-center text-sm font-medium">
+                      {showGenericQr
+                        ? "Le client scanne ce QR avec son app"
+                        : isWaveLink
+                          ? "Ouvrez le lien Wave directement sur le téléphone du client"
+                          : "Composez le code sur le téléphone du client"}
+                    </p>
+                    {showGenericQr && <QRCodeSVG value={checkoutUrl} size={200} includeMargin />}
                     <Badge variant="outline" className="capitalize">{provider}</Badge>
+                    {isWaveLink && (
+                      <div className="w-full rounded-md border border-border bg-muted/40 p-3 text-center text-sm text-muted-foreground">
+                        Wave ne lit pas ce type de lien comme un QR natif. Utilisez le bouton ci-dessous sur le mobile du client.
+                      </div>
+                    )}
+                    {isPhoneLink && (
+                      <div className="w-full rounded-md border border-border bg-muted/40 p-3 text-center text-sm font-medium break-all">
+                        {decodeURIComponent(checkoutUrl.replace("tel:", ""))}
+                      </div>
+                    )}
                     <Button variant="outline" size="sm" asChild>
                       <a href={checkoutUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-4 w-4" /> Ouvrir le lien
+                        <ExternalLink className="mr-2 h-4 w-4" /> {isPhoneLink ? "Composer le code" : isWaveLink ? "Ouvrir Wave" : "Ouvrir le lien"}
                       </a>
                     </Button>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
