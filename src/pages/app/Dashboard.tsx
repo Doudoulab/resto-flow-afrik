@@ -6,6 +6,8 @@ import { formatFCFA } from "@/lib/currency";
 import { ClipboardList, TrendingUp, Package, UtensilsCrossed, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 interface Stats {
   todayRevenue: number;
@@ -14,6 +16,7 @@ interface Stats {
   menuCount: number;
   lowStock: number;
   topItems: { name: string; count: number }[];
+  weekRevenue: { day: string; revenue: number }[];
 }
 
 const Dashboard = () => {
@@ -27,8 +30,11 @@ const Dashboard = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayIso = today.toISOString();
+      const weekStart = new Date(today);
+      weekStart.setDate(weekStart.getDate() - 6);
+      const weekStartIso = weekStart.toISOString();
 
-      const [ordersRes, menuRes, stockRes, topRes] = await Promise.all([
+      const [ordersRes, menuRes, stockRes, topRes, weekRes] = await Promise.all([
         supabase
           .from("orders")
           .select("total, status, created_at")
@@ -47,6 +53,12 @@ const Dashboard = () => {
           .select("name_snapshot, quantity, orders!inner(restaurant_id, created_at)")
           .eq("orders.restaurant_id", restaurant.id)
           .gte("orders.created_at", todayIso),
+        supabase
+          .from("orders")
+          .select("total, status, created_at")
+          .eq("restaurant_id", restaurant.id)
+          .gte("created_at", weekStartIso)
+          .neq("status", "cancelled"),
       ]);
 
       const todayOrders = ordersRes.data?.length ?? 0;
@@ -70,6 +82,20 @@ const Dashboard = () => {
         .slice(0, 5)
         .map(([name, count]) => ({ name, count }));
 
+      const dayLabels = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+      const buckets: { day: string; revenue: number }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        buckets.push({ day: dayLabels[d.getDay()], revenue: 0 });
+      }
+      (weekRes.data ?? []).forEach((o: any) => {
+        const d = new Date(o.created_at);
+        d.setHours(0, 0, 0, 0);
+        const diff = Math.round((d.getTime() - weekStart.getTime()) / 86400000);
+        if (diff >= 0 && diff < 7) buckets[diff].revenue += Number(o.total);
+      });
+
       setStats({
         todayRevenue,
         todayOrders,
@@ -77,6 +103,7 @@ const Dashboard = () => {
         menuCount: menuRes.count ?? 0,
         lowStock,
         topItems,
+        weekRevenue: buckets,
       });
       setLoading(false);
     };
@@ -122,6 +149,53 @@ const Dashboard = () => {
           </Card>
         ))}
       </div>
+
+      <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg">Recettes des 7 derniers jours</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer
+              config={{ revenue: { label: "Recettes", color: "hsl(var(--primary))" } }}
+              className="h-[240px] w-full"
+            >
+              <AreaChart data={stats.weekRevenue} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  width={60}
+                  tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : `${v}`)}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => (
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {formatFCFA(Number(value))}
+                        </span>
+                      )}
+                    />
+                  }
+                />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#revFill)"
+                />
+              </AreaChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2 shadow-sm">
