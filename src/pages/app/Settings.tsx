@@ -11,6 +11,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Download, QrCode } from "lucide-react";
 import { PaymentSettings } from "@/components/payments/PaymentSettings";
 import { RestaurantCustomization } from "@/components/settings/RestaurantCustomization";
+import { OperatorsManager } from "@/components/payments/OperatorsManager";
 
 interface RestaurantTable {
   id: string;
@@ -258,6 +259,13 @@ const Settings = () => {
 
       {restaurant && profile?.is_owner && (
         <PaymentSettings restaurantId={restaurant.id} />
+      )}
+
+      {restaurant && profile?.is_owner && (
+        <OperatorsManager
+          restaurantId={restaurant.id}
+          initialCountry={restaurant.country_code}
+        />
       )}
     </div>
   );
