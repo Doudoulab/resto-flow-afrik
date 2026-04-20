@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { QRCodeSVG } from "qrcode.react";
-import { CheckCircle2, Loader2, XCircle, Smartphone, ExternalLink } from "lucide-react";
+import { CheckCircle2, Loader2, XCircle, Smartphone, ExternalLink, ArrowLeft } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
+import { buildPaymentLink, getCountry, type OperatorCode } from "@/lib/payments/operators";
 
 interface Props {
   open: boolean;
@@ -23,6 +24,12 @@ interface Props {
 
 type PaymentStatus = "pending" | "success" | "failed" | "cancelled";
 
+interface OperatorRow {
+  operator_code: string;
+  account_number: string | null;
+  merchant_id: string | null;
+}
+
 export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, amount, defaultPhone, defaultName, onPaid }: Props) => {
   const [phone, setPhone] = useState(defaultPhone ?? "");
   const [name, setName] = useState(defaultName ?? "");
@@ -31,6 +38,11 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<PaymentStatus>("pending");
   const [provider, setProvider] = useState<string>("");
+  const [operators, setOperators] = useState<OperatorRow[]>([]);
+  const [countryCode, setCountryCode] = useState<string>("sn");
+  const [hasAggregator, setHasAggregator] = useState<boolean>(false);
+  const [selectedOp, setSelectedOp] = useState<string | null>(null);
+  const [linkKind, setLinkKind] = useState<"deeplink" | "ussd">("deeplink");
 
   const isWaveMerchantQr = /^https:\/\/pay\.wave\.com\/m\//.test(checkoutUrl ?? "");
   const isWaveDirectLink = (checkoutUrl?.startsWith("https://pay.wave.com/") ?? false) && !isWaveMerchantQr;
@@ -41,8 +53,22 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
     if (!open) {
       setPaymentId(null); setCheckoutUrl(null); setStatus("pending");
       setPhone(defaultPhone ?? ""); setName(defaultName ?? "");
+      setSelectedOp(null);
+      return;
     }
-  }, [open, defaultPhone, defaultName]);
+    // Load restaurant country + operators + aggregator status
+    (async () => {
+      const [{ data: r }, { data: ops }, { data: cfg }] = await Promise.all([
+        supabase.from("restaurants").select("country_code").eq("id", restaurantId).maybeSingle(),
+        supabase.from("mobile_money_operators").select("operator_code,account_number,merchant_id,enabled,sort_order")
+          .eq("restaurant_id", restaurantId).eq("enabled", true).order("sort_order"),
+        supabase.from("payment_configs").select("provider,enabled").eq("restaurant_id", restaurantId).maybeSingle(),
+      ]);
+      if (r?.country_code) setCountryCode(r.country_code);
+      setOperators((ops ?? []) as OperatorRow[]);
+      setHasAggregator(Boolean(cfg?.enabled && cfg.provider !== "direct_link"));
+    })();
+  }, [open, defaultPhone, defaultName, restaurantId]);
 
   // Realtime polling on payment status
   useEffect(() => {
@@ -64,7 +90,7 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
     return () => { supabase.removeChannel(ch); };
   }, [paymentId, onPaid]);
 
-  const init = async () => {
+  const initAggregator = async () => {
     setIniting(true);
     const { data, error } = await supabase.functions.invoke("mobile-money-init", {
       body: {
@@ -89,6 +115,58 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
     setPaymentId(data.payment_id);
     setCheckoutUrl(data.checkout_url);
     setProvider(data.provider);
+    setLinkKind(data.checkout_url.startsWith("tel:") ? "ussd" : "deeplink");
+  };
+
+  const initOperator = async (opCode: string) => {
+    const op = operators.find((o) => o.operator_code === opCode);
+    if (!op) return;
+    const link = buildPaymentLink({
+      countryCode,
+      operatorCode: opCode,
+      merchantId: op.merchant_id,
+      accountNumber: op.account_number,
+      amount,
+    });
+    if (!link || (link.needsManual && !link.url)) {
+      toast.error("Cet opérateur n'est pas configuré (numéro/merchant manquant).");
+      return;
+    }
+    setSelectedOp(opCode);
+    setIniting(true);
+    // Trace dans payments pour le suivi
+    const { data: payment } = await supabase
+      .from("payments")
+      .insert({
+        restaurant_id: restaurantId,
+        order_id: orderId ?? null,
+        provider: "direct_link",
+        amount,
+        currency: "XOF",
+        status: "pending",
+        customer_name: name.trim() || null,
+        customer_phone: phone.trim() || null,
+        checkout_url: link.url,
+        external_ref: `op-${opCode}-${Date.now().toString(36)}`,
+      })
+      .select()
+      .single();
+    setIniting(false);
+    if (payment) setPaymentId(payment.id);
+    setCheckoutUrl(link.url);
+    setProvider(opCode);
+    setLinkKind(link.kind);
+  };
+
+  const markPaid = async () => {
+    if (!paymentId) return;
+    await supabase.from("payments").update({ status: "success" }).eq("id", paymentId);
+    if (orderId) {
+      await supabase.from("orders").update({ status: "paid", payment_method: `mobile_money:${provider}` }).eq("id", orderId);
+    }
+    setStatus("success");
+    toast.success("Paiement marqué comme reçu");
+    onPaid?.();
   };
 
   const checkNow = async () => {
@@ -100,6 +178,9 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
       else toast.info(`Statut : ${data.status}`);
     }
   };
+
+  const country = getCountry(countryCode);
+  const opDefByCode = (code: string) => country.operators.find((o) => o.code === code);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -117,6 +198,49 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
 
           {!checkoutUrl ? (
             <>
+              {operators.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Choisir un opérateur ({country.flag} {country.name})</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {operators.map((op) => {
+                      const def = opDefByCode(op.operator_code);
+                      if (!def) return null;
+                      return (
+                        <button
+                          key={op.operator_code}
+                          type="button"
+                          disabled={initing}
+                          onClick={() => initOperator(op.operator_code)}
+                          className="flex items-center gap-2 rounded-lg border bg-card p-3 text-left transition hover:border-primary hover:bg-accent disabled:opacity-50"
+                        >
+                          <div className={`h-9 w-9 rounded-md ${def.color} flex items-center justify-center text-white shrink-0`}>
+                            <Smartphone className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold truncate">{def.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {def.action === "deeplink" ? "Lien / QR" : "USSD"}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {hasAggregator && (
+                    <div className="pt-2">
+                      <Button variant="outline" className="w-full" onClick={initAggregator} disabled={initing}>
+                        {initing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Utiliser l'agrégateur (multi-opérateurs)
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {operators.length === 0 && !hasAggregator && (
+                <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
+                  Aucun opérateur activé. Ajoutez-en dans <strong>Paramètres → Opérateurs Mobile Money</strong>.
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>Nom client (optionnel)</Label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
@@ -141,7 +265,7 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
                           : "Composez le code sur le téléphone du client"}
                     </p>
                     {showGenericQr && <QRCodeSVG value={checkoutUrl} size={200} includeMargin />}
-                    <Badge variant="outline" className="capitalize">{provider}</Badge>
+                    <Badge variant="outline" className="capitalize">{opDefByCode(provider)?.name ?? provider}</Badge>
                     {isWaveDirectLink && (
                       <div className="w-full rounded-md border border-border bg-muted/40 p-3 text-center text-sm text-muted-foreground">
                         Wave ne lit pas ce type de lien comme un QR natif. Utilisez le bouton ci-dessous sur le mobile du client.
@@ -180,16 +304,20 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
         </div>
         <DialogFooter className="gap-2">
           {!checkoutUrl ? (
-            <>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-              <Button onClick={init} disabled={initing}>
-                {initing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Générer le QR
-              </Button>
-            </>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Fermer</Button>
           ) : (
             <>
               {status === "pending" && (
-                <Button variant="outline" onClick={checkNow}>Vérifier maintenant</Button>
+                <>
+                  <Button variant="ghost" onClick={() => { setCheckoutUrl(null); setPaymentId(null); }}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Changer
+                  </Button>
+                  {linkKind === "ussd" || provider === "wave" ? (
+                    <Button onClick={markPaid}>Marquer comme payé</Button>
+                  ) : (
+                    <Button variant="outline" onClick={checkNow}>Vérifier</Button>
+                  )}
+                </>
               )}
               <Button onClick={() => onOpenChange(false)}>Fermer</Button>
             </>
