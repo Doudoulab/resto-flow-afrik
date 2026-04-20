@@ -267,6 +267,16 @@ const Menu = () => {
         <DialogContent>
           <DialogHeader><DialogTitle>{editingItem ? "Modifier le plat" : "Nouveau plat"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
+            {restaurant && (
+              <ImageUpload
+                bucket="menu-images"
+                folder={restaurant.id}
+                value={itemForm.image_url}
+                onChange={(url) => setItemForm({ ...itemForm, image_url: url })}
+                label="Photo du plat"
+                prefix="dish-"
+              />
+            )}
             <div className="space-y-2">
               <Label>Nom</Label>
               <Input value={itemForm.name} onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })} />
