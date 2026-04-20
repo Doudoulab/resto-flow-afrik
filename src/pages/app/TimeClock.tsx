@@ -39,23 +39,21 @@ const TimeClock = () => {
     const since = new Date();
     since.setDate(since.getDate() - 30);
 
-    const queries: Promise<any>[] = [
-      supabase
-        .from("time_entries")
-        .select("id, user_id, clock_in, clock_out")
-        .eq("restaurant_id", restaurant.id)
-        .gte("clock_in", since.toISOString())
-        .order("clock_in", { ascending: false }),
-    ];
+    const eRes = await supabase
+      .from("time_entries")
+      .select("id, user_id, clock_in, clock_out")
+      .eq("restaurant_id", restaurant.id)
+      .gte("clock_in", since.toISOString())
+      .order("clock_in", { ascending: false });
+
+    let pRes: any = null;
     if (isOwner) {
-      queries.push(
-        supabase
-          .from("profiles")
-          .select("id, first_name, last_name")
-          .eq("restaurant_id", restaurant.id)
-      );
+      pRes = await supabase
+        .from("profiles")
+        .select("id, first_name, last_name")
+        .eq("restaurant_id", restaurant.id);
     }
-    const [eRes, pRes] = await Promise.all(queries);
+
     setEntries((eRes.data ?? []) as TimeEntry[]);
     if (pRes) setEmployees((pRes.data ?? []) as EmployeeProfile[]);
     setLoading(false);

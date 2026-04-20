@@ -12,8 +12,11 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Minus, Trash2, X } from "lucide-react";
+import { Loader2, Plus, Minus, Printer, ChefHat } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
+import { KitchenTicket, CustomerReceipt } from "@/components/print/KitchenTicket";
+import { PrintStyles } from "@/components/print/PrintStyles";
+import { useState as useReactState } from "react";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
 
@@ -65,6 +68,7 @@ const Orders = () => {
 
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [detailItems, setDetailItems] = useState<OrderItem[]>([]);
+  const [printMode, setPrintMode] = useState<"kitchen" | "receipt" | null>(null);
 
   const load = async () => {
     if (!restaurant) return;
@@ -143,6 +147,15 @@ const Orders = () => {
     setDetailOrder(order);
     const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
     setDetailItems((data ?? []) as OrderItem[]);
+  };
+
+  const handlePrint = (mode: "kitchen" | "receipt") => {
+    setPrintMode(mode);
+    // Wait for ticket render
+    setTimeout(() => {
+      window.print();
+      setPrintMode(null);
+    }, 100);
   };
 
   if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
@@ -263,6 +276,14 @@ const Orders = () => {
                 <span className="font-medium">Total</span>
                 <span className="text-lg font-bold text-primary">{formatFCFA(detailOrder.total)}</span>
               </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handlePrint("kitchen")}>
+                  <ChefHat className="mr-2 h-4 w-4" /> Ticket cuisine
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handlePrint("receipt")}>
+                  <Printer className="mr-2 h-4 w-4" /> Addition client
+                </Button>
+              </div>
               <div className="space-y-2">
                 <Label>Statut</Label>
                 <Select value={detailOrder.status} onValueChange={(v) => updateStatus(detailOrder.id, v as OrderStatus)}>
@@ -278,6 +299,29 @@ const Orders = () => {
           </DialogContent>
         )}
       </Dialog>
+
+      <PrintStyles />
+      {printMode === "kitchen" && detailOrder && (
+        <KitchenTicket
+          orderNumber={detailOrder.order_number}
+          tableNumber={detailOrder.table_number}
+          notes={detailOrder.notes}
+          items={detailItems.map(i => ({ name_snapshot: i.name_snapshot, quantity: i.quantity }))}
+          createdAt={detailOrder.created_at}
+        />
+      )}
+      {printMode === "receipt" && detailOrder && restaurant && (
+        <CustomerReceipt
+          orderNumber={detailOrder.order_number}
+          tableNumber={detailOrder.table_number}
+          items={detailItems}
+          total={detailOrder.total}
+          restaurantName={restaurant.name}
+          restaurantAddress={restaurant.address}
+          restaurantPhone={restaurant.phone}
+          createdAt={detailOrder.created_at}
+        />
+      )}
     </div>
   );
 };
