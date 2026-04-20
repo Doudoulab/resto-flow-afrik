@@ -14,6 +14,9 @@ import Menu from "./pages/app/Menu";
 import Stock from "./pages/app/Stock";
 import Staff from "./pages/app/Staff";
 import SettingsPage from "./pages/app/Settings";
+import Reservations from "./pages/app/Reservations";
+import Accounting from "./pages/app/Accounting";
+import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +31,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/invitation/:token" element={<AcceptInvitation />} />
             <Route
               path="/app"
               element={
@@ -38,8 +42,10 @@ const App = () => (
             >
               <Route index element={<Dashboard />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="reservations" element={<Reservations />} />
               <Route path="menu" element={<Menu />} />
               <Route path="stock" element={<Stock />} />
+              <Route path="accounting" element={<Accounting />} />
               <Route path="staff" element={<Staff />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>

@@ -14,6 +14,94 @@ export type Database = {
   }
   public: {
     Tables: {
+      employee_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          restaurant_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          restaurant_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          restaurant_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_invitations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          expense_date: string
+          id: string
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          expense_date?: string
+          id?: string
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          expense_date?: string
+          id?: string
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_categories: {
         Row: {
           created_at: string
@@ -227,6 +315,59 @@ export type Database = {
           },
         ]
       }
+      reservations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          notes: string | null
+          party_size: number
+          reserved_at: string
+          restaurant_id: string
+          status: Database["public"]["Enums"]["reservation_status"]
+          table_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          notes?: string | null
+          party_size?: number
+          reserved_at: string
+          restaurant_id: string
+          status?: Database["public"]["Enums"]["reservation_status"]
+          table_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          notes?: string | null
+          party_size?: number
+          reserved_at?: string
+          restaurant_id?: string
+          status?: Database["public"]["Enums"]["reservation_status"]
+          table_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurants: {
         Row: {
           address: string | null
@@ -338,7 +479,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation: { Args: { _token: string }; Returns: Json }
       current_user_restaurant_id: { Args: never; Returns: string }
+      get_invitation_by_token: { Args: { _token: string }; Returns: Json }
       has_role: {
         Args: {
           _restaurant_id: string
@@ -361,6 +504,7 @@ export type Database = {
         | "served"
         | "paid"
         | "cancelled"
+      reservation_status: "confirmed" | "cancelled" | "honored" | "no_show"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -497,6 +641,7 @@ export const Constants = {
         "paid",
         "cancelled",
       ],
+      reservation_status: ["confirmed", "cancelled", "honored", "no_show"],
     },
   },
 } as const
