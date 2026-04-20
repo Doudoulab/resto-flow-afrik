@@ -17,6 +17,17 @@ export interface Restaurant {
   phone: string | null;
   currency: string;
   owner_id: string;
+  slug?: string | null;
+  country_code?: string | null;
+  description?: string | null;
+  logo_url?: string | null;
+  cover_url?: string | null;
+  whatsapp?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  theme_color?: string | null;
+  opening_hours?: Record<string, { open: string; close: string; closed?: boolean }> | null;
+  accepts_online_orders?: boolean;
 }
 
 interface AuthContextValue {
