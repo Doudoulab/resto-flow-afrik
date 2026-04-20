@@ -177,9 +177,26 @@ export const buildPaymentLink = (params: {
   merchantId?: string | null;
   accountNumber?: string | null;
   amount: number;
+  customUssd?: string | null;
+  customDeeplink?: string | null;
 }): { url: string; kind: "deeplink" | "ussd"; needsManual?: boolean } | null => {
   const def = getOperatorDef(params.countryCode, params.operatorCode);
   if (!def) return null;
+
+  const sub = (tpl: string) =>
+    tpl
+      .replace(/\{amount\}/g, String(params.amount))
+      .replace(/\{number\}/g, (params.accountNumber ?? "").replace(/[\s\-+().]/g, ""))
+      .replace(/\{merchant\}/g, (params.merchantId ?? "").trim());
+
+  // 1) Overrides personnalisés saisis par le restaurant : priorité absolue.
+  if (params.customDeeplink && params.customDeeplink.trim()) {
+    return { url: sub(params.customDeeplink.trim()), kind: "deeplink" };
+  }
+  if (params.customUssd && params.customUssd.trim()) {
+    const ussd = sub(params.customUssd.trim());
+    return { url: `tel:${ussd.replace(/#/g, "%23")}`, kind: "ussd" };
+  }
 
   // Wave: si merchant_id, lien marchand. Sinon si numéro, lien personnel.
   if (def.code === "wave") {

@@ -28,6 +28,9 @@ interface OperatorRow {
   operator_code: string;
   account_number: string | null;
   merchant_id: string | null;
+  ussd_template: string | null;
+  deeplink_template: string | null;
+  instructions: string | null;
 }
 
 export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, amount, defaultPhone, defaultName, onPaid }: Props) => {
@@ -43,6 +46,7 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
   const [hasAggregator, setHasAggregator] = useState<boolean>(false);
   const [selectedOp, setSelectedOp] = useState<string | null>(null);
   const [linkKind, setLinkKind] = useState<"deeplink" | "ussd">("deeplink");
+  const [instructions, setInstructions] = useState<string | null>(null);
 
   const isWaveMerchantQr = /^https:\/\/pay\.wave\.com\/m\//.test(checkoutUrl ?? "");
   const isWaveDirectLink = (checkoutUrl?.startsWith("https://pay.wave.com/") ?? false) && !isWaveMerchantQr;
@@ -53,14 +57,14 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
     if (!open) {
       setPaymentId(null); setCheckoutUrl(null); setStatus("pending");
       setPhone(defaultPhone ?? ""); setName(defaultName ?? "");
-      setSelectedOp(null);
+      setSelectedOp(null); setInstructions(null);
       return;
     }
     // Load restaurant country + operators + aggregator status
     (async () => {
       const [{ data: r }, { data: ops }, { data: cfg }] = await Promise.all([
         supabase.from("restaurants").select("country_code").eq("id", restaurantId).maybeSingle(),
-        supabase.from("mobile_money_operators").select("operator_code,account_number,merchant_id,enabled,sort_order")
+        supabase.from("mobile_money_operators").select("operator_code,account_number,merchant_id,ussd_template,deeplink_template,instructions,enabled,sort_order")
           .eq("restaurant_id", restaurantId).eq("enabled", true).order("sort_order"),
         supabase.from("payment_configs").select("provider,enabled").eq("restaurant_id", restaurantId).maybeSingle(),
       ]);
@@ -127,12 +131,15 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
       merchantId: op.merchant_id,
       accountNumber: op.account_number,
       amount,
+      customUssd: op.ussd_template,
+      customDeeplink: op.deeplink_template,
     });
     if (!link || (link.needsManual && !link.url)) {
       toast.error("Cet opérateur n'est pas configuré (numéro/merchant manquant).");
       return;
     }
     setSelectedOp(opCode);
+    setInstructions(op.instructions ?? null);
     setIniting(true);
     // Trace dans payments pour le suivi
     const { data: payment } = await supabase
@@ -274,6 +281,12 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
                     {isPhoneLink && (
                       <div className="w-full rounded-md border border-border bg-muted/40 p-3 text-center text-sm font-medium break-all">
                         {decodeURIComponent(checkoutUrl.replace("tel:", ""))}
+                      </div>
+                    )}
+                    {instructions && (
+                      <div className="w-full rounded-md border border-primary/30 bg-primary/5 p-3 text-sm whitespace-pre-wrap">
+                        <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">Instructions</div>
+                        {instructions}
                       </div>
                     )}
                     <Button variant="outline" size="sm" asChild>
