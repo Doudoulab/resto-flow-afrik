@@ -391,6 +391,13 @@ const ItemCard = ({
   onRecipe: (i: MenuItem) => void;
 }) => (
   <Card className="shadow-sm">
+    <div className="aspect-video w-full overflow-hidden bg-muted">
+      {item.image_url ? (
+        <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Pas de photo</div>
+      )}
+    </div>
     <CardContent className="p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
