@@ -368,6 +368,47 @@ export type Database = {
           },
         ]
       }
+      restaurant_tables: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          restaurant_id: string
+          seats: number
+          sort_order: number
+          status: Database["public"]["Enums"]["table_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          restaurant_id: string
+          seats?: number
+          sort_order?: number
+          status?: Database["public"]["Enums"]["table_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          restaurant_id?: string
+          seats?: number
+          sort_order?: number
+          status?: Database["public"]["Enums"]["table_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_tables_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurants: {
         Row: {
           address: string | null
@@ -442,6 +483,47 @@ export type Database = {
           },
         ]
       }
+      time_entries: {
+        Row: {
+          clock_in: string
+          clock_out: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          restaurant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clock_in?: string
+          clock_out?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          restaurant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clock_in?: string
+          clock_out?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          restaurant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -505,6 +587,7 @@ export type Database = {
         | "paid"
         | "cancelled"
       reservation_status: "confirmed" | "cancelled" | "honored" | "no_show"
+      table_status: "available" | "occupied" | "needs_cleaning" | "reserved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -642,6 +725,7 @@ export const Constants = {
         "cancelled",
       ],
       reservation_status: ["confirmed", "cancelled", "honored", "no_show"],
+      table_status: ["available", "occupied", "needs_cleaning", "reserved"],
     },
   },
 } as const
