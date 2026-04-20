@@ -12,10 +12,10 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, UserPlus, Copy, Trash2, Mail } from "lucide-react";
+import { Loader2, UserPlus, Copy, Trash2, Mail, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
-interface Employee { id: string; first_name: string | null; last_name: string | null; is_owner: boolean; }
+interface Employee { id: string; first_name: string | null; last_name: string | null; is_owner: boolean; hourly_rate: number; }
 interface Role { user_id: string; role: string; }
 interface Invitation {
   id: string;
@@ -41,11 +41,14 @@ const Staff = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", role: "waiter" });
+  const [rateOpen, setRateOpen] = useState(false);
+  const [rateEmp, setRateEmp] = useState<Employee | null>(null);
+  const [rateValue, setRateValue] = useState("");
 
   const load = async () => {
     if (!restaurant) return;
     const [empRes, roleRes, invRes] = await Promise.all([
-      supabase.from("profiles").select("id, first_name, last_name, is_owner").eq("restaurant_id", restaurant.id),
+      supabase.from("profiles").select("id, first_name, last_name, is_owner, hourly_rate").eq("restaurant_id", restaurant.id),
       supabase.from("user_roles").select("user_id, role").eq("restaurant_id", restaurant.id),
       supabase.from("employee_invitations").select("*").eq("restaurant_id", restaurant.id).is("accepted_at", null).order("created_at", { ascending: false }),
     ]);
@@ -86,6 +89,23 @@ const Staff = () => {
   const removeInvite = async (id: string) => {
     const { error } = await supabase.from("employee_invitations").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
+    load();
+  };
+
+  const openRateDialog = (emp: Employee) => {
+    setRateEmp(emp);
+    setRateValue(String(emp.hourly_rate ?? 0));
+    setRateOpen(true);
+  };
+
+  const saveRate = async () => {
+    if (!rateEmp) return;
+    const v = parseFloat(rateValue);
+    if (isNaN(v) || v < 0) { toast.error("Taux invalide"); return; }
+    const { error } = await supabase.from("profiles").update({ hourly_rate: v }).eq("id", rateEmp.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Taux horaire mis à jour");
+    setRateOpen(false);
     load();
   };
 
