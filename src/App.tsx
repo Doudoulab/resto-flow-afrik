@@ -22,6 +22,7 @@ import Advisor from "./pages/app/Advisor";
 import Customers from "./pages/app/Customers";
 import IncomingOrders from "./pages/app/IncomingOrders";
 import PublicMenu from "./pages/PublicMenu";
+import PublicRestaurant from "./pages/PublicRestaurant";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/invitation/:token" element={<AcceptInvitation />} />
             <Route path="/m/:restaurantId" element={<PublicMenu />} />
+            <Route path="/r/:slug" element={<PublicRestaurant />} />
             <Route
               path="/app"
               element={
