@@ -12,20 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, FolderPlus, ChefHat, X } from "lucide-react";
+import { Loader2, Plus, Trash2, FolderPlus, X } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { ImageUpload } from "@/components/ImageUpload";
+import { MenuItemCard, type MenuItemLite } from "@/components/menu/MenuItemCard";
+import { VariantsModifiersDialog } from "@/components/menu/VariantsModifiersDialog";
 
 interface Category { id: string; name: string; sort_order: number; }
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  is_available: boolean;
-  category_id: string | null;
-  image_url: string | null;
-}
+type MenuItem = MenuItemLite;
 interface StockOpt { id: string; name: string; unit: string; cost_per_unit: number; }
 interface RecipeRow { id: string; stock_item_id: string; quantity: number; }
 
