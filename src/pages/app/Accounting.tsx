@@ -20,6 +20,7 @@ import { exportAccountingPDF, exportAccountingExcel } from "@/lib/exports";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { enqueue } from "@/lib/offline/db";
 
 interface Order { id: string; total: number; created_at: string; status: string; }
 interface Expense { id: string; category: string; description: string; amount: number; expense_date: string; }
@@ -74,6 +75,22 @@ const Accounting = () => {
     const amount = parseFloat(form.amount);
     if (!form.description.trim() || isNaN(amount) || amount <= 0) {
       toast.error("Description et montant valides requis");
+      return;
+    }
+    if (!navigator.onLine) {
+      await enqueue({
+        kind: "expense_create",
+        payload: {
+          restaurant_id: restaurant.id,
+          category: form.category,
+          description: form.description.trim(),
+          amount,
+          expense_date: form.expense_date,
+        },
+      });
+      toast.success("Dépense enregistrée hors-ligne, synchro au retour");
+      setOpen(false);
+      setForm({ ...form, description: "", amount: "" });
       return;
     }
     const { error } = await supabase.from("expenses").insert({

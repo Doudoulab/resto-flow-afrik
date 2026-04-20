@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { exportPayslipPDF } from "@/lib/exports";
 import { format, startOfMonth, endOfMonth, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
+import { enqueue } from "@/lib/offline/db";
 
 interface TimeEntry {
   id: string;
@@ -73,6 +74,15 @@ const TimeClock = () => {
   const clockIn = async () => {
     if (!restaurant || !user) return;
     setBusy(true);
+    if (!navigator.onLine) {
+      await enqueue({
+        kind: "time_clock_in",
+        payload: { restaurant_id: restaurant.id, user_id: user.id, clock_in: new Date().toISOString() },
+      });
+      setBusy(false);
+      toast.success("Pointage enregistré hors-ligne, synchro au retour");
+      return;
+    }
     const { error } = await supabase.from("time_entries").insert({
       restaurant_id: restaurant.id,
       user_id: user.id,
@@ -86,6 +96,15 @@ const TimeClock = () => {
   const clockOut = async () => {
     if (!myOpenEntry) return;
     setBusy(true);
+    if (!navigator.onLine) {
+      await enqueue({
+        kind: "time_clock_out",
+        payload: { entry_id: myOpenEntry.id, clock_out: new Date().toISOString() },
+      });
+      setBusy(false);
+      toast.success("Sortie enregistrée hors-ligne, synchro au retour");
+      return;
+    }
     const { error } = await supabase
       .from("time_entries")
       .update({ clock_out: new Date().toISOString() })

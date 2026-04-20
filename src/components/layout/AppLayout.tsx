@@ -22,6 +22,7 @@ import {
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
 
 const navItems = [
   { to: "/app", end: true, icon: LayoutDashboard, label: "Tableau de bord" },
@@ -136,10 +137,12 @@ export const AppLayout = () => {
             <MenuIcon className="h-5 w-5" />
           </Button>
           <p className="flex-1 font-semibold">{restaurant?.name || "RestoFlow"}</p>
+          <OfflineIndicator />
           <ThemeToggle />
         </header>
         {/* Desktop top-right theme toggle */}
-        <div className="hidden md:flex h-12 items-center justify-end border-b border-border bg-card px-4">
+        <div className="hidden md:flex h-12 items-center justify-end gap-3 border-b border-border bg-card px-4">
+          <OfflineIndicator />
           <ThemeToggle />
         </div>
 
