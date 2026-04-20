@@ -12,20 +12,14 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, FolderPlus, ChefHat, X } from "lucide-react";
+import { Loader2, Plus, Trash2, FolderPlus, X } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { ImageUpload } from "@/components/ImageUpload";
+import { MenuItemCard, type MenuItemLite } from "@/components/menu/MenuItemCard";
+import { VariantsModifiersDialog } from "@/components/menu/VariantsModifiersDialog";
 
 interface Category { id: string; name: string; sort_order: number; }
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  is_available: boolean;
-  category_id: string | null;
-  image_url: string | null;
-}
+type MenuItem = MenuItemLite;
 interface StockOpt { id: string; name: string; unit: string; cost_per_unit: number; }
 interface RecipeRow { id: string; stock_item_id: string; quantity: number; }
 
@@ -48,6 +42,8 @@ const Menu = () => {
   const [stockOpts, setStockOpts] = useState<StockOpt[]>([]);
   const [recipeRows, setRecipeRows] = useState<RecipeRow[]>([]);
   const [recipeSaving, setRecipeSaving] = useState(false);
+
+  const [variantsFor, setVariantsFor] = useState<MenuItem | null>(null);
 
   const load = async () => {
     if (!restaurant) return;
@@ -249,7 +245,7 @@ const Menu = () => {
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {catItems.length === 0 ? (
               <p className="col-span-full text-sm text-muted-foreground">Aucun plat dans cette catégorie.</p>
-            ) : catItems.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} />)}
+            ) : catItems.map((item) => <MenuItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} onVariants={setVariantsFor} />)}
           </div>
         </div>
       ))}
@@ -258,7 +254,7 @@ const Menu = () => {
         <div>
           <h2 className="mb-3 text-lg font-semibold">Sans catégorie</h2>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {uncategorized.map((item) => <ItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} />)}
+            {uncategorized.map((item) => <MenuItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} onVariants={setVariantsFor} />)}
           </div>
         </div>
       )}
@@ -377,43 +373,16 @@ const Menu = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {restaurant && (
+        <VariantsModifiersDialog
+          item={variantsFor}
+          restaurantId={restaurant.id}
+          onClose={() => setVariantsFor(null)}
+        />
+      )}
     </div>
   );
 };
-
-const ItemCard = ({
-  item, onEdit, onDelete, onToggle, onRecipe,
-}: {
-  item: MenuItem;
-  onEdit: (i: MenuItem) => void;
-  onDelete: (id: string) => void;
-  onToggle: (i: MenuItem) => void;
-  onRecipe: (i: MenuItem) => void;
-}) => (
-  <Card className="shadow-sm">
-    <div className="aspect-video w-full overflow-hidden bg-muted">
-      {item.image_url ? (
-        <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">Pas de photo</div>
-      )}
-    </div>
-    <CardContent className="p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1">
-          <h3 className="font-semibold">{item.name}</h3>
-          {item.description && <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{item.description}</p>}
-          <p className="mt-2 text-lg font-bold text-primary">{formatFCFA(item.price)}</p>
-        </div>
-        <Switch checked={item.is_available} onCheckedChange={() => onToggle(item)} />
-      </div>
-      <div className="mt-3 flex justify-end gap-1">
-        <Button variant="ghost" size="sm" onClick={() => onRecipe(item)} title="Recette"><ChefHat className="h-4 w-4" /></Button>
-        <Button variant="ghost" size="sm" onClick={() => onEdit(item)}><Pencil className="h-4 w-4" /></Button>
-        <Button variant="ghost" size="sm" onClick={() => onDelete(item.id)}><Trash2 className="h-4 w-4" /></Button>
-      </div>
-    </CardContent>
-  </Card>
-);
 
 export default Menu;
