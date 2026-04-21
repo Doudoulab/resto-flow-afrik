@@ -51,6 +51,7 @@ const MenuEngineering = lazy(() => import("./pages/app/MenuEngineering"));
 const Analytics = lazy(() => import("./pages/app/Analytics"));
 const PmsReconciliation = lazy(() => import("./pages/app/PmsReconciliation"));
 const Gueridon = lazy(() => import("./pages/app/Gueridon"));
+const Modules = lazy(() => import("./pages/app/Modules"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -121,6 +122,7 @@ const App = () => (
               <Route path="pms" element={<PmsReconciliation />} />
               <Route path="gueridon" element={<Gueridon />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="modules" element={<Modules />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
