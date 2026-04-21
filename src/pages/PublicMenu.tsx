@@ -10,10 +10,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter
 import { ShoppingCart, Plus, Minus, ChefHat, CheckCircle2 } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
+import { ItemConfigurator, itemNeedsConfig, type ConfiguredSelection } from "@/components/menu/ItemConfigurator";
 
 interface Restaurant { id: string; name: string; address: string | null; phone: string | null; }
 interface Category { id: string; name: string; sort_order: number; }
 interface MenuItem { id: string; name: string; description: string | null; price: number; category_id: string | null; }
+interface CartLine { key: string; menu_item_id: string; name: string; unit_price: number; quantity: number; }
 
 const PublicMenu = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
@@ -25,7 +27,9 @@ const PublicMenu = () => {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [cart, setCart] = useState<CartLine[]>([]);
+  const [configItem, setConfigItem] = useState<MenuItem | null>(null);
+  const [configOpen, setConfigOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -60,30 +64,47 @@ const PublicMenu = () => {
   }, [items]);
 
   const total = useMemo(() => {
-    return Object.entries(cart).reduce((s, [id, q]) => {
-      const it = items.find((i) => i.id === id);
-      return s + (it ? Number(it.price) * q : 0);
-    }, 0);
-  }, [cart, items]);
+    return cart.reduce((s, l) => s + l.unit_price * l.quantity, 0);
+  }, [cart]);
 
-  const cartCount = Object.values(cart).reduce((s, q) => s + q, 0);
+  const cartCount = cart.reduce((s, l) => s + l.quantity, 0);
 
-  const inc = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
-  const dec = (id: string) => setCart((c) => {
-    const next = (c[id] ?? 0) - 1;
-    const cp = { ...c };
-    if (next <= 0) delete cp[id]; else cp[id] = next;
-    return cp;
-  });
+  const addPlain = (it: MenuItem) => {
+    const key = `${it.id}::${it.name}::${Number(it.price)}`;
+    setCart((prev) => {
+      const ex = prev.find((l) => l.key === key);
+      if (ex) return prev.map((l) => l.key === key ? { ...l, quantity: l.quantity + 1 } : l);
+      return [...prev, { key, menu_item_id: it.id, name: it.name, unit_price: Number(it.price), quantity: 1 }];
+    });
+  };
+  const tryAdd = async (it: MenuItem) => {
+    const needs = await itemNeedsConfig(it.id);
+    if (needs) { setConfigItem(it); setConfigOpen(true); return; }
+    addPlain(it);
+  };
+  const onConfigured = (sel: ConfiguredSelection) => {
+    const key = `${sel.item.id}::${sel.label}::${sel.unitPrice}`;
+    setCart((prev) => {
+      const ex = prev.find((l) => l.key === key);
+      if (ex) return prev.map((l) => l.key === key ? { ...l, quantity: l.quantity + 1 } : l);
+      return [...prev, { key, menu_item_id: sel.item.id, name: sel.label, unit_price: sel.unitPrice, quantity: 1 }];
+    });
+    setConfigOpen(false); setConfigItem(null);
+  };
+  const inc = (key: string) => setCart((prev) => prev.map((l) => l.key === key ? { ...l, quantity: l.quantity + 1 } : l));
+  const dec = (key: string) => setCart((prev) => prev.flatMap((l) => l.key === key ? (l.quantity <= 1 ? [] : [{ ...l, quantity: l.quantity - 1 }]) : [l]));
+  const qtyForItem = (id: string) => cart.filter((l) => l.menu_item_id === id).reduce((s, l) => s + l.quantity, 0);
 
   const submit = async () => {
     if (cartCount === 0) { toast.error("Votre panier est vide"); return; }
     if (!restaurantId) return;
     setSubmitting(true);
-    const orderItems = Object.entries(cart).map(([id, qty]) => {
-      const it = items.find((i) => i.id === id)!;
-      return { menu_item_id: id, name: it.name, unit_price: Number(it.price), quantity: qty };
-    });
+    const orderItems = cart.map((l) => ({
+      menu_item_id: l.menu_item_id,
+      name: l.name,
+      unit_price: l.unit_price,
+      quantity: l.quantity,
+    }));
     const { error } = await supabase.from("public_orders").insert({
       restaurant_id: restaurantId,
       table_number: tableNumber || null,
@@ -96,7 +117,7 @@ const PublicMenu = () => {
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     setSubmitted(true);
-    setCart({});
+    setCart([]);
     setCartOpen(false);
   };
 
