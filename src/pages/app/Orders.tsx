@@ -235,7 +235,14 @@ const Orders = () => {
     if (orderErr || !order) { toast.error(orderErr?.message || "Erreur"); return; }
 
     const { error: liErr } = await supabase.from("order_items").insert(
-      lines.map((l) => ({ ...l, order_id: order.id, vat_rate: vatRate })),
+      await Promise.all(lines.map(async (l) => {
+        // Auto-route to station based on menu_item -> category
+        const { data: mi } = await supabase.from("menu_items")
+          .select("station_id, category_id, menu_categories(station_id)")
+          .eq("id", l.menu_item_id).maybeSingle();
+        const stationId = (mi?.station_id as string | null) ?? ((mi?.menu_categories as { station_id?: string } | null)?.station_id ?? null);
+        return { ...l, order_id: order.id, vat_rate: vatRate, station_id: stationId };
+      })),
     );
     if (liErr) { toast.error(liErr.message); return; }
 
