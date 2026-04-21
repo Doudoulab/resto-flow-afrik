@@ -34,6 +34,8 @@ import {
   FileCheck2,
   FileSpreadsheet,
   Bug,
+  Wine,
+  Utensils,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -50,6 +52,8 @@ const navItems = [
   { to: "/app/floor", icon: LayoutGrid, label: "Salle" },
   { to: "/app/reservations", icon: CalendarDays, label: "Réservations" },
   { to: "/app/menu", icon: UtensilsCrossed, label: "Menu" },
+  { to: "/app/tasting", icon: Utensils, label: "Menus dégustation" },
+  { to: "/app/wines", icon: Wine, label: "Cave à vins" },
   { to: "/app/stock", icon: Package, label: "Stock" },
   { to: "/app/suppliers", icon: Truck, label: "Fournisseurs" },
   { to: "/app/receipts", icon: PackagePlus, label: "Réceptions" },

@@ -257,44 +257,125 @@ export type Database = {
           },
         ]
       }
+      customer_visits: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          items_summary: Json
+          notes: string | null
+          order_id: string | null
+          party_size: number
+          restaurant_id: string
+          total_spent: number
+          visit_date: string
+          wines_consumed: Json
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          items_summary?: Json
+          notes?: string | null
+          order_id?: string | null
+          party_size?: number
+          restaurant_id: string
+          total_spent?: number
+          visit_date?: string
+          wines_consumed?: Json
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          items_summary?: Json
+          notes?: string | null
+          order_id?: string | null
+          party_size?: number
+          restaurant_id?: string
+          total_spent?: number
+          visit_date?: string
+          wines_consumed?: Json
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           allergies: string | null
           balance: number
+          birthday: string | null
           created_at: string
           credit_limit: number
           dietary_preferences: string | null
+          email: string | null
           id: string
+          is_vip: boolean
+          last_visit_at: string | null
+          lifetime_value: number
+          loyalty_tier: string
+          maitre_notes: string | null
           name: string
           notes: string | null
           phone: string | null
+          preferred_language: string
+          preferred_seating: string | null
+          preferred_table: string | null
+          preferred_wine: string | null
           restaurant_id: string
+          tags: string[]
+          total_visits: number
           updated_at: string
         }
         Insert: {
           allergies?: string | null
           balance?: number
+          birthday?: string | null
           created_at?: string
           credit_limit?: number
           dietary_preferences?: string | null
+          email?: string | null
           id?: string
+          is_vip?: boolean
+          last_visit_at?: string | null
+          lifetime_value?: number
+          loyalty_tier?: string
+          maitre_notes?: string | null
           name: string
           notes?: string | null
           phone?: string | null
+          preferred_language?: string
+          preferred_seating?: string | null
+          preferred_table?: string | null
+          preferred_wine?: string | null
           restaurant_id: string
+          tags?: string[]
+          total_visits?: number
           updated_at?: string
         }
         Update: {
           allergies?: string | null
           balance?: number
+          birthday?: string | null
           created_at?: string
           credit_limit?: number
           dietary_preferences?: string | null
+          email?: string | null
           id?: string
+          is_vip?: boolean
+          last_visit_at?: string | null
+          lifetime_value?: number
+          loyalty_tier?: string
+          maitre_notes?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
+          preferred_language?: string
+          preferred_seating?: string | null
+          preferred_table?: string | null
+          preferred_wine?: string | null
           restaurant_id?: string
+          tags?: string[]
+          total_visits?: number
           updated_at?: string
         }
         Relationships: []
@@ -602,6 +683,36 @@ export type Database = {
           },
         ]
       }
+      menu_category_translations: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          language_code: string
+          name: string
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          language_code: string
+          name: string
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          language_code?: string
+          name?: string
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_item_modifier_groups: {
         Row: {
           created_at: string
@@ -743,6 +854,39 @@ export type Database = {
         }
         Relationships: []
       }
+      menu_item_translations: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          language_code: string
+          menu_item_id: string
+          name: string
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language_code: string
+          menu_item_id: string
+          name: string
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language_code?: string
+          menu_item_id?: string
+          name?: string
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_item_variants: {
         Row: {
           created_at: string
@@ -869,6 +1013,44 @@ export type Database = {
             columns: ["station_id"]
             isOneToOne: false
             referencedRelation: "kitchen_stations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_wine_pairings: {
+        Row: {
+          created_at: string
+          id: string
+          is_recommended: boolean
+          menu_item_id: string
+          restaurant_id: string
+          sommelier_note: string | null
+          wine_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_recommended?: boolean
+          menu_item_id: string
+          restaurant_id: string
+          sommelier_note?: string | null
+          wine_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_recommended?: boolean
+          menu_item_id?: string
+          restaurant_id?: string
+          sommelier_note?: string | null
+          wine_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_wine_pairings_wine_id_fkey"
+            columns: ["wine_id"]
+            isOneToOne: false
+            referencedRelation: "wines"
             referencedColumns: ["id"]
           },
         ]
@@ -1666,6 +1848,11 @@ export type Database = {
           customer_name: string
           customer_phone: string | null
           deposit_amount: number
+          deposit_external_ref: string | null
+          deposit_paid_at: string | null
+          deposit_payment_id: string | null
+          deposit_payment_url: string | null
+          deposit_provider: string | null
           deposit_status: string
           estimated_duration_min: number
           id: string
@@ -1686,6 +1873,11 @@ export type Database = {
           customer_name: string
           customer_phone?: string | null
           deposit_amount?: number
+          deposit_external_ref?: string | null
+          deposit_paid_at?: string | null
+          deposit_payment_id?: string | null
+          deposit_payment_url?: string | null
+          deposit_provider?: string | null
           deposit_status?: string
           estimated_duration_min?: number
           id?: string
@@ -1706,6 +1898,11 @@ export type Database = {
           customer_name?: string
           customer_phone?: string | null
           deposit_amount?: number
+          deposit_external_ref?: string | null
+          deposit_paid_at?: string | null
+          deposit_payment_id?: string | null
+          deposit_payment_url?: string | null
+          deposit_provider?: string | null
           deposit_status?: string
           estimated_duration_min?: number
           id?: string
@@ -2148,6 +2345,105 @@ export type Database = {
           },
         ]
       }
+      tasting_menu_courses: {
+        Row: {
+          cooking_time_min: number
+          course_label: string | null
+          course_order: number
+          created_at: string
+          custom_description: string | null
+          custom_name: string | null
+          id: string
+          menu_item_id: string | null
+          restaurant_id: string
+          tasting_menu_id: string
+          wine_id: string | null
+        }
+        Insert: {
+          cooking_time_min?: number
+          course_label?: string | null
+          course_order?: number
+          created_at?: string
+          custom_description?: string | null
+          custom_name?: string | null
+          id?: string
+          menu_item_id?: string | null
+          restaurant_id: string
+          tasting_menu_id: string
+          wine_id?: string | null
+        }
+        Update: {
+          cooking_time_min?: number
+          course_label?: string | null
+          course_order?: number
+          created_at?: string
+          custom_description?: string | null
+          custom_name?: string | null
+          id?: string
+          menu_item_id?: string | null
+          restaurant_id?: string
+          tasting_menu_id?: string
+          wine_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasting_menu_courses_tasting_menu_id_fkey"
+            columns: ["tasting_menu_id"]
+            isOneToOne: false
+            referencedRelation: "tasting_menus"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasting_menu_courses_wine_id_fkey"
+            columns: ["wine_id"]
+            isOneToOne: false
+            referencedRelation: "wines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasting_menus: {
+        Row: {
+          created_at: string
+          description: string | null
+          estimated_duration_min: number
+          id: string
+          is_active: boolean
+          min_party_size: number
+          name: string
+          price_per_person: number
+          restaurant_id: string
+          updated_at: string
+          wine_pairing_price: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          estimated_duration_min?: number
+          id?: string
+          is_active?: boolean
+          min_party_size?: number
+          name: string
+          price_per_person?: number
+          restaurant_id: string
+          updated_at?: string
+          wine_pairing_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          estimated_duration_min?: number
+          id?: string
+          is_active?: boolean
+          min_party_size?: number
+          name?: string
+          price_per_person?: number
+          restaurant_id?: string
+          updated_at?: string
+          wine_pairing_price?: number
+        }
+        Relationships: []
+      }
       tax_declarations: {
         Row: {
           created_at: string
@@ -2327,6 +2623,131 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      wine_movements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          movement_type: string
+          order_id: string | null
+          quantity: number
+          reason: string | null
+          restaurant_id: string
+          wine_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type: string
+          order_id?: string | null
+          quantity: number
+          reason?: string | null
+          restaurant_id: string
+          wine_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type?: string
+          order_id?: string | null
+          quantity?: number
+          reason?: string | null
+          restaurant_id?: string
+          wine_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wine_movements_wine_id_fkey"
+            columns: ["wine_id"]
+            isOneToOne: false
+            referencedRelation: "wines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wines: {
+        Row: {
+          bottle_price: number
+          bottle_size_ml: number
+          bottles_in_stock: number
+          cellar_location: string | null
+          cost_per_bottle: number
+          country: string | null
+          created_at: string
+          food_pairing_notes: string | null
+          glass_price: number | null
+          glasses_per_bottle: number
+          grape_varieties: string[] | null
+          id: string
+          image_url: string | null
+          is_available: boolean
+          is_featured: boolean
+          name: string
+          producer: string | null
+          region: string | null
+          restaurant_id: string
+          serving_temperature: string | null
+          tasting_notes: string | null
+          updated_at: string
+          vintage: number | null
+          wine_type: string
+        }
+        Insert: {
+          bottle_price?: number
+          bottle_size_ml?: number
+          bottles_in_stock?: number
+          cellar_location?: string | null
+          cost_per_bottle?: number
+          country?: string | null
+          created_at?: string
+          food_pairing_notes?: string | null
+          glass_price?: number | null
+          glasses_per_bottle?: number
+          grape_varieties?: string[] | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          is_featured?: boolean
+          name: string
+          producer?: string | null
+          region?: string | null
+          restaurant_id: string
+          serving_temperature?: string | null
+          tasting_notes?: string | null
+          updated_at?: string
+          vintage?: number | null
+          wine_type?: string
+        }
+        Update: {
+          bottle_price?: number
+          bottle_size_ml?: number
+          bottles_in_stock?: number
+          cellar_location?: string | null
+          cost_per_bottle?: number
+          country?: string | null
+          created_at?: string
+          food_pairing_notes?: string | null
+          glass_price?: number | null
+          glasses_per_bottle?: number
+          grape_varieties?: string[] | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          is_featured?: boolean
+          name?: string
+          producer?: string | null
+          region?: string | null
+          restaurant_id?: string
+          serving_temperature?: string | null
+          tasting_notes?: string | null
+          updated_at?: string
+          vintage?: number | null
+          wine_type?: string
+        }
+        Relationships: []
       }
     }
     Views: {

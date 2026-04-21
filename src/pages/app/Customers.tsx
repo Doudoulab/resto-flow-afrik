@@ -13,9 +13,10 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Wallet, History, CreditCard, Receipt } from "lucide-react";
+import { Plus, Pencil, Trash2, Wallet, History, CreditCard, Receipt, Crown, UserCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatFCFA } from "@/lib/currency";
+import { CustomerProfileDialog } from "@/components/customers/CustomerProfileDialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -28,6 +29,9 @@ interface Customer {
   credit_limit: number;
   balance: number;
   created_at: string;
+  is_vip?: boolean;
+  total_visits?: number;
+  lifetime_value?: number;
 }
 
 interface CreditTx {
@@ -61,6 +65,9 @@ const Customers = () => {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyCustomer, setHistoryCustomer] = useState<Customer | null>(null);
   const [history, setHistory] = useState<CreditTx[]>([]);
+
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileId, setProfileId] = useState<string | null>(null);
 
   const load = async () => {
     if (!restaurant) return;
@@ -219,6 +226,7 @@ const Customers = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nom</TableHead>
+                    <TableHead>Statut</TableHead>
                     <TableHead>Téléphone</TableHead>
                     <TableHead className="text-right">Solde dû</TableHead>
                     <TableHead className="text-right">Plafond</TableHead>
@@ -233,6 +241,10 @@ const Customers = () => {
                     return (
                       <TableRow key={c.id}>
                         <TableCell className="font-medium">{c.name}</TableCell>
+                        <TableCell>
+                          {c.is_vip && <Badge className="mr-1"><Crown className="h-3 w-3 mr-1" />VIP</Badge>}
+                          {c.total_visits ? <Badge variant="outline">{c.total_visits} visites</Badge> : null}
+                        </TableCell>
                         <TableCell>{c.phone ?? "—"}</TableCell>
                         <TableCell className="text-right">
                           <span className={debt > 0 ? "font-semibold text-orange-600" : "text-muted-foreground"}>
@@ -245,6 +257,9 @@ const Customers = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
+                            <Button size="sm" variant="outline" onClick={() => { setProfileId(c.id); setProfileOpen(true); }} title="Profil 360°">
+                              <UserCircle2 className="h-4 w-4" />
+                            </Button>
                             <Button size="sm" variant="outline" onClick={() => openTx(c, "charge")} title="Ajouter à l'ardoise">
                               <Receipt className="h-4 w-4" />
                             </Button>
@@ -371,6 +386,13 @@ const Customers = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <CustomerProfileDialog
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        customerId={profileId}
+        onSaved={load}
+      />
     </div>
   );
 };

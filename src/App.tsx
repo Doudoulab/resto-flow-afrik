@@ -45,6 +45,8 @@ const Printers = lazy(() => import("./pages/app/Printers"));
 const Fiscal = lazy(() => import("./pages/app/Fiscal"));
 const Exports = lazy(() => import("./pages/app/Exports"));
 const Errors = lazy(() => import("./pages/app/Errors"));
+const Wines = lazy(() => import("./pages/app/Wines"));
+const TastingMenus = lazy(() => import("./pages/app/TastingMenus"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -108,6 +110,8 @@ const App = () => (
               <Route path="fiscal" element={<Fiscal />} />
               <Route path="exports" element={<Exports />} />
               <Route path="errors" element={<Errors />} />
+              <Route path="wines" element={<Wines />} />
+              <Route path="tasting" element={<TastingMenus />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
