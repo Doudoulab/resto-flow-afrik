@@ -114,7 +114,10 @@ const Floor = () => {
         <FloorPlanEditor
           restaurantId={restaurant.id}
           editable
-          onTableClick={(t) => cycleStatus(t as RestaurantTable)}
+          onTableClick={(t) => {
+            const full = tables.find((x) => x.id === t.id);
+            if (full) cycleStatus(full);
+          }}
         />
       )}
 
