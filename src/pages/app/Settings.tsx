@@ -12,6 +12,7 @@ import { Download, QrCode } from "lucide-react";
 import { RestaurantCustomization } from "@/components/settings/RestaurantCustomization";
 import { OperatorsManager } from "@/components/payments/OperatorsManager";
 import { FiscalSettings } from "@/components/settings/FiscalSettings";
+import { StationsManager } from "@/components/kitchen/StationsManager";
 
 interface RestaurantTable {
   id: string;
@@ -147,6 +148,10 @@ const Settings = () => {
 
       {profile?.is_owner && restaurant && (
         <FiscalSettings restaurantId={restaurant.id} onSaved={refresh} />
+      )}
+
+      {profile?.is_owner && restaurant && (
+        <StationsManager restaurantId={restaurant.id} />
       )}
 
       <Card className="shadow-sm">
