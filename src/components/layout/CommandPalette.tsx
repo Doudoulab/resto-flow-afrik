@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CommandDialog, CommandEmpty, CommandGroup, CommandInput,
@@ -15,7 +15,7 @@ import {
   Bug, ToggleRight, Plus, CreditCard,
 } from "lucide-react";
 
-type NavCmd = { label: string; to: string; icon: any; module?: ModuleKey; group: string };
+type NavCmd = { label: string; to: string; icon: any; module?: ModuleKey; group: string; ownerOnly?: boolean };
 
 const COMMANDS: NavCmd[] = [
   { label: "Tableau de bord", to: "/app", icon: LayoutDashboard, group: "Essentiel" },
@@ -33,27 +33,27 @@ const COMMANDS: NavCmd[] = [
   { label: "Inventaires", to: "/app/inventory", icon: ClipboardCheck, module: "inventory", group: "Opérations" },
   { label: "Pointage", to: "/app/timeclock", icon: Clock, module: "timeclock", group: "Opérations" },
   { label: "Ardoises clients", to: "/app/customers", icon: BookUser, module: "customers", group: "Opérations" },
-  { label: "Rapports", to: "/app/reports", icon: BarChart3, module: "reports", group: "Finances" },
-  { label: "Comptabilité", to: "/app/accounting", icon: Wallet, module: "accounting", group: "Finances" },
-  { label: "Grand livre", to: "/app/ledger", icon: BookOpen, module: "accounting", group: "Finances" },
-  { label: "TVA", to: "/app/tax", icon: Receipt, module: "accounting", group: "Finances" },
-  { label: "Paie", to: "/app/payroll", icon: Banknote, module: "payroll", group: "Finances" },
+  { label: "Rapports", to: "/app/reports", icon: BarChart3, module: "reports", group: "Finances", ownerOnly: true },
+  { label: "Comptabilité", to: "/app/accounting", icon: Wallet, module: "accounting", group: "Finances", ownerOnly: true },
+  { label: "Grand livre", to: "/app/ledger", icon: BookOpen, module: "accounting", group: "Finances", ownerOnly: true },
+  { label: "TVA", to: "/app/tax", icon: Receipt, module: "accounting", group: "Finances", ownerOnly: true },
+  { label: "Paie", to: "/app/payroll", icon: Banknote, module: "payroll", group: "Finances", ownerOnly: true },
   { label: "Cave à vins", to: "/app/wines", icon: Wine, module: "wines", group: "Haut de gamme" },
   { label: "Menus dégustation", to: "/app/tasting", icon: Utensils, module: "tasting", group: "Haut de gamme" },
   { label: "Guéridon", to: "/app/gueridon", icon: Hand, module: "gueridon", group: "Haut de gamme" },
   { label: "Réconciliation PMS", to: "/app/pms", icon: Hotel, module: "pms", group: "Haut de gamme" },
-  { label: "Menu Engineering", to: "/app/menu-engineering", icon: TrendingUp, module: "menu_engineering", group: "Haut de gamme" },
-  { label: "Analytics avancées", to: "/app/analytics", icon: LineChart, module: "analytics", group: "Haut de gamme" },
-  { label: "Conseil IA", to: "/app/advisor", icon: Sparkles, module: "advisor", group: "Haut de gamme" },
-  { label: "Audit", to: "/app/audit", icon: ShieldCheck, module: "audit", group: "Système" },
-  { label: "Sécurité (2FA)", to: "/app/security", icon: Lock, module: "security", group: "Système" },
-  { label: "Sauvegardes", to: "/app/backups", icon: HardDriveDownload, module: "backups", group: "Système" },
-  { label: "État système", to: "/app/health", icon: Activity, module: "health", group: "Système" },
-  { label: "Vérif. fiscale", to: "/app/fiscal", icon: FileCheck2, module: "fiscal", group: "Système" },
-  { label: "Exports", to: "/app/exports", icon: FileSpreadsheet, module: "exports", group: "Système" },
-  { label: "Erreurs", to: "/app/errors", icon: Bug, module: "errors", group: "Système" },
-  { label: "Modules", to: "/app/modules", icon: ToggleRight, group: "Configuration" },
-  { label: "Paramètres", to: "/app/settings", icon: Settings, group: "Configuration" },
+  { label: "Menu Engineering", to: "/app/menu-engineering", icon: TrendingUp, module: "menu_engineering", group: "Haut de gamme", ownerOnly: true },
+  { label: "Analytics avancées", to: "/app/analytics", icon: LineChart, module: "analytics", group: "Haut de gamme", ownerOnly: true },
+  { label: "Conseil IA", to: "/app/advisor", icon: Sparkles, module: "advisor", group: "Haut de gamme", ownerOnly: true },
+  { label: "Audit", to: "/app/audit", icon: ShieldCheck, module: "audit", group: "Système", ownerOnly: true },
+  { label: "Sécurité (2FA)", to: "/app/security", icon: Lock, module: "security", group: "Système", ownerOnly: true },
+  { label: "Sauvegardes", to: "/app/backups", icon: HardDriveDownload, module: "backups", group: "Système", ownerOnly: true },
+  { label: "État système", to: "/app/health", icon: Activity, module: "health", group: "Système", ownerOnly: true },
+  { label: "Vérif. fiscale", to: "/app/fiscal", icon: FileCheck2, module: "fiscal", group: "Système", ownerOnly: true },
+  { label: "Exports", to: "/app/exports", icon: FileSpreadsheet, module: "exports", group: "Système", ownerOnly: true },
+  { label: "Erreurs", to: "/app/errors", icon: Bug, module: "errors", group: "Système", ownerOnly: true },
+  { label: "Modules", to: "/app/modules", icon: ToggleRight, group: "Configuration", ownerOnly: true },
+  { label: "Paramètres", to: "/app/settings", icon: Settings, group: "Configuration", ownerOnly: true },
 ];
 
 const QUICK_ACTIONS = [
@@ -62,11 +62,19 @@ const QUICK_ACTIONS = [
   { label: "Nouvelle réservation", to: "/app/reservations?new=1", icon: CalendarDays },
 ];
 
-export const CommandPalette = () => {
+const PaletteCtx = createContext<{ open: () => void } | null>(null);
+export const useCommandPalette = () => {
+  const ctx = useContext(PaletteCtx);
+  if (!ctx) throw new Error("useCommandPalette must be used within CommandPaletteProvider");
+  return ctx;
+};
+
+export const CommandPaletteProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { restaurant } = useAuth();
+  const { restaurant, profile } = useAuth();
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
+  const isOwner = profile?.is_owner ?? false;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -79,7 +87,10 @@ export const CommandPalette = () => {
     return () => document.removeEventListener("keydown", onKey);
   }, []);
 
-  const visible = COMMANDS.filter(c => !c.module || isModuleEnabled(enabled, c.module));
+  const visible = COMMANDS.filter(c =>
+    (!c.module || isModuleEnabled(enabled, c.module)) &&
+    (!c.ownerOnly || isOwner)
+  );
   const groups = visible.reduce((acc, c) => {
     (acc[c.group] ||= []).push(c);
     return acc;
@@ -88,32 +99,35 @@ export const CommandPalette = () => {
   const go = (to: string) => { setOpen(false); navigate(to); };
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Rechercher une page, une action..." />
-      <CommandList>
-        <CommandEmpty>Aucun résultat.</CommandEmpty>
-        <CommandGroup heading="Actions rapides">
-          {QUICK_ACTIONS.map(a => (
-            <CommandItem key={a.to} onSelect={() => go(a.to)}>
-              <a.icon className="mr-2 h-4 w-4" />
-              {a.label}
-            </CommandItem>
+    <PaletteCtx.Provider value={{ open: () => setOpen(true) }}>
+      {children}
+      <CommandDialog open={open} onOpenChange={setOpen}>
+        <CommandInput placeholder="Rechercher une page, une action..." />
+        <CommandList>
+          <CommandEmpty>Aucun résultat.</CommandEmpty>
+          <CommandGroup heading="Actions rapides">
+            {QUICK_ACTIONS.map(a => (
+              <CommandItem key={a.to} onSelect={() => go(a.to)}>
+                <a.icon className="mr-2 h-4 w-4" />
+                {a.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          {Object.entries(groups).map(([group, items]) => (
+            <div key={group}>
+              <CommandSeparator />
+              <CommandGroup heading={group}>
+                {items.map(item => (
+                  <CommandItem key={item.to} onSelect={() => go(item.to)}>
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </div>
           ))}
-        </CommandGroup>
-        {Object.entries(groups).map(([group, items]) => (
-          <div key={group}>
-            <CommandSeparator />
-            <CommandGroup heading={group}>
-              {items.map(item => (
-                <CommandItem key={item.to} onSelect={() => go(item.to)}>
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </div>
-        ))}
-      </CommandList>
-    </CommandDialog>
+        </CommandList>
+      </CommandDialog>
+    </PaletteCtx.Provider>
   );
 };

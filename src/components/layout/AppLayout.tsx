@@ -1,20 +1,20 @@
 import { Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
 import { prefetchForOffline } from "@/lib/offline/prefetch";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { CommandPalette } from "./CommandPalette";
+import { CommandPaletteProvider, useCommandPalette } from "./CommandPalette";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 
-export const AppLayout = () => {
+const InnerLayout = () => {
   const { restaurant } = useAuth();
-  const [paletteKey, setPaletteKey] = useState(0);
+  const { open: openPalette } = useCommandPalette();
 
   useEffect(() => {
     if (restaurant?.id) {
@@ -24,12 +24,6 @@ export const AppLayout = () => {
       return () => window.removeEventListener("online", onOnline);
     }
   }, [restaurant?.id]);
-
-  const openPalette = () => {
-    // Simulate Cmd+K
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
-    setPaletteKey(k => k + 1);
-  };
 
   return (
     <SidebarProvider>
@@ -64,8 +58,13 @@ export const AppLayout = () => {
           </main>
           <MobileBottomNav onSearchClick={openPalette} />
         </SidebarInset>
-        <CommandPalette key={paletteKey} />
       </div>
     </SidebarProvider>
   );
 };
+
+export const AppLayout = () => (
+  <CommandPaletteProvider>
+    <InnerLayout />
+  </CommandPaletteProvider>
+);
