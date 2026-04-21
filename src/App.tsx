@@ -6,40 +6,52 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
+
+// Eager: landing & auth (smallest, first paint critical)
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/app/Dashboard";
-import Orders from "./pages/app/Orders";
-import Menu from "./pages/app/Menu";
-import Stock from "./pages/app/Stock";
-import Staff from "./pages/app/Staff";
-import SettingsPage from "./pages/app/Settings";
-import Reservations from "./pages/app/Reservations";
-import Accounting from "./pages/app/Accounting";
-import Floor from "./pages/app/Floor";
-import TimeClock from "./pages/app/TimeClock";
-import Advisor from "./pages/app/Advisor";
-import Customers from "./pages/app/Customers";
-import IncomingOrders from "./pages/app/IncomingOrders";
-import AuditLog from "./pages/app/AuditLog";
-import KitchenDisplay from "./pages/app/KitchenDisplay";
-import Suppliers from "./pages/app/Suppliers";
-import Receipts from "./pages/app/Receipts";
-import Inventory from "./pages/app/Inventory";
-import Reports from "./pages/app/Reports";
-import Payroll from "./pages/app/Payroll";
-import TaxReturns from "./pages/app/TaxReturns";
-import Ledger from "./pages/app/Ledger";
-import Security from "./pages/app/Security";
-import Backups from "./pages/app/Backups";
-import Health from "./pages/app/Health";
-import Printers from "./pages/app/Printers";
-import Fiscal from "./pages/app/Fiscal";
-import Exports from "./pages/app/Exports";
-import PublicMenu from "./pages/PublicMenu";
-import PublicRestaurant from "./pages/PublicRestaurant";
-import AcceptInvitation from "./pages/AcceptInvitation";
 import NotFound from "./pages/NotFound";
+
+// Lazy: app pages (each becomes its own chunk)
+const Dashboard = lazy(() => import("./pages/app/Dashboard"));
+const Orders = lazy(() => import("./pages/app/Orders"));
+const Menu = lazy(() => import("./pages/app/Menu"));
+const Stock = lazy(() => import("./pages/app/Stock"));
+const Staff = lazy(() => import("./pages/app/Staff"));
+const SettingsPage = lazy(() => import("./pages/app/Settings"));
+const Reservations = lazy(() => import("./pages/app/Reservations"));
+const Accounting = lazy(() => import("./pages/app/Accounting"));
+const Floor = lazy(() => import("./pages/app/Floor"));
+const TimeClock = lazy(() => import("./pages/app/TimeClock"));
+const Advisor = lazy(() => import("./pages/app/Advisor"));
+const Customers = lazy(() => import("./pages/app/Customers"));
+const IncomingOrders = lazy(() => import("./pages/app/IncomingOrders"));
+const AuditLog = lazy(() => import("./pages/app/AuditLog"));
+const KitchenDisplay = lazy(() => import("./pages/app/KitchenDisplay"));
+const Suppliers = lazy(() => import("./pages/app/Suppliers"));
+const Receipts = lazy(() => import("./pages/app/Receipts"));
+const Inventory = lazy(() => import("./pages/app/Inventory"));
+const Reports = lazy(() => import("./pages/app/Reports"));
+const Payroll = lazy(() => import("./pages/app/Payroll"));
+const TaxReturns = lazy(() => import("./pages/app/TaxReturns"));
+const Ledger = lazy(() => import("./pages/app/Ledger"));
+const Security = lazy(() => import("./pages/app/Security"));
+const Backups = lazy(() => import("./pages/app/Backups"));
+const Health = lazy(() => import("./pages/app/Health"));
+const Printers = lazy(() => import("./pages/app/Printers"));
+const Fiscal = lazy(() => import("./pages/app/Fiscal"));
+const Exports = lazy(() => import("./pages/app/Exports"));
+const PublicMenu = lazy(() => import("./pages/PublicMenu"));
+const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
+const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
+
+const PageFallback = () => (
+  <div className="flex h-[60vh] items-center justify-center">
+    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -50,6 +62,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
@@ -95,6 +108,7 @@ const App = () => (
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
