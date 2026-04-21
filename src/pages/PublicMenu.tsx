@@ -215,23 +215,19 @@ const PublicMenu = () => {
               <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
                 <SheetHeader><SheetTitle>Votre commande</SheetTitle></SheetHeader>
                 <div className="space-y-3 py-4">
-                  {Object.entries(cart).map(([id, qty]) => {
-                    const it = items.find((i) => i.id === id);
-                    if (!it) return null;
-                    return (
-                      <div key={id} className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <p className="font-medium">{it.name}</p>
-                          <p className="text-sm text-muted-foreground">{formatFCFA(it.price)} × {qty}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button size="icon" variant="outline" onClick={() => dec(id)}><Minus className="h-4 w-4" /></Button>
-                          <span className="w-6 text-center">{qty}</span>
-                          <Button size="icon" onClick={() => inc(id)}><Plus className="h-4 w-4" /></Button>
-                        </div>
+                  {cart.map((l) => (
+                    <div key={l.key} className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <p className="font-medium">{l.name}</p>
+                        <p className="text-sm text-muted-foreground">{formatFCFA(l.unit_price)} × {l.quantity}</p>
                       </div>
-                    );
-                  })}
+                      <div className="flex items-center gap-2">
+                        <Button size="icon" variant="outline" onClick={() => dec(l.key)}><Minus className="h-4 w-4" /></Button>
+                        <span className="w-6 text-center">{l.quantity}</span>
+                        <Button size="icon" onClick={() => inc(l.key)}><Plus className="h-4 w-4" /></Button>
+                      </div>
+                    </div>
+                  ))}
                   <div className="flex justify-between border-t pt-3 text-lg font-bold">
                     <span>Total</span><span>{formatFCFA(total)}</span>
                   </div>
