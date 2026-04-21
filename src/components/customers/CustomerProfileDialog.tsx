@@ -74,7 +74,7 @@ export const CustomerProfileDialog = ({ open, onOpenChange, customerId, onSaved 
         supabase.from("customer_visits").select("*").eq("customer_id", customerId).order("visit_date", { ascending: false }).limit(50),
       ]);
       setC(cr.data as CustomerFull);
-      setVisits((vr.data ?? []) as Visit[]);
+      setVisits((vr.data ?? []) as unknown as Visit[]);
     })();
   }, [open, customerId]);
 
