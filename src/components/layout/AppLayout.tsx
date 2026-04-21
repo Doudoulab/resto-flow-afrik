@@ -27,6 +27,9 @@ import {
   BookOpen,
   Receipt,
   Banknote,
+  Lock,
+  HardDriveDownload,
+  Activity,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -56,6 +59,9 @@ const navItems = [
   { to: "/app/customers", icon: BookUser, label: "Ardoises" },
   { to: "/app/advisor", icon: Sparkles, label: "Conseil IA" },
   { to: "/app/audit", icon: ShieldCheck, label: "Audit" },
+  { to: "/app/security", icon: Lock, label: "Sécurité (2FA)" },
+  { to: "/app/backups", icon: HardDriveDownload, label: "Sauvegardes" },
+  { to: "/app/health", icon: Activity, label: "État système" },
   { to: "/app/settings", icon: Settings, label: "Paramètres" },
 ];
 
