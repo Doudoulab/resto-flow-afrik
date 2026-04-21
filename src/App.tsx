@@ -52,6 +52,7 @@ const Analytics = lazy(() => import("./pages/app/Analytics"));
 const PmsReconciliation = lazy(() => import("./pages/app/PmsReconciliation"));
 const Gueridon = lazy(() => import("./pages/app/Gueridon"));
 const Modules = lazy(() => import("./pages/app/Modules"));
+const Schedule = lazy(() => import("./pages/app/Schedule"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -102,6 +103,7 @@ const App = () => (
               <Route path="payroll" element={<Payroll />} />
               <Route path="tax" element={<TaxReturns />} />
               <Route path="staff" element={<Staff />} />
+              <Route path="schedule" element={<Schedule />} />
               <Route path="timeclock" element={<TimeClock />} />
               <Route path="customers" element={<Customers />} />
               <Route path="incoming" element={<IncomingOrders />} />
