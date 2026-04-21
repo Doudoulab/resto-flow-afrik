@@ -2060,6 +2060,7 @@ export type Database = {
           default_service_pct: number
           default_vat_rate: number
           description: string | null
+          enabled_modules: string[]
           facebook_url: string | null
           id: string
           instagram_url: string | null
@@ -2090,6 +2091,7 @@ export type Database = {
           default_service_pct?: number
           default_vat_rate?: number
           description?: string | null
+          enabled_modules?: string[]
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
@@ -2120,6 +2122,7 @@ export type Database = {
           default_service_pct?: number
           default_vat_rate?: number
           description?: string | null
+          enabled_modules?: string[]
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
