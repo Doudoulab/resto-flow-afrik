@@ -25,7 +25,10 @@ import { AdjustOrderDialog } from "@/components/orders/AdjustOrderDialog";
 import { CancelOrderDialog } from "@/components/orders/CancelOrderDialog";
 import { SplitBillDialog } from "@/components/orders/SplitBillDialog";
 import { InvoiceDialog } from "@/components/orders/InvoiceDialog";
-import { Percent, FileText, XCircle, Wallet } from "lucide-react";
+import { CourseFireDialog } from "@/components/orders/CourseFireDialog";
+import { TransferItemsDialog } from "@/components/orders/TransferItemsDialog";
+import { ItemNotesDialog } from "@/components/orders/ItemNotesDialog";
+import { Percent, FileText, XCircle, Wallet, Flame, ArrowRightLeft, StickyNote } from "lucide-react";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
 
@@ -94,6 +97,9 @@ const Orders = () => {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [splitOpen, setSplitOpen] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [fireOpen, setFireOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
+  const [notesItemId, setNotesItemId] = useState<string | null>(null);
   const lastSeenIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -372,10 +378,10 @@ const Orders = () => {
               {detailOrder.table_number && <p className="text-sm">Table : <span className="font-medium">{detailOrder.table_number}</span></p>}
               <div className="space-y-1.5">
                 {detailItems.map((it) => (
-                  <div key={it.id} className="flex justify-between rounded-md bg-muted px-3 py-2 text-sm">
+                  <button key={it.id} onClick={() => setNotesItemId(it.id)} className="w-full flex justify-between rounded-md bg-muted px-3 py-2 text-sm hover:bg-muted/70 text-left">
                     <span>{it.quantity}× {it.name_snapshot}</span>
                     <span className="font-medium">{formatFCFA(Number(it.unit_price) * it.quantity)}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
               {detailOrder.notes && <p className="rounded-md bg-accent p-3 text-sm text-accent-foreground">{detailOrder.notes}</p>}
@@ -418,6 +424,16 @@ const Orders = () => {
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => setInvoiceOpen(true)}>
                     <FileText className="mr-2 h-4 w-4" /> Facture légale
+                  </Button>
+                </div>
+              )}
+              {detailOrder.status !== "cancelled" && detailOrder.status !== "paid" && (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setFireOpen(true)}>
+                    <Flame className="mr-2 h-4 w-4" /> Envoyer en cuisine
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setTransferOpen(true)}>
+                    <ArrowRightLeft className="mr-2 h-4 w-4" /> Transférer
                   </Button>
                 </div>
               )}
@@ -536,6 +552,28 @@ const Orders = () => {
         onOpenChange={setInvoiceOpen}
         orderId={detailOrder?.id ?? null}
         restaurantId={restaurant?.id ?? null}
+      />
+
+      <CourseFireDialog
+        open={fireOpen}
+        onOpenChange={setFireOpen}
+        orderId={detailOrder?.id ?? null}
+        onFired={() => { if (detailOrder) openDetail(detailOrder); }}
+      />
+
+      <TransferItemsDialog
+        open={transferOpen}
+        onOpenChange={setTransferOpen}
+        fromOrderId={detailOrder?.id ?? null}
+        restaurantId={restaurant?.id ?? null}
+        onTransferred={() => { load(); if (detailOrder) openDetail(detailOrder); }}
+      />
+
+      <ItemNotesDialog
+        open={!!notesItemId}
+        onOpenChange={(o) => !o && setNotesItemId(null)}
+        itemId={notesItemId}
+        onSaved={() => { if (detailOrder) openDetail(detailOrder); }}
       />
     </div>
   );

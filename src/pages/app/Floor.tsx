@@ -3,9 +3,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Users } from "lucide-react";
+import { Loader2, Users, LayoutGrid, Move } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { FloorPlanEditor } from "@/components/floor/FloorPlanEditor";
 
 type TableStatus = "available" | "occupied" | "needs_cleaning" | "reserved";
 
@@ -46,6 +47,7 @@ const Floor = () => {
   const { restaurant } = useAuth();
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"grid" | "plan">("grid");
 
   const load = async () => {
     if (!restaurant) return;
@@ -93,10 +95,31 @@ const Floor = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Salle</h1>
-        <p className="mt-1 text-muted-foreground">Vue d'ensemble des tables du restaurant — touchez pour changer le statut.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Salle</h1>
+          <p className="mt-1 text-muted-foreground">Vue d'ensemble des tables — cliquez pour changer le statut.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant={view === "grid" ? "default" : "outline"} onClick={() => setView("grid")}>
+            <LayoutGrid className="mr-2 h-4 w-4" /> Grille
+          </Button>
+          <Button size="sm" variant={view === "plan" ? "default" : "outline"} onClick={() => setView("plan")}>
+            <Move className="mr-2 h-4 w-4" /> Plan visuel
+          </Button>
+        </div>
       </div>
+
+      {view === "plan" && restaurant && (
+        <FloorPlanEditor
+          restaurantId={restaurant.id}
+          editable
+          onTableClick={(t) => cycleStatus(t as RestaurantTable)}
+        />
+      )}
+
+      {view === "plan" ? null : (
+      <>
 
       {tables.length === 0 ? (
         <Card>
@@ -137,6 +160,8 @@ const Floor = () => {
             Cycle : Libre → Occupée → À débarrasser → Libre. Les tables réservées passent à occupée.
           </p>
         </>
+      )}
+      </>
       )}
     </div>
   );
