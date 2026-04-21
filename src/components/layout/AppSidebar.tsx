@@ -112,11 +112,16 @@ export const AppSidebar = () => {
   const collapsed = state === "collapsed";
 
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
+  const isOwner = profile?.is_owner ?? false;
+  // Sections restricted to owners (employees won't see Finances or System)
+  const OWNER_ONLY_SECTIONS = new Set(["finances", "system", "settings"]);
 
   const filteredSections = SECTIONS.map(section => ({
     ...section,
     items: section.items.filter(it => !it.module || isModuleEnabled(enabled, it.module)),
-  })).filter(s => s.items.length > 0);
+  }))
+    .filter(s => isOwner || !OWNER_ONLY_SECTIONS.has(s.id))
+    .filter(s => s.items.length > 0);
 
   // Auto-open the section containing current route
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
