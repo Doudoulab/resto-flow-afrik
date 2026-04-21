@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { RoleQuickPanel } from "@/components/layout/RoleQuickPanel";
 
 interface Stats {
   todayRevenue: number;
@@ -133,6 +134,8 @@ const Dashboard = () => {
           Voici un aperçu de l'activité de {restaurant?.name} aujourd'hui.
         </p>
       </div>
+
+      <RoleQuickPanel />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
