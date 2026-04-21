@@ -4,12 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
-import { ShoppingCart, Plus, Minus, CheckCircle2, MapPin, Phone, Instagram, Facebook, Clock, ChefHat, MessageCircle } from "lucide-react";
+import { ShoppingCart, Plus, Minus, CheckCircle2, MapPin, Phone, Instagram, Facebook, Clock, ChefHat, MessageCircle, ChevronRight } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
+import { ItemConfigurator, type ConfiguredSelection } from "@/components/menu/ItemConfigurator";
 
 interface PublicResto {
   id: string;
@@ -31,6 +32,7 @@ interface PublicResto {
 }
 interface Category { id: string; name: string; sort_order: number }
 interface MenuItem { id: string; name: string; description: string | null; price: number; category_id: string | null; image_url: string | null; sort_order: number }
+interface CartLine { key: string; menu_item_id: string; name: string; unit_price: number; quantity: number }
 
 const DAY_LABELS: Record<string, string> = {
   mon: "Lun", tue: "Mar", wed: "Mer", thu: "Jeu", fri: "Ven", sat: "Sam", sun: "Dim",
@@ -48,13 +50,16 @@ const PublicRestaurant = () => {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [activeCat, setActiveCat] = useState<string>("");
 
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhoneInput] = useState("");
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const [configItem, setConfigItem] = useState<MenuItem | null>(null);
+  const [configOpen, setConfigOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -89,19 +94,31 @@ const PublicRestaurant = () => {
     ...(itemsByCategory.has("_none") ? [{ id: "_none", name: "Autres", sort_order: 999 }] : []),
   ].filter((c) => (itemsByCategory.get(c.id) ?? []).length > 0), [categories, itemsByCategory]);
 
-  const total = useMemo(() => Object.entries(cart).reduce((s, [id, q]) => {
-    const it = items.find((i) => i.id === id);
-    return s + (it ? Number(it.price) * q : 0);
-  }, 0), [cart, items]);
-  const cartCount = Object.values(cart).reduce((s, q) => s + q, 0);
+  const total = useMemo(() => cart.reduce((s, l) => s + l.unit_price * l.quantity, 0), [cart]);
+  const cartCount = cart.reduce((s, l) => s + l.quantity, 0);
+  const qtyForItem = (id: string) => cart.filter((l) => l.menu_item_id === id).reduce((s, l) => s + l.quantity, 0);
 
-  const inc = (id: string) => setCart((c) => ({ ...c, [id]: (c[id] ?? 0) + 1 }));
-  const dec = (id: string) => setCart((c) => {
-    const next = (c[id] ?? 0) - 1;
-    const cp = { ...c };
-    if (next <= 0) delete cp[id]; else cp[id] = next;
-    return cp;
-  });
+  const inc = (key: string) =>
+    setCart((prev) => prev.map((l) => l.key === key ? { ...l, quantity: l.quantity + 1 } : l));
+  const dec = (key: string) =>
+    setCart((prev) => prev.flatMap((l) => l.key === key ? (l.quantity <= 1 ? [] : [{ ...l, quantity: l.quantity - 1 }]) : [l]));
+
+  const openItem = (it: MenuItem) => {
+    setConfigItem(it);
+    setConfigOpen(true);
+  };
+
+  const onConfigured = (sel: ConfiguredSelection) => {
+    const key = `${sel.item.id}::${sel.label}::${sel.unitPrice}`;
+    setCart((prev) => {
+      const ex = prev.find((l) => l.key === key);
+      if (ex) return prev.map((l) => l.key === key ? { ...l, quantity: l.quantity + 1 } : l);
+      return [...prev, { key, menu_item_id: sel.item.id, name: sel.label, unit_price: sel.unitPrice, quantity: 1 }];
+    });
+    setConfigOpen(false);
+    setConfigItem(null);
+    toast.success(`${sel.label} ajouté au panier`);
+  };
 
   const submit = async () => {
     if (!resto) return;
@@ -110,10 +127,12 @@ const PublicRestaurant = () => {
       toast.error("Champs trop longs"); return;
     }
     setSubmitting(true);
-    const orderItems = Object.entries(cart).map(([id, qty]) => {
-      const it = items.find((i) => i.id === id)!;
-      return { menu_item_id: id, name: it.name, unit_price: Number(it.price), quantity: qty };
-    });
+    const orderItems = cart.map((l) => ({
+      menu_item_id: l.menu_item_id,
+      name: l.name,
+      unit_price: l.unit_price,
+      quantity: l.quantity,
+    }));
     const { error } = await supabase.from("public_orders").insert({
       restaurant_id: resto.id,
       table_number: tableNumber || null,
@@ -126,7 +145,7 @@ const PublicRestaurant = () => {
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     setSubmitted(true);
-    setCart({});
+    setCart([]);
     setCartOpen(false);
   };
 
@@ -270,25 +289,33 @@ const PublicRestaurant = () => {
               <h2 className="mb-3 text-xl font-bold">{cat.name}</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {list.map((it) => {
-                  const qty = cart[it.id] ?? 0;
+                  const qty = qtyForItem(it.id);
                   return (
-                    <Card key={it.id} className="overflow-hidden">
+                    <Card
+                      key={it.id}
+                      className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+                      onClick={() => resto.accepts_online_orders ? openItem(it) : undefined}
+                    >
                       <div className="flex">
                         <div className="flex-1 p-3">
-                          <p className="font-semibold">{it.name}</p>
+                          <div className="flex items-start justify-between gap-1">
+                            <p className="font-semibold">{it.name}</p>
+                            <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                          </div>
                           {it.description && <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{it.description}</p>}
                           <p className="mt-2 font-bold" style={{ color: themeColor }}>{formatFCFA(it.price)}</p>
                           <div className="mt-2">
                             {qty === 0 ? (
-                              <Button size="sm" onClick={() => inc(it.id)} disabled={!resto.accepts_online_orders} style={{ background: themeColor }}>
+                              <Button
+                                size="sm"
+                                onClick={(e) => { e.stopPropagation(); openItem(it); }}
+                                disabled={!resto.accepts_online_orders}
+                                style={{ background: themeColor }}
+                              >
                                 <Plus className="mr-1 h-3 w-3" /> Ajouter
                               </Button>
                             ) : (
-                              <div className="flex items-center gap-2">
-                                <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => dec(it.id)}><Minus className="h-3 w-3" /></Button>
-                                <span className="w-6 text-center text-sm font-semibold">{qty}</span>
-                                <Button size="icon" className="h-8 w-8" onClick={() => inc(it.id)} style={{ background: themeColor }}><Plus className="h-3 w-3" /></Button>
-                              </div>
+                              <Badge variant="secondary" className="text-xs">{qty} dans le panier</Badge>
                             )}
                           </div>
                         </div>
@@ -329,23 +356,19 @@ const PublicRestaurant = () => {
               <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
                 <SheetHeader><SheetTitle>Votre commande</SheetTitle></SheetHeader>
                 <div className="space-y-3 py-4">
-                  {Object.entries(cart).map(([id, qty]) => {
-                    const it = items.find((i) => i.id === id);
-                    if (!it) return null;
-                    return (
-                      <div key={id} className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <p className="font-medium">{it.name}</p>
-                          <p className="text-sm text-muted-foreground">{formatFCFA(it.price)} × {qty}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button size="icon" variant="outline" onClick={() => dec(id)}><Minus className="h-4 w-4" /></Button>
-                          <span className="w-6 text-center">{qty}</span>
-                          <Button size="icon" onClick={() => inc(id)} style={{ background: themeColor }}><Plus className="h-4 w-4" /></Button>
-                        </div>
+                  {cart.map((l) => (
+                    <div key={l.key} className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <p className="font-medium">{l.name}</p>
+                        <p className="text-sm text-muted-foreground">{formatFCFA(l.unit_price)} × {l.quantity}</p>
                       </div>
-                    );
-                  })}
+                      <div className="flex items-center gap-2">
+                        <Button size="icon" variant="outline" onClick={() => dec(l.key)}><Minus className="h-4 w-4" /></Button>
+                        <span className="w-6 text-center">{l.quantity}</span>
+                        <Button size="icon" onClick={() => inc(l.key)} style={{ background: themeColor }}><Plus className="h-4 w-4" /></Button>
+                      </div>
+                    </div>
+                  ))}
                   <div className="flex justify-between border-t pt-3 text-lg font-bold">
                     <span>Total</span><span>{formatFCFA(total)}</span>
                   </div>
@@ -368,6 +391,20 @@ const PublicRestaurant = () => {
           </div>
         </div>
       )}
+
+      {/* Item detail / configurator (description + variants + supplements) */}
+      <ItemConfigurator
+        open={configOpen}
+        item={configItem ? {
+          id: configItem.id,
+          name: configItem.name,
+          price: Number(configItem.price),
+          image_url: configItem.image_url,
+          description: configItem.description,
+        } : null}
+        onOpenChange={(o) => { setConfigOpen(o); if (!o) setConfigItem(null); }}
+        onConfirm={onConfigured}
+      />
     </div>
   );
 };
