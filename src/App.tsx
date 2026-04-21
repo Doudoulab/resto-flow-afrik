@@ -33,6 +33,7 @@ import Ledger from "./pages/app/Ledger";
 import Security from "./pages/app/Security";
 import Backups from "./pages/app/Backups";
 import Health from "./pages/app/Health";
+import Printers from "./pages/app/Printers";
 import PublicMenu from "./pages/PublicMenu";
 import PublicRestaurant from "./pages/PublicRestaurant";
 import AcceptInvitation from "./pages/AcceptInvitation";
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="security" element={<Security />} />
               <Route path="backups" element={<Backups />} />
               <Route path="health" element={<Health />} />
+              <Route path="printers" element={<Printers />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />

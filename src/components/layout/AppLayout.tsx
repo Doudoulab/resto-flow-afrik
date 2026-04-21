@@ -30,6 +30,7 @@ import {
   Lock,
   HardDriveDownload,
   Activity,
+  Printer,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,7 @@ const navItems = [
   { to: "/app/security", icon: Lock, label: "Sécurité (2FA)" },
   { to: "/app/backups", icon: HardDriveDownload, label: "Sauvegardes" },
   { to: "/app/health", icon: Activity, label: "État système" },
+  { to: "/app/printers", icon: Printer, label: "Imprimantes" },
   { to: "/app/settings", icon: Settings, label: "Paramètres" },
 ];
 
