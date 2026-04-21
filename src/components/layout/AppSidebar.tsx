@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { isModuleEnabled, type ModuleKey } from "@/lib/modules";
+import { useLiveBadges } from "@/hooks/useLiveBadges";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -113,6 +115,13 @@ export const AppSidebar = () => {
 
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
   const isOwner = profile?.is_owner ?? false;
+  const liveBadges = useLiveBadges();
+  const routeBadges: Record<string, number> = {
+    "/app/incoming": liveBadges.incomingOrders,
+    "/app/reservations": liveBadges.todayReservations,
+    "/app/stock": liveBadges.lowStock,
+    "/app/kitchen": liveBadges.pendingKitchen,
+  };
   // Sections restricted to owners (employees won't see Finances or System)
   const OWNER_ONLY_SECTIONS = new Set(["finances", "system", "settings"]);
 
@@ -168,7 +177,12 @@ export const AppSidebar = () => {
                           <NavLink to={item.to} end={item.end} className={({ isActive }) =>
                             cn(isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")
                           }>
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className="h-4 w-4 relative" />
+                            {routeBadges[item.to] > 0 && (
+                              <span className="absolute -top-0.5 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-semibold text-destructive-foreground">
+                                {routeBadges[item.to] > 9 ? "9+" : routeBadges[item.to]}
+                              </span>
+                            )}
                             <span>{item.label}</span>
                           </NavLink>
                         </SidebarMenuButton>
@@ -202,7 +216,12 @@ export const AppSidebar = () => {
                               cn(isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")
                             }>
                               <item.icon className="h-4 w-4" />
-                              <span>{item.label}</span>
+                              <span className="flex-1">{item.label}</span>
+                              {routeBadges[item.to] > 0 && (
+                                <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px]">
+                                  {routeBadges[item.to] > 9 ? "9+" : routeBadges[item.to]}
+                                </Badge>
+                              )}
                             </NavLink>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
