@@ -14,6 +14,103 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounting_accounts: {
+        Row: {
+          class: number
+          code: string
+          created_at: string
+          id: string
+          is_system: boolean
+          label: string
+          restaurant_id: string
+          type: string
+        }
+        Insert: {
+          class: number
+          code: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          label: string
+          restaurant_id: string
+          type: string
+        }
+        Update: {
+          class?: number
+          code?: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          label?: string
+          restaurant_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounting_accounts_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accounting_entries: {
+        Row: {
+          account_code: string
+          created_at: string
+          created_by: string | null
+          credit: number
+          debit: number
+          entry_date: string
+          id: string
+          journal: string
+          label: string
+          reference: string | null
+          restaurant_id: string
+          source_id: string | null
+          source_type: string | null
+        }
+        Insert: {
+          account_code: string
+          created_at?: string
+          created_by?: string | null
+          credit?: number
+          debit?: number
+          entry_date?: string
+          id?: string
+          journal?: string
+          label: string
+          reference?: string | null
+          restaurant_id: string
+          source_id?: string | null
+          source_type?: string | null
+        }
+        Update: {
+          account_code?: string
+          created_at?: string
+          created_by?: string | null
+          credit?: number
+          debit?: number
+          entry_date?: string
+          id?: string
+          journal?: string
+          label?: string
+          reference?: string | null
+          restaurant_id?: string
+          source_id?: string | null
+          source_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounting_entries_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -1106,6 +1203,202 @@ export type Database = {
           },
         ]
       }
+      payroll_entries: {
+        Row: {
+          base_salary: number
+          bonus: number
+          cnss_employee: number
+          cnss_employer: number
+          created_at: string
+          employee_name: string
+          gross_salary: number
+          hourly_rate: number
+          hours_worked: number
+          id: string
+          ipres_employee: number
+          ipres_employer: number
+          irpp: number
+          net_salary: number
+          notes: string | null
+          other_deductions: number
+          other_employer: number
+          period_id: string
+          restaurant_id: string
+          total_deductions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          base_salary?: number
+          bonus?: number
+          cnss_employee?: number
+          cnss_employer?: number
+          created_at?: string
+          employee_name: string
+          gross_salary?: number
+          hourly_rate?: number
+          hours_worked?: number
+          id?: string
+          ipres_employee?: number
+          ipres_employer?: number
+          irpp?: number
+          net_salary?: number
+          notes?: string | null
+          other_deductions?: number
+          other_employer?: number
+          period_id: string
+          restaurant_id: string
+          total_deductions?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          base_salary?: number
+          bonus?: number
+          cnss_employee?: number
+          cnss_employer?: number
+          created_at?: string
+          employee_name?: string
+          gross_salary?: number
+          hourly_rate?: number
+          hours_worked?: number
+          id?: string
+          ipres_employee?: number
+          ipres_employer?: number
+          irpp?: number
+          net_salary?: number
+          notes?: string | null
+          other_deductions?: number
+          other_employer?: number
+          period_id?: string
+          restaurant_id?: string
+          total_deductions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_entries_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_entries_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_periods: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          period_month: string
+          restaurant_id: string
+          status: string
+          total_employer_charges: number
+          total_gross: number
+          total_net: number
+          updated_at: string
+          validated_at: string | null
+          validated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          period_month: string
+          restaurant_id: string
+          status?: string
+          total_employer_charges?: number
+          total_gross?: number
+          total_net?: number
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          period_month?: string
+          restaurant_id?: string
+          status?: string
+          total_employer_charges?: number
+          total_gross?: number
+          total_net?: number
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_periods_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_settings: {
+        Row: {
+          cnss_employee_pct: number
+          cnss_employer_pct: number
+          country_code: string
+          created_at: string
+          id: string
+          ipres_employee_pct: number
+          ipres_employer_pct: number
+          irpp_pct: number
+          other_employee_pct: number
+          other_employer_pct: number
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          cnss_employee_pct?: number
+          cnss_employer_pct?: number
+          country_code?: string
+          created_at?: string
+          id?: string
+          ipres_employee_pct?: number
+          ipres_employer_pct?: number
+          irpp_pct?: number
+          other_employee_pct?: number
+          other_employer_pct?: number
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          cnss_employee_pct?: number
+          cnss_employer_pct?: number
+          country_code?: string
+          created_at?: string
+          id?: string
+          ipres_employee_pct?: number
+          ipres_employer_pct?: number
+          irpp_pct?: number
+          other_employee_pct?: number
+          other_employer_pct?: number
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_settings_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: true
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1679,6 +1972,56 @@ export type Database = {
           },
         ]
       }
+      tax_declarations: {
+        Row: {
+          created_at: string
+          declared_at: string | null
+          id: string
+          notes: string | null
+          period_month: string
+          restaurant_id: string
+          status: string
+          updated_at: string
+          vat_collected: number
+          vat_deductible: number
+          vat_to_pay: number
+        }
+        Insert: {
+          created_at?: string
+          declared_at?: string | null
+          id?: string
+          notes?: string | null
+          period_month: string
+          restaurant_id: string
+          status?: string
+          updated_at?: string
+          vat_collected?: number
+          vat_deductible?: number
+          vat_to_pay?: number
+        }
+        Update: {
+          created_at?: string
+          declared_at?: string | null
+          id?: string
+          notes?: string | null
+          period_month?: string
+          restaurant_id?: string
+          status?: string
+          updated_at?: string
+          vat_collected?: number
+          vat_deductible?: number
+          vat_to_pay?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_declarations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       time_entries: {
         Row: {
           clock_in: string
@@ -1774,6 +2117,10 @@ export type Database = {
         Returns: boolean
       }
       next_invoice_number: { Args: { _restaurant_id: string }; Returns: string }
+      seed_syscohada_accounts: {
+        Args: { _restaurant_id: string }
+        Returns: undefined
+      }
       transfer_order_item: {
         Args: { _item_id: string; _reason: string; _to_order_id: string }
         Returns: undefined
