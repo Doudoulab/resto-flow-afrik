@@ -13,6 +13,7 @@ import { RestaurantCustomization } from "@/components/settings/RestaurantCustomi
 import { OperatorsManager } from "@/components/payments/OperatorsManager";
 import { FiscalSettings } from "@/components/settings/FiscalSettings";
 import { StationsManager } from "@/components/kitchen/StationsManager";
+import { StockSettings } from "@/components/settings/StockSettings";
 
 interface RestaurantTable {
   id: string;
@@ -152,6 +153,10 @@ const Settings = () => {
 
       {profile?.is_owner && restaurant && (
         <StationsManager restaurantId={restaurant.id} />
+      )}
+
+      {profile?.is_owner && restaurant && (
+        <StockSettings restaurantId={restaurant.id} />
       )}
 
       <Card className="shadow-sm">
