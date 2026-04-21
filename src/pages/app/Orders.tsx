@@ -266,7 +266,7 @@ const Orders = () => {
 
   const openDetail = async (order: Order) => {
     setDetailOrder(order);
-    const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
+    const { data } = await supabase.from("order_items").select("id,name_snapshot,unit_price,quantity,station_id").eq("order_id", order.id);
     setDetailItems((data ?? []) as OrderItem[]);
   };
 
