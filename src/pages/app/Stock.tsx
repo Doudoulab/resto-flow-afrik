@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, AlertTriangle, ChefHat } from "lucide-react";
+import { RecipeDialog } from "@/components/stock/RecipeDialog";
 
 interface StockItem {
   id: string;
@@ -26,11 +27,17 @@ const Stock = () => {
   const [dialog, setDialog] = useState(false);
   const [editing, setEditing] = useState<StockItem | null>(null);
   const [form, setForm] = useState({ name: "", unit: "unité", quantity: "0", alert_threshold: "0", cost_per_unit: "0" });
+  const [recipeFor, setRecipeFor] = useState<{ id: string; name: string; price: number } | null>(null);
+  const [menuItems, setMenuItems] = useState<{ id: string; name: string; price: number }[]>([]);
 
   const load = async () => {
     if (!restaurant) return;
-    const { data } = await supabase.from("stock_items").select("*").eq("restaurant_id", restaurant.id).order("name");
+    const [{ data }, { data: m }] = await Promise.all([
+      supabase.from("stock_items").select("*").eq("restaurant_id", restaurant.id).order("name"),
+      supabase.from("menu_items").select("id,name,price").eq("restaurant_id", restaurant.id).order("name"),
+    ]);
     setItems((data ?? []) as StockItem[]);
+    setMenuItems((m ?? []) as { id: string; name: string; price: number }[]);
     setLoading(false);
   };
   useEffect(() => { load(); }, [restaurant]);

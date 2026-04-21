@@ -20,6 +20,10 @@ import {
   Bell,
   ShieldCheck,
   Flame,
+  Truck,
+  PackagePlus,
+  ClipboardCheck,
+  BarChart3,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -36,6 +40,10 @@ const navItems = [
   { to: "/app/reservations", icon: CalendarDays, label: "Réservations" },
   { to: "/app/menu", icon: UtensilsCrossed, label: "Menu" },
   { to: "/app/stock", icon: Package, label: "Stock" },
+  { to: "/app/suppliers", icon: Truck, label: "Fournisseurs" },
+  { to: "/app/receipts", icon: PackagePlus, label: "Réceptions" },
+  { to: "/app/inventory", icon: ClipboardCheck, label: "Inventaires" },
+  { to: "/app/reports", icon: BarChart3, label: "Rapports" },
   { to: "/app/accounting", icon: Wallet, label: "Comptabilité" },
   { to: "/app/staff", icon: Users, label: "Personnel" },
   { to: "/app/timeclock", icon: Clock, label: "Pointage" },

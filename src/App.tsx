@@ -23,6 +23,10 @@ import Customers from "./pages/app/Customers";
 import IncomingOrders from "./pages/app/IncomingOrders";
 import AuditLog from "./pages/app/AuditLog";
 import KitchenDisplay from "./pages/app/KitchenDisplay";
+import Suppliers from "./pages/app/Suppliers";
+import Receipts from "./pages/app/Receipts";
+import Inventory from "./pages/app/Inventory";
+import Reports from "./pages/app/Reports";
 import PublicMenu from "./pages/PublicMenu";
 import PublicRestaurant from "./pages/PublicRestaurant";
 import AcceptInvitation from "./pages/AcceptInvitation";
@@ -57,6 +61,10 @@ const App = () => (
               <Route path="reservations" element={<Reservations />} />
               <Route path="menu" element={<Menu />} />
               <Route path="stock" element={<Stock />} />
+              <Route path="suppliers" element={<Suppliers />} />
+              <Route path="receipts" element={<Receipts />} />
+              <Route path="inventory" element={<Inventory />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="accounting" element={<Accounting />} />
               <Route path="staff" element={<Staff />} />
               <Route path="timeclock" element={<TimeClock />} />
