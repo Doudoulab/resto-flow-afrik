@@ -1264,8 +1264,10 @@ export type Database = {
           order_number: number
           payment_method: string | null
           payment_status: string
+          pms_confirmed_at: string | null
           pms_export_status: string | null
           pms_exported_at: string | null
+          pms_room_charge_id: string | null
           restaurant_id: string
           room_number: string | null
           service_amount: number
@@ -1296,8 +1298,10 @@ export type Database = {
           order_number?: number
           payment_method?: string | null
           payment_status?: string
+          pms_confirmed_at?: string | null
           pms_export_status?: string | null
           pms_exported_at?: string | null
+          pms_room_charge_id?: string | null
           restaurant_id: string
           room_number?: string | null
           service_amount?: number
@@ -1328,8 +1332,10 @@ export type Database = {
           order_number?: number
           payment_method?: string | null
           payment_status?: string
+          pms_confirmed_at?: string | null
           pms_export_status?: string | null
           pms_exported_at?: string | null
+          pms_room_charge_id?: string | null
           restaurant_id?: string
           room_number?: string | null
           service_amount?: number
@@ -1692,6 +1698,69 @@ export type Database = {
             foreignKeyName: "payroll_settings_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: true
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pms_sync_log: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          created_by: string | null
+          error_message: string | null
+          external_ref: string | null
+          id: string
+          order_id: string
+          payload: Json | null
+          pms_provider: string
+          restaurant_id: string
+          room_number: string | null
+          sync_direction: string
+          sync_status: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          external_ref?: string | null
+          id?: string
+          order_id: string
+          payload?: Json | null
+          pms_provider?: string
+          restaurant_id: string
+          room_number?: string | null
+          sync_direction?: string
+          sync_status?: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          external_ref?: string | null
+          id?: string
+          order_id?: string
+          payload?: Json | null
+          pms_provider?: string
+          restaurant_id?: string
+          room_number?: string | null
+          sync_direction?: string
+          sync_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pms_sync_log_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pms_sync_log_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
             referencedRelation: "restaurants"
             referencedColumns: ["id"]
           },
