@@ -9,6 +9,9 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/s
 import { AppSidebar } from "./AppSidebar";
 import { CommandPaletteProvider, useCommandPalette } from "./CommandPalette";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { NotificationCenter } from "./NotificationCenter";
+import { PageTitle } from "./PageTitle";
+import { QuickViewProvider } from "./QuickViewSheet";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 
@@ -45,12 +48,14 @@ const InnerLayout = () => {
                 ⌘K
               </kbd>
             </Button>
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-2">
+              <NotificationCenter />
               <OfflineIndicator />
               <LanguageSwitcher />
               <ThemeToggle />
             </div>
           </header>
+          <PageTitle />
           <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-8 md:pb-8">
             <div className="mx-auto max-w-7xl animate-fade-in">
               <Outlet />
@@ -65,6 +70,8 @@ const InnerLayout = () => {
 
 export const AppLayout = () => (
   <CommandPaletteProvider>
-    <InnerLayout />
+    <QuickViewProvider>
+      <InnerLayout />
+    </QuickViewProvider>
   </CommandPaletteProvider>
 );
