@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ChefHat, Pencil, Trash2, Layers } from "lucide-react";
+import { ChefHat, Pencil, Trash2, Layers, Languages } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 
 export interface MenuItemLite {
@@ -21,9 +21,10 @@ interface Props {
   onToggle: (i: MenuItemLite) => void;
   onRecipe: (i: MenuItemLite) => void;
   onVariants: (i: MenuItemLite) => void;
+  onTranslations?: (i: MenuItemLite) => void;
 }
 
-export const MenuItemCard = ({ item, onEdit, onDelete, onToggle, onRecipe, onVariants }: Props) => (
+export const MenuItemCard = ({ item, onEdit, onDelete, onToggle, onRecipe, onVariants, onTranslations }: Props) => (
   <Card className="shadow-sm">
     <div className="aspect-video w-full overflow-hidden bg-muted">
       {item.image_url ? (
@@ -45,6 +46,11 @@ export const MenuItemCard = ({ item, onEdit, onDelete, onToggle, onRecipe, onVar
         <Button variant="ghost" size="sm" onClick={() => onVariants(item)} title="Variantes & suppléments">
           <Layers className="h-4 w-4" />
         </Button>
+        {onTranslations && (
+          <Button variant="ghost" size="sm" onClick={() => onTranslations(item)} title="Traductions (EN, AR)">
+            <Languages className="h-4 w-4" />
+          </Button>
+        )}
         <Button variant="ghost" size="sm" onClick={() => onRecipe(item)} title="Recette">
           <ChefHat className="h-4 w-4" />
         </Button>

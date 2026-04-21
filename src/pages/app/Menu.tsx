@@ -17,6 +17,7 @@ import { formatFCFA } from "@/lib/currency";
 import { ImageUpload } from "@/components/ImageUpload";
 import { MenuItemCard, type MenuItemLite } from "@/components/menu/MenuItemCard";
 import { VariantsModifiersDialog } from "@/components/menu/VariantsModifiersDialog";
+import { MenuTranslationsDialog } from "@/components/menu/MenuTranslationsDialog";
 
 interface Category { id: string; name: string; sort_order: number; station_id: string | null; }
 interface Station { id: string; name: string; color: string; }
@@ -46,6 +47,7 @@ const Menu = () => {
   const [recipeSaving, setRecipeSaving] = useState(false);
 
   const [variantsFor, setVariantsFor] = useState<MenuItem | null>(null);
+  const [translationsFor, setTranslationsFor] = useState<MenuItem | null>(null);
 
   const load = async () => {
     if (!restaurant) return;
@@ -276,7 +278,7 @@ const Menu = () => {
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {catItems.length === 0 ? (
               <p className="col-span-full text-sm text-muted-foreground">Aucun plat dans cette catégorie.</p>
-            ) : catItems.map((item) => <MenuItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} onVariants={setVariantsFor} />)}
+            ) : catItems.map((item) => <MenuItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} onVariants={setVariantsFor} onTranslations={setTranslationsFor} />)}
           </div>
         </div>
       ))}
@@ -285,7 +287,7 @@ const Menu = () => {
         <div>
           <h2 className="mb-3 text-lg font-semibold">Sans catégorie</h2>
           <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {uncategorized.map((item) => <MenuItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} onVariants={setVariantsFor} />)}
+            {uncategorized.map((item) => <MenuItemCard key={item.id} item={item} onEdit={openItem} onDelete={deleteItem} onToggle={toggleAvailable} onRecipe={openRecipe} onVariants={setVariantsFor} onTranslations={setTranslationsFor} />)}
           </div>
         </div>
       )}
@@ -410,6 +412,17 @@ const Menu = () => {
           item={variantsFor}
           restaurantId={restaurant.id}
           onClose={() => setVariantsFor(null)}
+        />
+      )}
+
+      {restaurant && translationsFor && (
+        <MenuTranslationsDialog
+          open={!!translationsFor}
+          onOpenChange={(o) => !o && setTranslationsFor(null)}
+          restaurantId={restaurant.id}
+          itemId={translationsFor.id}
+          defaultName={translationsFor.name}
+          defaultDescription={translationsFor.description}
         />
       )}
     </div>

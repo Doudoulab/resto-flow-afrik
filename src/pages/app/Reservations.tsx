@@ -13,7 +13,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, CalendarDays, Trash2, MessageCircle, AlertTriangle, PartyPopper, Wallet } from "lucide-react";
+import { Loader2, Plus, CalendarDays, Trash2, MessageCircle, AlertTriangle, PartyPopper, Wallet, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { format, isToday, isFuture, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -131,6 +131,41 @@ const Reservations = () => {
     if (error) { toast.error(error.message); return; }
     toast.success("Acompte encaissé");
     load();
+  };
+
+  const sendDepositLink = async (r: Reservation) => {
+    if (!restaurant) return;
+    if (!r.customer_phone) { toast.error("Téléphone client requis"); return; }
+    if (r.deposit_amount <= 0) { toast.error("Aucun acompte défini"); return; }
+    try {
+      const { data, error } = await supabase.functions.invoke("mobile-money-init", {
+        body: {
+          restaurant_id: restaurant.id,
+          amount: r.deposit_amount,
+          customer_name: r.customer_name,
+          customer_phone: r.customer_phone,
+          reference: `RES-${r.id.slice(0, 8)}`,
+        },
+      });
+      if (error) throw error;
+      const url = (data as { checkout_url?: string; payment_url?: string })?.checkout_url
+        ?? (data as { payment_url?: string })?.payment_url;
+      if (url) {
+        await supabase.from("reservations").update({
+          deposit_status: "link_sent",
+          deposit_payment_url: url,
+        }).eq("id", r.id);
+        const phone = r.customer_phone.replace(/\D/g, "");
+        const msg = `Bonjour ${r.customer_name}, voici le lien pour régler votre acompte de ${formatFCFA(r.deposit_amount)} chez ${restaurant.name} : ${url}`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+        toast.success("Lien de paiement généré et prêt à envoyer");
+        load();
+      } else {
+        toast.error("Aucune URL de paiement renvoyée — vérifiez la configuration Mobile Money.");
+      }
+    } catch (e) {
+      toast.error((e as Error).message ?? "Erreur lors de la génération du lien");
+    }
   };
 
   const buildWhatsAppLink = (r: Reservation) => {
@@ -328,6 +363,11 @@ const Reservations = () => {
                   {r.deposit_amount > 0 && r.deposit_status !== "paid" && (
                     <Button variant="outline" size="sm" onClick={() => markDepositPaid(r.id)}>
                       <Wallet className="mr-2 h-4 w-4" /> Acompte payé
+                    </Button>
+                  )}
+                  {r.deposit_amount > 0 && r.deposit_status !== "paid" && r.customer_phone && (
+                    <Button variant="outline" size="sm" onClick={() => sendDepositLink(r)}>
+                      <Smartphone className="mr-2 h-4 w-4" /> Lien Mobile Money
                     </Button>
                   )}
                   <Button variant="ghost" size="icon" onClick={() => removeItem(r.id)}>
