@@ -14,6 +14,8 @@ import { PageTitle } from "./PageTitle";
 import { QuickViewProvider } from "./QuickViewSheet";
 import { ContextualFab } from "./ContextualFab";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useSwipeNav } from "@/hooks/useSwipeNav";
+import { OnboardingTour } from "./OnboardingTour";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
@@ -23,6 +25,7 @@ const InnerLayout = () => {
   const { open: openPalette } = useCommandPalette();
   const navigate = useNavigate();
   useKeyboardShortcuts(() => navigate("/app/orders?new=1"));
+  useSwipeNav();
 
   useEffect(() => {
     if (restaurant?.id) {
@@ -70,6 +73,7 @@ const InnerLayout = () => {
           <ContextualFab />
         </SidebarInset>
       </div>
+      <OnboardingTour />
     </SidebarProvider>
   );
 };
