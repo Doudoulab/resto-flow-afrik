@@ -20,6 +20,12 @@ import { MobileMoneyDialog } from "@/components/payments/MobileMoneyDialog";
 import { enqueue } from "@/lib/offline/db";
 import { triggerFlush } from "@/lib/offline/sync";
 import { ItemConfigurator, itemNeedsConfig, type ConfiguredSelection } from "@/components/menu/ItemConfigurator";
+import { computeTotals } from "@/lib/orders/totals";
+import { AdjustOrderDialog } from "@/components/orders/AdjustOrderDialog";
+import { CancelOrderDialog } from "@/components/orders/CancelOrderDialog";
+import { SplitBillDialog } from "@/components/orders/SplitBillDialog";
+import { InvoiceDialog } from "@/components/orders/InvoiceDialog";
+import { Percent, FileText, XCircle, Wallet } from "lucide-react";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
 
@@ -32,6 +38,15 @@ interface Order {
   total: number;
   notes: string | null;
   created_at: string;
+  subtotal?: number;
+  tax_amount?: number;
+  service_amount?: number;
+  tip_amount?: number;
+  discount_amount?: number;
+  amount_paid?: number;
+  payment_status?: string;
+  restaurant_id?: string;
+  invoice_number?: string | null;
 }
 interface OrderItem {
   id: string;
@@ -75,6 +90,10 @@ const Orders = () => {
   const [mobileMoneyOpen, setMobileMoneyOpen] = useState(false);
   const [configItem, setConfigItem] = useState<MenuItem | null>(null);
   const [configOpen, setConfigOpen] = useState(false);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [splitOpen, setSplitOpen] = useState(false);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
   const lastSeenIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
