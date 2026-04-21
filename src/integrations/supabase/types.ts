@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          reason: string | null
+          restaurant_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          reason?: string | null
+          restaurant_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          reason?: string | null
+          restaurant_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       customer_credit_transactions: {
         Row: {
           amount: number
@@ -188,6 +233,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_address: string | null
+          customer_name: string | null
+          customer_tax_id: string | null
+          discount_amount: number
+          id: string
+          invoice_number: string
+          issued_at: string
+          issued_by: string | null
+          items_snapshot: Json
+          legal_footer: string | null
+          order_id: string | null
+          payment_method: string | null
+          pdf_url: string | null
+          restaurant_id: string
+          restaurant_snapshot: Json
+          service_amount: number
+          subtotal: number
+          tax_amount: number
+          tip_amount: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_address?: string | null
+          customer_name?: string | null
+          customer_tax_id?: string | null
+          discount_amount?: number
+          id?: string
+          invoice_number: string
+          issued_at?: string
+          issued_by?: string | null
+          items_snapshot?: Json
+          legal_footer?: string | null
+          order_id?: string | null
+          payment_method?: string | null
+          pdf_url?: string | null
+          restaurant_id: string
+          restaurant_snapshot?: Json
+          service_amount?: number
+          subtotal?: number
+          tax_amount?: number
+          tip_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_address?: string | null
+          customer_name?: string | null
+          customer_tax_id?: string | null
+          discount_amount?: number
+          id?: string
+          invoice_number?: string
+          issued_at?: string
+          issued_by?: string | null
+          items_snapshot?: Json
+          legal_footer?: string | null
+          order_id?: string | null
+          payment_method?: string | null
+          pdf_url?: string | null
+          restaurant_id?: string
+          restaurant_snapshot?: Json
+          service_amount?: number
+          subtotal?: number
+          tax_amount?: number
+          tip_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       menu_categories: {
         Row: {
@@ -435,6 +558,7 @@ export type Database = {
           restaurant_id: string
           sort_order: number
           updated_at: string
+          vat_rate: number | null
         }
         Insert: {
           category_id?: string | null
@@ -448,6 +572,7 @@ export type Database = {
           restaurant_id: string
           sort_order?: number
           updated_at?: string
+          vat_rate?: number | null
         }
         Update: {
           category_id?: string | null
@@ -461,6 +586,7 @@ export type Database = {
           restaurant_id?: string
           sort_order?: number
           updated_at?: string
+          vat_rate?: number | null
         }
         Relationships: [
           {
@@ -540,31 +666,55 @@ export type Database = {
       }
       order_items: {
         Row: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          cancelled_reason: string | null
           created_at: string
+          discount_amount: number
+          discount_reason: string | null
           id: string
           menu_item_id: string | null
           name_snapshot: string
           order_id: string
           quantity: number
+          status: string
           unit_price: number
+          vat_amount: number
+          vat_rate: number
         }
         Insert: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
           created_at?: string
+          discount_amount?: number
+          discount_reason?: string | null
           id?: string
           menu_item_id?: string | null
           name_snapshot: string
           order_id: string
           quantity?: number
+          status?: string
           unit_price: number
+          vat_amount?: number
+          vat_rate?: number
         }
         Update: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
           created_at?: string
+          discount_amount?: number
+          discount_reason?: string | null
           id?: string
           menu_item_id?: string | null
           name_snapshot?: string
           order_id?: string
           quantity?: number
+          status?: string
           unit_price?: number
+          vat_amount?: number
+          vat_rate?: number
         }
         Relationships: [
           {
@@ -583,46 +733,124 @@ export type Database = {
           },
         ]
       }
+      order_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          id: string
+          invoice_id: string | null
+          method: string
+          order_id: string
+          payer_name: string | null
+          reference: string | null
+          restaurant_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          method: string
+          order_id: string
+          payer_name?: string | null
+          reference?: string | null
+          restaurant_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invoice_id?: string | null
+          method?: string
+          order_id?: string
+          payer_name?: string | null
+          reference?: string | null
+          restaurant_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
+          amount_paid: number
+          cancelled_at: string | null
+          cancelled_by: string | null
+          cancelled_reason: string | null
           created_at: string
           created_by: string | null
           customer_id: string | null
+          discount_amount: number
+          discount_reason: string | null
           id: string
+          invoice_id: string | null
+          invoice_number: string | null
           notes: string | null
           order_number: number
           payment_method: string | null
+          payment_status: string
           restaurant_id: string
+          service_amount: number
           status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
           table_number: string | null
+          tax_amount: number
+          tip_amount: number
           total: number
           updated_at: string
         }
         Insert: {
+          amount_paid?: number
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
+          discount_amount?: number
+          discount_reason?: string | null
           id?: string
+          invoice_id?: string | null
+          invoice_number?: string | null
           notes?: string | null
           order_number?: number
           payment_method?: string | null
+          payment_status?: string
           restaurant_id: string
+          service_amount?: number
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
           table_number?: string | null
+          tax_amount?: number
+          tip_amount?: number
           total?: number
           updated_at?: string
         }
         Update: {
+          amount_paid?: number
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          cancelled_reason?: string | null
           created_at?: string
           created_by?: string | null
           customer_id?: string | null
+          discount_amount?: number
+          discount_reason?: string | null
           id?: string
+          invoice_id?: string | null
+          invoice_number?: string | null
           notes?: string | null
           order_number?: number
           payment_method?: string | null
+          payment_status?: string
           restaurant_id?: string
+          service_amount?: number
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
           table_number?: string | null
+          tax_amount?: number
+          tip_amount?: number
           total?: number
           updated_at?: string
         }
@@ -967,64 +1195,88 @@ export type Database = {
         Row: {
           accepts_online_orders: boolean
           address: string | null
+          business_register: string | null
           country_code: string
           cover_url: string | null
           created_at: string
           currency: string
+          default_service_pct: number
+          default_vat_rate: number
           description: string | null
           facebook_url: string | null
           id: string
           instagram_url: string | null
+          invoice_footer: string | null
+          invoice_prefix: string
           logo_url: string | null
           name: string
+          next_invoice_number: number
           opening_hours: Json | null
           owner_id: string
           phone: string | null
           slug: string | null
+          tax_id: string | null
           theme_color: string | null
           updated_at: string
+          vat_mode: string
           whatsapp: string | null
         }
         Insert: {
           accepts_online_orders?: boolean
           address?: string | null
+          business_register?: string | null
           country_code?: string
           cover_url?: string | null
           created_at?: string
           currency?: string
+          default_service_pct?: number
+          default_vat_rate?: number
           description?: string | null
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
+          invoice_footer?: string | null
+          invoice_prefix?: string
           logo_url?: string | null
           name: string
+          next_invoice_number?: number
           opening_hours?: Json | null
           owner_id: string
           phone?: string | null
           slug?: string | null
+          tax_id?: string | null
           theme_color?: string | null
           updated_at?: string
+          vat_mode?: string
           whatsapp?: string | null
         }
         Update: {
           accepts_online_orders?: boolean
           address?: string | null
+          business_register?: string | null
           country_code?: string
           cover_url?: string | null
           created_at?: string
           currency?: string
+          default_service_pct?: number
+          default_vat_rate?: number
           description?: string | null
           facebook_url?: string | null
           id?: string
           instagram_url?: string | null
+          invoice_footer?: string | null
+          invoice_prefix?: string
           logo_url?: string | null
           name?: string
+          next_invoice_number?: number
           opening_hours?: Json | null
           owner_id?: string
           phone?: string | null
           slug?: string | null
+          tax_id?: string | null
           theme_color?: string | null
           updated_at?: string
+          vat_mode?: string
           whatsapp?: string | null
         }
         Relationships: []
@@ -1167,6 +1419,7 @@ export type Database = {
         Args: { _restaurant_id: string }
         Returns: boolean
       }
+      next_invoice_number: { Args: { _restaurant_id: string }; Returns: string }
     }
     Enums: {
       app_role: "manager" | "waiter" | "kitchen" | "cashier"
