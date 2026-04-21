@@ -1337,6 +1337,7 @@ export type Database = {
           owner_id: string
           phone: string | null
           slug: string | null
+          stock_decrement_mode: string
           tax_id: string | null
           theme_color: string | null
           updated_at: string
@@ -1366,6 +1367,7 @@ export type Database = {
           owner_id: string
           phone?: string | null
           slug?: string | null
+          stock_decrement_mode?: string
           tax_id?: string | null
           theme_color?: string | null
           updated_at?: string
@@ -1395,6 +1397,7 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           slug?: string | null
+          stock_decrement_mode?: string
           tax_id?: string | null
           theme_color?: string | null
           updated_at?: string
@@ -1402,6 +1405,92 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      stock_count_items: {
+        Row: {
+          count_id: string
+          counted_quantity: number
+          created_at: string
+          expected_quantity: number
+          id: string
+          stock_item_id: string
+        }
+        Insert: {
+          count_id: string
+          counted_quantity?: number
+          created_at?: string
+          expected_quantity?: number
+          id?: string
+          stock_item_id: string
+        }
+        Update: {
+          count_id?: string
+          counted_quantity?: number
+          created_at?: string
+          expected_quantity?: number
+          id?: string
+          stock_item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_count_items_count_id_fkey"
+            columns: ["count_id"]
+            isOneToOne: false
+            referencedRelation: "stock_counts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_count_items_stock_item_id_fkey"
+            columns: ["stock_item_id"]
+            isOneToOne: false
+            referencedRelation: "stock_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_counts: {
+        Row: {
+          count_date: string
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          restaurant_id: string
+          status: string
+          updated_at: string
+          validated_at: string | null
+        }
+        Insert: {
+          count_date?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          restaurant_id: string
+          status?: string
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Update: {
+          count_date?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          restaurant_id?: string
+          status?: string
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_counts_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stock_items: {
         Row: {
@@ -1440,6 +1529,149 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "stock_items_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_receipt_items: {
+        Row: {
+          created_at: string
+          id: string
+          quantity: number
+          receipt_id: string
+          stock_item_id: string
+          unit_cost: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quantity?: number
+          receipt_id: string
+          stock_item_id: string
+          unit_cost?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quantity?: number
+          receipt_id?: string
+          stock_item_id?: string
+          unit_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_receipt_items_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "stock_receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_receipt_items_stock_item_id_fkey"
+            columns: ["stock_item_id"]
+            isOneToOne: false
+            referencedRelation: "stock_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_receipts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          receipt_date: string
+          restaurant_id: string
+          status: string
+          supplier_id: string | null
+          total: number
+          updated_at: string
+          validated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          receipt_date?: string
+          restaurant_id: string
+          status?: string
+          supplier_id?: string | null
+          total?: number
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          receipt_date?: string
+          restaurant_id?: string
+          status?: string
+          supplier_id?: string | null
+          total?: number
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_receipts_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_receipts_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          restaurant_id: string
+          updated_at: string
+        }
+        Insert: {
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          restaurant_id: string
+          updated_at?: string
+        }
+        Update: {
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          restaurant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
