@@ -73,7 +73,7 @@ export const CourseFireDialog = ({ open, onOpenChange, orderId, onFired }: Props
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[80vh] overflow-y-auto">
-        <DialogHeader><DialogTitle className="flex items-center gap-2"><Flame className="h-5 w-5 text-orange-500" /> Envoyer en cuisine</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="flex items-center gap-2"><Flame className="h-5 w-5 text-primary" /> Envoyer en cuisine</DialogTitle></DialogHeader>
         <p className="text-sm text-muted-foreground">Cochez les plats à envoyer maintenant. Vous pouvez gérer les cours (entrée → plat → dessert) en plusieurs vagues.</p>
         <div className="space-y-3">
           {Object.entries(grouped).map(([course, list]) => (
