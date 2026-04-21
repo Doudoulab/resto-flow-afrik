@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatFCFA } from "@/lib/currency";
 import { Loader2 } from "lucide-react";
 
-export interface BaseItem { id: string; name: string; price: number; image_url?: string | null; }
+export interface BaseItem { id: string; name: string; price: number; image_url?: string | null; description?: string | null; }
 
 interface Variant { id: string; name: string; price: number | null; price_delta: number; image_url: string | null; is_default: boolean; is_available: boolean; sort_order: number; }
 interface ModifierGroup { id: string; name: string; selection_type: string; is_required: boolean; min_select: number; max_select: number; sort_order: number; }
@@ -135,6 +135,17 @@ export const ItemConfigurator = ({ open, item, onOpenChange, onConfirm }: Props)
           <div className="flex h-32 items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
         ) : (
           <div className="space-y-5">
+            {item?.image_url && (
+              <div className="-mx-6 -mt-2 aspect-video w-[calc(100%+3rem)] overflow-hidden bg-muted">
+                <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+              </div>
+            )}
+            {item?.description && (
+              <p className="text-sm text-muted-foreground">{item.description}</p>
+            )}
+            {variants.length === 0 && groups.length === 0 && (
+              <p className="text-sm text-muted-foreground">Aucune option à choisir pour ce plat.</p>
+            )}
             {variants.length > 0 && (
               <div>
                 <Label className="mb-2 block font-semibold">Variante</Label>
