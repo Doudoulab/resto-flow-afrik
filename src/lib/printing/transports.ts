@@ -64,11 +64,8 @@ export async function printViaBluetooth(data: Uint8Array): Promise<void> {
 // Expects an HTTP service running locally that accepts POST /print with raw bytes
 export async function printViaAgent(data: Uint8Array, agentUrl: string): Promise<void> {
   const url = agentUrl.replace(/\/$/, "") + "/print";
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/octet-stream" },
-    body: data,
-  });
+  const blob = new Blob([data as BlobPart], { type: "application/octet-stream" });
+  const res = await fetch(url, { method: "POST", body: blob });
   if (!res.ok) throw new Error(`Agent HTTP ${res.status}`);
 }
 
