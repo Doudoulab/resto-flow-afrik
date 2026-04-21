@@ -74,7 +74,7 @@ export const ItemConfigurator = ({ open, item, onOpenChange, onConfirm }: Props)
       setSelected(initial);
       setLoading(false);
     })();
-  }, [open, item]);
+  }, [open, item?.id]);
 
   const variant = useMemo(() => variants.find((v) => v.id === variantId) ?? null, [variants, variantId]);
 
