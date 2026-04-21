@@ -380,6 +380,118 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_details: {
+        Row: {
+          annual_leave_days: number
+          bank_account: string | null
+          base_salary: number
+          contract_end_date: string | null
+          contract_type: string
+          created_at: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          hired_at: string | null
+          hourly_rate: number
+          id: string
+          is_active: boolean
+          job_title: string | null
+          notes: string | null
+          restaurant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          annual_leave_days?: number
+          bank_account?: string | null
+          base_salary?: number
+          contract_end_date?: string | null
+          contract_type?: string
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          hired_at?: string | null
+          hourly_rate?: number
+          id?: string
+          is_active?: boolean
+          job_title?: string | null
+          notes?: string | null
+          restaurant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          annual_leave_days?: number
+          bank_account?: string | null
+          base_salary?: number
+          contract_end_date?: string | null
+          contract_type?: string
+          created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          hired_at?: string | null
+          hourly_rate?: number
+          id?: string
+          is_active?: boolean
+          job_title?: string | null
+          notes?: string | null
+          restaurant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_details_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          expires_at: string | null
+          file_url: string
+          id: string
+          name: string
+          restaurant_id: string
+          uploaded_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type?: string
+          expires_at?: string | null
+          file_url: string
+          id?: string
+          name: string
+          restaurant_id: string
+          uploaded_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          expires_at?: string | null
+          file_url?: string
+          id?: string
+          name?: string
+          restaurant_id?: string
+          uploaded_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_documents_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_invitations: {
         Row: {
           accepted_at: string | null
@@ -1507,6 +1619,53 @@ export type Database = {
           },
         ]
       }
+      payroll_adjustments: {
+        Row: {
+          adjustment_type: string
+          amount: number
+          created_at: string
+          created_by: string | null
+          id: string
+          period_month: string
+          reason: string | null
+          restaurant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adjustment_type?: string
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          period_month: string
+          reason?: string | null
+          restaurant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adjustment_type?: string
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          period_month?: string
+          reason?: string | null
+          restaurant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_adjustments_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payroll_entries: {
         Row: {
           base_salary: number
@@ -2143,6 +2302,167 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      shift_templates: {
+        Row: {
+          color: string
+          created_at: string
+          end_time: string
+          id: string
+          is_active: boolean
+          name: string
+          restaurant_id: string
+          role: string | null
+          sort_order: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          end_time: string
+          id?: string
+          is_active?: boolean
+          name: string
+          restaurant_id: string
+          role?: string | null
+          sort_order?: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          restaurant_id?: string
+          role?: string | null
+          sort_order?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_templates_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shifts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_time: string
+          id: string
+          notes: string | null
+          restaurant_id: string
+          role: string | null
+          shift_date: string
+          start_time: string
+          status: string
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_time: string
+          id?: string
+          notes?: string | null
+          restaurant_id: string
+          role?: string | null
+          shift_date: string
+          start_time: string
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_time?: string
+          id?: string
+          notes?: string | null
+          restaurant_id?: string
+          role?: string | null
+          shift_date?: string
+          start_time?: string
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "shift_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staffing_requirements: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          id: string
+          required_count: number
+          restaurant_id: string
+          role: string | null
+          shift_template_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          id?: string
+          required_count?: number
+          restaurant_id: string
+          role?: string | null
+          shift_template_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          id?: string
+          required_count?: number
+          restaurant_id?: string
+          role?: string | null
+          shift_template_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staffing_requirements_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staffing_requirements_shift_template_id_fkey"
+            columns: ["shift_template_id"]
+            isOneToOne: false
+            referencedRelation: "shift_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stock_count_items: {
         Row: {
