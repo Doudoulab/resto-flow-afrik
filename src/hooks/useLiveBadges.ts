@@ -29,7 +29,7 @@ export const useLiveBadges = () => {
         supabase.from("reservations").select("id", { count: "exact", head: true })
           .eq("restaurant_id", rid).gte("reserved_at", today).lt("reserved_at", tomorrow)
           .in("status", ["confirmed", "pending"]),
-        supabase.from("stock_items").select("id, quantity, low_stock_threshold")
+        supabase.from("stock_items").select("id, quantity, alert_threshold")
           .eq("restaurant_id", rid),
         supabase.from("order_items").select("id, status, orders!inner(restaurant_id, status)", { count: "exact", head: true })
           .eq("orders.restaurant_id", rid).in("status", ["pending", "preparing"])
@@ -37,7 +37,7 @@ export const useLiveBadges = () => {
       ]);
 
       const lowCount = (stock.data || []).filter((s: any) =>
-        s.low_stock_threshold != null && s.quantity != null && Number(s.quantity) <= Number(s.low_stock_threshold)
+        s.alert_threshold != null && s.quantity != null && Number(s.quantity) <= Number(s.alert_threshold)
       ).length;
 
       setBadges({
