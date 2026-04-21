@@ -50,15 +50,17 @@ export const useLiveBadges = () => {
 
     refresh();
 
-    // Subscribe to realtime changes
-    const channel = supabase.channel(`badges-${rid}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "public_orders", filter: `restaurant_id=eq.${rid}` }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "reservations", filter: `restaurant_id=eq.${rid}` }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "order_items" }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "stock_items", filter: `restaurant_id=eq.${rid}` }, refresh)
-      .subscribe();
+    // Build channel and register all listeners BEFORE subscribe()
+    const channel = supabase.channel(`badges-${rid}`);
+    channel.on("postgres_changes" as any, { event: "*", schema: "public", table: "public_orders", filter: `restaurant_id=eq.${rid}` }, refresh);
+    channel.on("postgres_changes" as any, { event: "*", schema: "public", table: "reservations", filter: `restaurant_id=eq.${rid}` }, refresh);
+    channel.on("postgres_changes" as any, { event: "*", schema: "public", table: "order_items" }, refresh);
+    channel.on("postgres_changes" as any, { event: "*", schema: "public", table: "stock_items", filter: `restaurant_id=eq.${rid}` }, refresh);
+    channel.subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    // Light polling as fallback
+    const interval = window.setInterval(refresh, 60_000);
+    return () => { window.clearInterval(interval); supabase.removeChannel(channel); };
   }, [restaurant?.id]);
 
   return badges;
