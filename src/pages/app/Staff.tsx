@@ -195,8 +195,8 @@ const Staff = () => {
                     </p>
                   </div>
                   {profile?.is_owner && !e.is_owner && (
-                    <Button size="icon" variant="ghost" onClick={() => openRateDialog(e)} aria-label="Modifier le taux">
-                      <Pencil className="h-4 w-4" />
+                    <Button size="sm" variant="outline" onClick={() => openProfile(e)}>
+                      <IdCard className="mr-2 h-4 w-4" /> Fiche
                     </Button>
                   )}
                 </CardContent>
@@ -206,23 +206,17 @@ const Staff = () => {
         </div>
       )}
 
-      {/* Hourly rate dialog */}
-      <Dialog open={rateOpen} onOpenChange={setRateOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Taux horaire</DialogTitle>
-            <DialogDescription>{rateEmp?.first_name} {rateEmp?.last_name}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label>Taux (FCFA / heure)</Label>
-            <Input type="number" min="0" value={rateValue} onChange={(e) => setRateValue(e.target.value)} />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRateOpen(false)}>Annuler</Button>
-            <Button onClick={saveRate}>Enregistrer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {profileEmp && restaurant && (
+        <EmployeeProfileDialog
+          open={profileOpen}
+          onOpenChange={setProfileOpen}
+          employeeId={profileEmp.id}
+          employeeName={`${profileEmp.first_name ?? ""} ${profileEmp.last_name ?? ""}`.trim() || "Employé"}
+          restaurantId={restaurant.id}
+          isOwnerCurrentUser={!!profile?.is_owner}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 };
