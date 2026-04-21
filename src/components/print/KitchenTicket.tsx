@@ -6,9 +6,11 @@ interface Props {
   notes: string | null;
   items: { name_snapshot: string; quantity: number }[];
   createdAt: string;
+  stationName?: string | null;
+  stationColor?: string | null;
 }
 
-export const KitchenTicket = ({ orderNumber, tableNumber, notes, items, createdAt }: Props) => {
+export const KitchenTicket = ({ orderNumber, tableNumber, notes, items, createdAt, stationName, stationColor }: Props) => {
   const time = new Date(createdAt).toLocaleTimeString("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -16,7 +18,12 @@ export const KitchenTicket = ({ orderNumber, tableNumber, notes, items, createdA
   return (
     <div className="ticket-print">
       <div style={{ textAlign: "center", borderBottom: "1px dashed #000", paddingBottom: "4px", marginBottom: "8px" }}>
-        <div style={{ fontWeight: "bold", fontSize: "16px" }}>*** CUISINE ***</div>
+        <div style={{ fontWeight: "bold", fontSize: "16px" }}>
+          *** {stationName ? stationName.toUpperCase() : "CUISINE"} ***
+        </div>
+        {stationColor && (
+          <div style={{ height: "4px", background: stationColor, margin: "2px 0" }} />
+        )}
         <div style={{ fontSize: "20px", fontWeight: "bold", margin: "4px 0" }}>#{orderNumber}</div>
         {tableNumber && <div style={{ fontSize: "14px" }}>TABLE {tableNumber}</div>}
         <div style={{ fontSize: "11px" }}>{time}</div>

@@ -56,6 +56,7 @@ interface OrderItem {
   name_snapshot: string;
   unit_price: number;
   quantity: number;
+  station_id?: string | null;
 }
 interface CartLine { menu_item_id: string; name: string; price: number; quantity: number; }
 
@@ -81,6 +82,7 @@ const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stations, setStations] = useState<{ id: string; name: string; color: string }[]>([]);
 
   const [newOrderOpen, setNewOrderOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
@@ -113,9 +115,10 @@ const Orders = () => {
 
   const load = async () => {
     if (!restaurant) return;
-    const [oRes, mRes] = await Promise.all([
+    const [oRes, mRes, sRes] = await Promise.all([
       supabase.from("orders").select("*").eq("restaurant_id", restaurant.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("menu_items").select("id, name, price, is_available").eq("restaurant_id", restaurant.id).eq("is_available", true).order("name"),
+      supabase.from("kitchen_stations").select("id,name,color").eq("restaurant_id", restaurant.id),
     ]);
     const incoming = (oRes.data ?? []) as Order[];
     if (initializedRef.current) {
@@ -132,6 +135,7 @@ const Orders = () => {
     initializedRef.current = true;
     setOrders(incoming);
     setMenu((mRes.data ?? []) as MenuItem[]);
+    setStations((sRes.data ?? []) as { id: string; name: string; color: string }[]);
     setLoading(false);
   };
 
@@ -262,7 +266,7 @@ const Orders = () => {
 
   const openDetail = async (order: Order) => {
     setDetailOrder(order);
-    const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
+    const { data } = await supabase.from("order_items").select("id,name_snapshot,unit_price,quantity,station_id").eq("order_id", order.id);
     setDetailItems((data ?? []) as OrderItem[]);
   };
 
@@ -476,15 +480,34 @@ const Orders = () => {
       </Dialog>
 
       <PrintStyles />
-      {printMode === "kitchen" && detailOrder && (
-        <KitchenTicket
-          orderNumber={detailOrder.order_number}
-          tableNumber={detailOrder.table_number}
-          notes={detailOrder.notes}
-          items={detailItems.map(i => ({ name_snapshot: i.name_snapshot, quantity: i.quantity }))}
-          createdAt={detailOrder.created_at}
-        />
-      )}
+      {printMode === "kitchen" && detailOrder && (() => {
+        // Group items by station_id; one ticket per station (unassigned grouped together)
+        const groups = new Map<string, OrderItem[]>();
+        detailItems.forEach((it) => {
+          const k = it.station_id || "__none__";
+          if (!groups.has(k)) groups.set(k, []);
+          groups.get(k)!.push(it);
+        });
+        return (
+          <>
+            {Array.from(groups.entries()).map(([stationId, items]) => {
+              const st = stations.find((s) => s.id === stationId);
+              return (
+                <KitchenTicket
+                  key={stationId}
+                  orderNumber={detailOrder.order_number}
+                  tableNumber={detailOrder.table_number}
+                  notes={detailOrder.notes}
+                  items={items.map(i => ({ name_snapshot: i.name_snapshot, quantity: i.quantity }))}
+                  createdAt={detailOrder.created_at}
+                  stationName={st?.name ?? null}
+                  stationColor={st?.color ?? null}
+                />
+              );
+            })}
+          </>
+        );
+      })()}
       {printMode === "receipt" && detailOrder && restaurant && (
         <CustomerReceipt
           orderNumber={detailOrder.order_number}
