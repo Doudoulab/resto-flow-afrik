@@ -42,9 +42,8 @@ const Staff = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ email: "", role: "waiter" });
-  const [rateOpen, setRateOpen] = useState(false);
-  const [rateEmp, setRateEmp] = useState<Employee | null>(null);
-  const [rateValue, setRateValue] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileEmp, setProfileEmp] = useState<Employee | null>(null);
 
   const load = async () => {
     if (!restaurant) return;
@@ -93,21 +92,9 @@ const Staff = () => {
     load();
   };
 
-  const openRateDialog = (emp: Employee) => {
-    setRateEmp(emp);
-    setRateValue(String(emp.hourly_rate ?? 0));
-    setRateOpen(true);
-  };
-
-  const saveRate = async () => {
-    if (!rateEmp) return;
-    const v = parseFloat(rateValue);
-    if (isNaN(v) || v < 0) { toast.error("Taux invalide"); return; }
-    const { error } = await supabase.from("profiles").update({ hourly_rate: v }).eq("id", rateEmp.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Taux horaire mis à jour");
-    setRateOpen(false);
-    load();
+  const openProfile = (emp: Employee) => {
+    setProfileEmp(emp);
+    setProfileOpen(true);
   };
 
   if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
