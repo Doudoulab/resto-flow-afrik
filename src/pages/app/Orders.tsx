@@ -410,6 +410,13 @@ const Orders = () => {
           }}
         />
       )}
+
+      <ItemConfigurator
+        open={configOpen}
+        item={configItem}
+        onOpenChange={(o) => { setConfigOpen(o); if (!o) setConfigItem(null); }}
+        onConfirm={onConfigured}
+      />
     </div>
   );
 };
