@@ -414,6 +414,17 @@ const Menu = () => {
           onClose={() => setVariantsFor(null)}
         />
       )}
+
+      {restaurant && translationsFor && (
+        <MenuTranslationsDialog
+          open={!!translationsFor}
+          onOpenChange={(o) => !o && setTranslationsFor(null)}
+          restaurantId={restaurant.id}
+          itemId={translationsFor.id}
+          defaultName={translationsFor.name}
+          defaultDescription={translationsFor.description}
+        />
+      )}
     </div>
   );
 };
