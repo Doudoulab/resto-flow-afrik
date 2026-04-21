@@ -190,11 +190,15 @@ export const ItemConfigurator = ({ open, item, onOpenChange, onConfirm }: Props)
                         <label key={m.id} className="flex cursor-pointer items-center justify-between rounded-md border border-border p-2.5 hover:bg-accent">
                           <div className="flex items-center gap-3">
                             {single ? (
-                              <RadioGroupItem
-                                value={m.id}
-                                checked={checked}
+                              <button
+                                type="button"
                                 onClick={() => toggle(g, m.id)}
-                              />
+                                aria-checked={checked}
+                                role="radio"
+                                className="flex h-4 w-4 items-center justify-center rounded-full border border-primary"
+                              >
+                                {checked && <span className="h-2 w-2 rounded-full bg-primary" />}
+                              </button>
                             ) : (
                               <Checkbox checked={checked} onCheckedChange={() => toggle(g, m.id)} />
                             )}
