@@ -156,6 +156,56 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          error_message: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          restaurant_id: string
+          started_at: string | null
+          status: string
+          tables_included: string[] | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          restaurant_id: string
+          started_at?: string | null
+          status?: string
+          tables_included?: string[] | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          restaurant_id?: string
+          started_at?: string | null
+          status?: string
+          tables_included?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backup_jobs_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_credit_transactions: {
         Row: {
           amount: number
@@ -339,12 +389,16 @@ export type Database = {
       }
       invoices: {
         Row: {
+          archive_url: string | null
           created_at: string
           currency: string
           customer_address: string | null
           customer_name: string | null
           customer_tax_id: string | null
+          device_id: string | null
           discount_amount: number
+          hash_current: string | null
+          hash_previous: string | null
           id: string
           invoice_number: string
           issued_at: string
@@ -357,6 +411,7 @@ export type Database = {
           restaurant_id: string
           restaurant_snapshot: Json
           service_amount: number
+          signed_at: string | null
           subtotal: number
           tax_amount: number
           tip_amount: number
@@ -364,12 +419,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          archive_url?: string | null
           created_at?: string
           currency?: string
           customer_address?: string | null
           customer_name?: string | null
           customer_tax_id?: string | null
+          device_id?: string | null
           discount_amount?: number
+          hash_current?: string | null
+          hash_previous?: string | null
           id?: string
           invoice_number: string
           issued_at?: string
@@ -382,6 +441,7 @@ export type Database = {
           restaurant_id: string
           restaurant_snapshot?: Json
           service_amount?: number
+          signed_at?: string | null
           subtotal?: number
           tax_amount?: number
           tip_amount?: number
@@ -389,12 +449,16 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          archive_url?: string | null
           created_at?: string
           currency?: string
           customer_address?: string | null
           customer_name?: string | null
           customer_tax_id?: string | null
+          device_id?: string | null
           discount_amount?: number
+          hash_current?: string | null
+          hash_previous?: string | null
           id?: string
           invoice_number?: string
           issued_at?: string
@@ -407,6 +471,7 @@ export type Database = {
           restaurant_id?: string
           restaurant_snapshot?: Json
           service_amount?: number
+          signed_at?: string | null
           subtotal?: number
           tax_amount?: number
           tip_amount?: number
@@ -969,6 +1034,7 @@ export type Database = {
           customer_id: string | null
           discount_amount: number
           discount_reason: string | null
+          guest_name: string | null
           id: string
           invoice_id: string | null
           invoice_number: string | null
@@ -977,7 +1043,10 @@ export type Database = {
           order_number: number
           payment_method: string | null
           payment_status: string
+          pms_export_status: string | null
+          pms_exported_at: string | null
           restaurant_id: string
+          room_number: string | null
           service_amount: number
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -997,6 +1066,7 @@ export type Database = {
           customer_id?: string | null
           discount_amount?: number
           discount_reason?: string | null
+          guest_name?: string | null
           id?: string
           invoice_id?: string | null
           invoice_number?: string | null
@@ -1005,7 +1075,10 @@ export type Database = {
           order_number?: number
           payment_method?: string | null
           payment_status?: string
+          pms_export_status?: string | null
+          pms_exported_at?: string | null
           restaurant_id: string
+          room_number?: string | null
           service_amount?: number
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -1025,6 +1098,7 @@ export type Database = {
           customer_id?: string | null
           discount_amount?: number
           discount_reason?: string | null
+          guest_name?: string | null
           id?: string
           invoice_id?: string | null
           invoice_number?: string | null
@@ -1033,7 +1107,10 @@ export type Database = {
           order_number?: number
           payment_method?: string | null
           payment_status?: string
+          pms_export_status?: string | null
+          pms_exported_at?: string | null
           restaurant_id?: string
+          room_number?: string | null
           service_amount?: number
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -1395,6 +1472,66 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: true
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      printers: {
+        Row: {
+          address: string | null
+          connection_mode: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          open_drawer: boolean
+          paper_width: number
+          printer_type: string
+          restaurant_id: string
+          station_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          connection_mode?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          open_drawer?: boolean
+          paper_width?: number
+          printer_type?: string
+          restaurant_id: string
+          station_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          connection_mode?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          open_drawer?: boolean
+          paper_width?: number
+          printer_type?: string
+          restaurant_id?: string
+          station_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "printers_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printers_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "kitchen_stations"
             referencedColumns: ["id"]
           },
         ]
@@ -2062,6 +2199,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_mfa: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string
+          enabled: boolean
+          enabled_at: string | null
+          id: string
+          secret: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          id?: string
+          secret: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          id?: string
+          secret?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          language: string
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          language?: string
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          language?: string
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
