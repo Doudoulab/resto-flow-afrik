@@ -18,7 +18,8 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { MenuItemCard, type MenuItemLite } from "@/components/menu/MenuItemCard";
 import { VariantsModifiersDialog } from "@/components/menu/VariantsModifiersDialog";
 
-interface Category { id: string; name: string; sort_order: number; }
+interface Category { id: string; name: string; sort_order: number; station_id: string | null; }
+interface Station { id: string; name: string; color: string; }
 type MenuItem = MenuItemLite;
 interface StockOpt { id: string; name: string; unit: string; cost_per_unit: number; }
 interface RecipeRow { id: string; stock_item_id: string; quantity: number; }
@@ -28,6 +29,7 @@ const Menu = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stations, setStations] = useState<Station[]>([]);
 
   const [itemDialog, setItemDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -47,14 +49,16 @@ const Menu = () => {
 
   const load = async () => {
     if (!restaurant) return;
-    const [catsRes, itemsRes, stockRes] = await Promise.all([
+    const [catsRes, itemsRes, stockRes, stRes] = await Promise.all([
       supabase.from("menu_categories").select("*").eq("restaurant_id", restaurant.id).order("sort_order"),
       supabase.from("menu_items").select("*").eq("restaurant_id", restaurant.id).order("created_at", { ascending: false }),
       supabase.from("stock_items").select("id,name,unit,cost_per_unit").eq("restaurant_id", restaurant.id).order("name"),
+      supabase.from("kitchen_stations").select("id,name,color").eq("restaurant_id", restaurant.id).eq("is_active", true).order("sort_order"),
     ]);
     setCategories((catsRes.data ?? []) as Category[]);
     setItems((itemsRes.data ?? []) as MenuItem[]);
     setStockOpts((stockRes.data ?? []) as StockOpt[]);
+    setStations((stRes.data ?? []) as Station[]);
     setLoading(false);
   };
 
@@ -237,7 +241,34 @@ const Menu = () => {
       {grouped.map(({ cat, items: catItems }) => (
         <div key={cat.id}>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{cat.name}</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-semibold">{cat.name}</h2>
+              {stations.length > 0 && (
+                <Select
+                  value={cat.station_id ?? "__none__"}
+                  onValueChange={async (v) => {
+                    const station_id = v === "__none__" ? null : v;
+                    const { error } = await supabase.from("menu_categories").update({ station_id }).eq("id", cat.id);
+                    if (error) { toast.error(error.message); return; }
+                    toast.success("Poste mis à jour");
+                    load();
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Poste cuisine" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Aucun poste</SelectItem>
+                    {stations.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        <span className="inline-flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                          {s.name}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
             <Button variant="ghost" size="sm" onClick={() => deleteCategory(cat.id)}>
               <Trash2 className="h-4 w-4" />
             </Button>
