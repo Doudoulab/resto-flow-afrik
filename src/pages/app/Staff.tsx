@@ -12,8 +12,9 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, UserPlus, Copy, Trash2, Mail, Pencil } from "lucide-react";
+import { Loader2, UserPlus, Copy, Trash2, Mail, IdCard } from "lucide-react";
 import { toast } from "sonner";
+import { EmployeeProfileDialog } from "@/components/staff/EmployeeProfileDialog";
 
 interface Employee { id: string; first_name: string | null; last_name: string | null; is_owner: boolean; hourly_rate: number; }
 interface Role { user_id: string; role: string; }
