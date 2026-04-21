@@ -24,6 +24,9 @@ import {
   PackagePlus,
   ClipboardCheck,
   BarChart3,
+  BookOpen,
+  Receipt,
+  Banknote,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -45,6 +48,9 @@ const navItems = [
   { to: "/app/inventory", icon: ClipboardCheck, label: "Inventaires" },
   { to: "/app/reports", icon: BarChart3, label: "Rapports" },
   { to: "/app/accounting", icon: Wallet, label: "Comptabilité" },
+  { to: "/app/ledger", icon: BookOpen, label: "Grand livre" },
+  { to: "/app/payroll", icon: Banknote, label: "Paie" },
+  { to: "/app/tax", icon: Receipt, label: "TVA" },
   { to: "/app/staff", icon: Users, label: "Personnel" },
   { to: "/app/timeclock", icon: Clock, label: "Pointage" },
   { to: "/app/customers", icon: BookUser, label: "Ardoises" },
