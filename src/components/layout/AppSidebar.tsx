@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { isModuleEnabled, type ModuleKey } from "@/lib/modules";
+import { useLiveBadges } from "@/hooks/useLiveBadges";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -113,6 +115,13 @@ export const AppSidebar = () => {
 
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
   const isOwner = profile?.is_owner ?? false;
+  const liveBadges = useLiveBadges();
+  const routeBadges: Record<string, number> = {
+    "/app/incoming": liveBadges.incomingOrders,
+    "/app/reservations": liveBadges.todayReservations,
+    "/app/stock": liveBadges.lowStock,
+    "/app/kitchen": liveBadges.pendingKitchen,
+  };
   // Sections restricted to owners (employees won't see Finances or System)
   const OWNER_ONLY_SECTIONS = new Set(["finances", "system", "settings"]);
 
