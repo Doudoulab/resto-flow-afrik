@@ -27,6 +27,9 @@ import Suppliers from "./pages/app/Suppliers";
 import Receipts from "./pages/app/Receipts";
 import Inventory from "./pages/app/Inventory";
 import Reports from "./pages/app/Reports";
+import Payroll from "./pages/app/Payroll";
+import TaxReturns from "./pages/app/TaxReturns";
+import Ledger from "./pages/app/Ledger";
 import PublicMenu from "./pages/PublicMenu";
 import PublicRestaurant from "./pages/PublicRestaurant";
 import AcceptInvitation from "./pages/AcceptInvitation";
@@ -66,6 +69,9 @@ const App = () => (
               <Route path="inventory" element={<Inventory />} />
               <Route path="reports" element={<Reports />} />
               <Route path="accounting" element={<Accounting />} />
+              <Route path="ledger" element={<Ledger />} />
+              <Route path="payroll" element={<Payroll />} />
+              <Route path="tax" element={<TaxReturns />} />
               <Route path="staff" element={<Staff />} />
               <Route path="timeclock" element={<TimeClock />} />
               <Route path="customers" element={<Customers />} />
