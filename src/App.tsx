@@ -30,6 +30,9 @@ import Reports from "./pages/app/Reports";
 import Payroll from "./pages/app/Payroll";
 import TaxReturns from "./pages/app/TaxReturns";
 import Ledger from "./pages/app/Ledger";
+import Security from "./pages/app/Security";
+import Backups from "./pages/app/Backups";
+import Health from "./pages/app/Health";
 import PublicMenu from "./pages/PublicMenu";
 import PublicRestaurant from "./pages/PublicRestaurant";
 import AcceptInvitation from "./pages/AcceptInvitation";
@@ -79,6 +82,9 @@ const App = () => (
               <Route path="advisor" element={<Advisor />} />
               <Route path="audit" element={<AuditLog />} />
               <Route path="kitchen" element={<KitchenDisplay />} />
+              <Route path="security" element={<Security />} />
+              <Route path="backups" element={<Backups />} />
+              <Route path="health" element={<Health />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
