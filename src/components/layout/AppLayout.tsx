@@ -19,6 +19,7 @@ import {
   BookUser,
   Bell,
   ShieldCheck,
+  Flame,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,7 @@ const navItems = [
   { to: "/app", end: true, icon: LayoutDashboard, label: "Tableau de bord" },
   { to: "/app/orders", icon: ClipboardList, label: "Commandes" },
   { to: "/app/incoming", icon: Bell, label: "Commandes QR" },
+  { to: "/app/kitchen", icon: Flame, label: "Écran cuisine" },
   { to: "/app/floor", icon: LayoutGrid, label: "Salle" },
   { to: "/app/reservations", icon: CalendarDays, label: "Réservations" },
   { to: "/app/menu", icon: UtensilsCrossed, label: "Menu" },

@@ -22,6 +22,7 @@ import Advisor from "./pages/app/Advisor";
 import Customers from "./pages/app/Customers";
 import IncomingOrders from "./pages/app/IncomingOrders";
 import AuditLog from "./pages/app/AuditLog";
+import KitchenDisplay from "./pages/app/KitchenDisplay";
 import PublicMenu from "./pages/PublicMenu";
 import PublicRestaurant from "./pages/PublicRestaurant";
 import AcceptInvitation from "./pages/AcceptInvitation";
@@ -63,6 +64,7 @@ const App = () => (
               <Route path="incoming" element={<IncomingOrders />} />
               <Route path="advisor" element={<Advisor />} />
               <Route path="audit" element={<AuditLog />} />
+              <Route path="kitchen" element={<KitchenDisplay />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
