@@ -19,6 +19,7 @@ import { PrintStyles } from "@/components/print/PrintStyles";
 import { MobileMoneyDialog } from "@/components/payments/MobileMoneyDialog";
 import { enqueue } from "@/lib/offline/db";
 import { triggerFlush } from "@/lib/offline/sync";
+import { ItemConfigurator, itemNeedsConfig, type ConfiguredSelection } from "@/components/menu/ItemConfigurator";
 
 type OrderStatus = "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled";
 
@@ -72,6 +73,8 @@ const Orders = () => {
   const [detailItems, setDetailItems] = useState<OrderItem[]>([]);
   const [printMode, setPrintMode] = useState<"kitchen" | "receipt" | null>(null);
   const [mobileMoneyOpen, setMobileMoneyOpen] = useState(false);
+  const [configItem, setConfigItem] = useState<MenuItem | null>(null);
+  const [configOpen, setConfigOpen] = useState(false);
   const lastSeenIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -118,16 +121,31 @@ const Orders = () => {
     return () => { supabase.removeChannel(channel); };
   }, [restaurant]);
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = async (item: MenuItem) => {
+    const needs = await itemNeedsConfig(item.id);
+    if (needs) {
+      setConfigItem(item);
+      setConfigOpen(true);
+      return;
+    }
     setCart((prev) => {
-      const existing = prev.find((c) => c.menu_item_id === item.id);
-      if (existing) return prev.map((c) => c.menu_item_id === item.id ? { ...c, quantity: c.quantity + 1 } : c);
+      const existing = prev.find((c) => c.menu_item_id === item.id && c.name === item.name && c.price === Number(item.price));
+      if (existing) return prev.map((c) => c === existing ? { ...c, quantity: c.quantity + 1 } : c);
       return [...prev, { menu_item_id: item.id, name: item.name, price: Number(item.price), quantity: 1 }];
     });
   };
-  const incrementCart = (id: string, delta: number) => {
+  const onConfigured = (sel: ConfiguredSelection) => {
+    setCart((prev) => {
+      const existing = prev.find((c) => c.menu_item_id === sel.item.id && c.name === sel.label && c.price === sel.unitPrice);
+      if (existing) return prev.map((c) => c === existing ? { ...c, quantity: c.quantity + 1 } : c);
+      return [...prev, { menu_item_id: sel.item.id, name: sel.label, price: sel.unitPrice, quantity: 1 }];
+    });
+    setConfigOpen(false);
+    setConfigItem(null);
+  };
+  const incrementCart = (key: string, delta: number) => {
     setCart((prev) =>
-      prev.map((c) => c.menu_item_id === id ? { ...c, quantity: Math.max(0, c.quantity + delta) } : c)
+      prev.map((c) => `${c.menu_item_id}::${c.name}::${c.price}` === key ? { ...c, quantity: Math.max(0, c.quantity + delta) } : c)
         .filter((c) => c.quantity > 0)
     );
   };
