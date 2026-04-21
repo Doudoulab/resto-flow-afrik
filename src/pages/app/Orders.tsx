@@ -179,6 +179,20 @@ const Orders = () => {
       quantity: c.quantity,
     }));
 
+    // Fetch fiscal config for proper totals
+    const { data: resto } = await supabase.from("restaurants")
+      .select("default_vat_rate, vat_mode, default_service_pct")
+      .eq("id", restaurant.id).maybeSingle();
+    const totals = computeTotals({
+      lines: lines.map((l) => ({ quantity: l.quantity, unit_price: l.unit_price })),
+      vatMode: (resto?.vat_mode as "inclusive" | "exclusive") ?? "exclusive",
+      defaultVatRate: Number(resto?.default_vat_rate ?? 18),
+      servicePct: Number(resto?.default_service_pct ?? 0),
+      orderDiscountAmount: 0,
+      tipAmount: 0,
+    });
+    const vatRate = Number(resto?.default_vat_rate ?? 18);
+
     // Offline: queue and resolve immediately
     if (!navigator.onLine) {
       await enqueue({
@@ -187,7 +201,7 @@ const Orders = () => {
           restaurant_id: restaurant.id,
           table_number: tableNumber || null,
           notes: notes || null,
-          total: cartTotal,
+          total: totals.total,
           created_by: user?.id ?? null,
           items: lines,
         },
@@ -202,7 +216,12 @@ const Orders = () => {
       restaurant_id: restaurant.id,
       table_number: tableNumber || null,
       notes: notes || null,
-      total: cartTotal,
+      subtotal: totals.subtotal,
+      tax_amount: totals.taxAmount,
+      service_amount: totals.serviceAmount,
+      tip_amount: 0,
+      discount_amount: 0,
+      total: totals.total,
       created_by: user?.id,
       status: "pending" as OrderStatus,
     }).select().single();
@@ -210,7 +229,7 @@ const Orders = () => {
     if (orderErr || !order) { toast.error(orderErr?.message || "Erreur"); return; }
 
     const { error: liErr } = await supabase.from("order_items").insert(
-      lines.map((l) => ({ ...l, order_id: order.id })),
+      lines.map((l) => ({ ...l, order_id: order.id, vat_rate: vatRate })),
     );
     if (liErr) { toast.error(liErr.message); return; }
 
@@ -360,9 +379,29 @@ const Orders = () => {
                 ))}
               </div>
               {detailOrder.notes && <p className="rounded-md bg-accent p-3 text-sm text-accent-foreground">{detailOrder.notes}</p>}
-              <div className="flex justify-between border-t border-border pt-3">
-                <span className="font-medium">Total</span>
-                <span className="text-lg font-bold text-primary">{formatFCFA(detailOrder.total)}</span>
+              <div className="space-y-1 border-t border-border pt-3 text-sm">
+                {Number(detailOrder.subtotal ?? 0) > 0 && (
+                  <div className="flex justify-between text-muted-foreground"><span>Sous-total HT</span><span>{formatFCFA(Number(detailOrder.subtotal))}</span></div>
+                )}
+                {Number(detailOrder.discount_amount ?? 0) > 0 && (
+                  <div className="flex justify-between text-destructive"><span>Remise</span><span>−{formatFCFA(Number(detailOrder.discount_amount))}</span></div>
+                )}
+                {Number(detailOrder.tax_amount ?? 0) > 0 && (
+                  <div className="flex justify-between text-muted-foreground"><span>TVA</span><span>{formatFCFA(Number(detailOrder.tax_amount))}</span></div>
+                )}
+                {Number(detailOrder.service_amount ?? 0) > 0 && (
+                  <div className="flex justify-between text-muted-foreground"><span>Service</span><span>{formatFCFA(Number(detailOrder.service_amount))}</span></div>
+                )}
+                {Number(detailOrder.tip_amount ?? 0) > 0 && (
+                  <div className="flex justify-between text-muted-foreground"><span>Pourboire</span><span>{formatFCFA(Number(detailOrder.tip_amount))}</span></div>
+                )}
+                <div className="flex justify-between pt-1 border-t">
+                  <span className="font-medium">Total TTC</span>
+                  <span className="text-lg font-bold text-primary">{formatFCFA(detailOrder.total)}</span>
+                </div>
+                {Number(detailOrder.amount_paid ?? 0) > 0 && (
+                  <div className="flex justify-between text-xs text-muted-foreground"><span>Payé</span><span>{formatFCFA(Number(detailOrder.amount_paid))}</span></div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex-1" onClick={() => handlePrint("kitchen")}>
@@ -372,9 +411,29 @@ const Orders = () => {
                   <Printer className="mr-2 h-4 w-4" /> Addition client
                 </Button>
               </div>
+              {detailOrder.status !== "cancelled" && (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setAdjustOpen(true)}>
+                    <Percent className="mr-2 h-4 w-4" /> Remise / Pourboire
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setInvoiceOpen(true)}>
+                    <FileText className="mr-2 h-4 w-4" /> Facture légale
+                  </Button>
+                </div>
+              )}
               {detailOrder.status !== "paid" && detailOrder.status !== "cancelled" && (
-                <Button className="w-full" onClick={() => setMobileMoneyOpen(true)}>
-                  <Smartphone className="mr-2 h-4 w-4" /> Encaisser via Mobile Money
+                <div className="grid grid-cols-2 gap-2">
+                  <Button onClick={() => setSplitOpen(true)}>
+                    <Wallet className="mr-2 h-4 w-4" /> Encaisser / Split
+                  </Button>
+                  <Button variant="outline" onClick={() => setMobileMoneyOpen(true)}>
+                    <Smartphone className="mr-2 h-4 w-4" /> Mobile Money
+                  </Button>
+                </div>
+              )}
+              {detailOrder.status !== "cancelled" && detailOrder.status !== "paid" && (
+                <Button variant="destructive" size="sm" className="w-full" onClick={() => setCancelOpen(true)}>
+                  <XCircle className="mr-2 h-4 w-4" /> Annuler la commande
                 </Button>
               )}
               <div className="space-y-2">
@@ -435,6 +494,48 @@ const Orders = () => {
         item={configItem}
         onOpenChange={(o) => { setConfigOpen(o); if (!o) setConfigItem(null); }}
         onConfirm={onConfigured}
+      />
+
+      <AdjustOrderDialog
+        open={adjustOpen}
+        onOpenChange={setAdjustOpen}
+        order={detailOrder ? {
+          id: detailOrder.id,
+          restaurant_id: restaurant?.id ?? "",
+          discount_amount: Number(detailOrder.discount_amount ?? 0),
+          discount_reason: null,
+          tip_amount: Number(detailOrder.tip_amount ?? 0),
+          service_amount: Number(detailOrder.service_amount ?? 0),
+          subtotal: Number(detailOrder.subtotal ?? 0),
+          tax_amount: Number(detailOrder.tax_amount ?? 0),
+          total: Number(detailOrder.total),
+        } : null}
+        onSaved={() => { load(); if (detailOrder) openDetail(detailOrder); }}
+      />
+
+      <CancelOrderDialog
+        open={cancelOpen}
+        onOpenChange={setCancelOpen}
+        orderId={detailOrder?.id ?? null}
+        restaurantId={restaurant?.id ?? null}
+        onCancelled={() => { setDetailOrder(null); load(); }}
+      />
+
+      <SplitBillDialog
+        open={splitOpen}
+        onOpenChange={setSplitOpen}
+        orderId={detailOrder?.id ?? null}
+        restaurantId={restaurant?.id ?? null}
+        total={Number(detailOrder?.total ?? 0)}
+        amountPaid={Number(detailOrder?.amount_paid ?? 0)}
+        onPaymentAdded={() => { load(); if (detailOrder) openDetail(detailOrder); }}
+      />
+
+      <InvoiceDialog
+        open={invoiceOpen}
+        onOpenChange={setInvoiceOpen}
+        orderId={detailOrder?.id ?? null}
+        restaurantId={restaurant?.id ?? null}
       />
     </div>
   );
