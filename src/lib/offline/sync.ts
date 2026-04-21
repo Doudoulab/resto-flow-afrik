@@ -73,14 +73,26 @@ export const flushQueue = async () => {
   notify();
   try {
     const items = await refreshPending();
+    const now = Date.now();
     for (const item of items) {
+      // Exponential backoff: skip items whose retry window hasn't elapsed
+      const lastTried = (item as any).last_attempt_at ?? 0;
+      const wait = Math.min(60_000 * Math.pow(2, Math.max(0, item.attempts - 1)), 30 * 60_000);
+      if (item.attempts > 0 && now - lastTried < wait) continue;
       const res = await runItem(item);
       if (res.ok) {
         if (item.id != null) await removeQueueItem(item.id);
       } else {
-        await updateQueueItem({ ...item, attempts: item.attempts + 1, last_error: res.error });
-        // give up on this run if persistent error to avoid infinite loop within one flush
-        break;
+        await updateQueueItem({
+          ...item,
+          attempts: item.attempts + 1,
+          last_error: res.error,
+          // @ts-expect-error optional metadata, persisted as part of the queue row
+          last_attempt_at: now,
+        });
+        // Continue to next item rather than breaking — one bad row should
+        // not block other unrelated operations.
+        continue;
       }
     }
   } finally {
