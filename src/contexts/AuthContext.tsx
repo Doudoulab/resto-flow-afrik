@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { setMonitoringRestaurantId } from "@/lib/monitoring/logger";
 
 export interface Profile {
   id: string;
@@ -64,8 +65,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("id", prof.restaurant_id)
         .maybeSingle();
       setRestaurant(resto as Restaurant | null);
+      setMonitoringRestaurantId(prof.restaurant_id);
     } else {
       setRestaurant(null);
+      setMonitoringRestaurantId(null);
     }
   };
 
