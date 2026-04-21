@@ -1,57 +1,41 @@
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
-import { ShoppingCart, Plus, Minus, ChefHat, CheckCircle2 } from "lucide-react";
-import { formatFCFA } from "@/lib/currency";
-import { toast } from "sonner";
-import { ItemConfigurator, itemNeedsConfig, type ConfiguredSelection } from "@/components/menu/ItemConfigurator";
 
-interface Restaurant { id: string; name: string; address: string | null; phone: string | null; }
-interface Category { id: string; name: string; sort_order: number; }
-interface MenuItem { id: string; name: string; description: string | null; price: number; category_id: string | null; }
-interface CartLine { key: string; menu_item_id: string; name: string; unit_price: number; quantity: number; }
-
+/**
+ * Legacy QR route — redirects /m/:restaurantId → /r/:slug
+ * so customers always land on the full public restaurant page.
+ */
 const PublicMenu = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const [params] = useSearchParams();
-  const tableNumber = params.get("table") ?? "";
-
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [items, setItems] = useState<MenuItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const [cart, setCart] = useState<CartLine[]>([]);
-  const [configItem, setConfigItem] = useState<MenuItem | null>(null);
-  const [configOpen, setConfigOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [notes, setNotes] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const load = async () => {
+    const run = async () => {
       if (!restaurantId) return;
-      const [r, c, m] = await Promise.all([
-        supabase.from("restaurants").select("id,name,address,phone").eq("id", restaurantId).maybeSingle(),
-        supabase.from("menu_categories").select("*").eq("restaurant_id", restaurantId).order("sort_order"),
-        supabase.from("menu_items").select("*").eq("restaurant_id", restaurantId).eq("is_available", true).order("name"),
-      ]);
-      setRestaurant(r.data as Restaurant | null);
-      setCategories((c.data ?? []) as Category[]);
-      setItems((m.data ?? []) as MenuItem[]);
-      setLoading(false);
+      const { data } = await supabase
+        .from("restaurants")
+        .select("slug")
+        .eq("id", restaurantId)
+        .maybeSingle();
+      const slug = (data as { slug: string | null } | null)?.slug;
+      if (!slug) { setError("Restaurant introuvable."); return; }
+      const qs = params.toString();
+      navigate(`/r/${slug}${qs ? `?${qs}` : ""}`, { replace: true });
     };
-    load();
-  }, [restaurantId]);
+    run();
+  }, [restaurantId, params, navigate]);
+
+  return (
+    <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+      {error ?? "Redirection…"}
+    </div>
+  );
+};
+
+export default PublicMenu;
 
   const itemsByCategory = useMemo(() => {
     const map = new Map<string, MenuItem[]>();
