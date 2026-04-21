@@ -98,6 +98,29 @@ const Stock = () => {
         <Button onClick={() => open()}><Plus className="mr-2 h-4 w-4" />Article</Button>
       </div>
 
+      {menuItems.length > 0 && (
+        <Card><CardContent className="p-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p className="font-semibold flex items-center gap-2"><ChefHat className="h-4 w-4" /> Recettes des plats</p>
+              <p className="text-sm text-muted-foreground">Définissez les ingrédients consommés par chaque plat pour calculer la marge réelle.</p>
+            </div>
+            <select
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              onChange={(e) => {
+                const m = menuItems.find((x) => x.id === e.target.value);
+                if (m) setRecipeFor(m);
+                e.target.value = "";
+              }}
+              defaultValue=""
+            >
+              <option value="" disabled>Choisir un plat...</option>
+              {menuItems.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
+          </div>
+        </CardContent></Card>
+      )}
+
       {items.length === 0 ? (
         <Card><CardContent className="py-12 text-center text-muted-foreground">
           Aucun article en stock. Ajoutez-en pour commencer.
@@ -165,6 +188,13 @@ const Stock = () => {
           <DialogFooter><Button onClick={save}>Enregistrer</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+      <RecipeDialog
+        open={!!recipeFor}
+        onOpenChange={(v) => !v && setRecipeFor(null)}
+        menuItemId={recipeFor?.id ?? null}
+        menuItemName={recipeFor?.name}
+        menuItemPrice={recipeFor?.price}
+      />
     </div>
   );
 };
