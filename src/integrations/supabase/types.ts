@@ -112,9 +112,11 @@ export type Database = {
       }
       customers: {
         Row: {
+          allergies: string | null
           balance: number
           created_at: string
           credit_limit: number
+          dietary_preferences: string | null
           id: string
           name: string
           notes: string | null
@@ -123,9 +125,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allergies?: string | null
           balance?: number
           created_at?: string
           credit_limit?: number
+          dietary_preferences?: string | null
           id?: string
           name: string
           notes?: string | null
@@ -134,9 +138,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allergies?: string | null
           balance?: number
           created_at?: string
           credit_limit?: number
+          dietary_preferences?: string | null
           id?: string
           name?: string
           notes?: string | null
@@ -312,6 +318,47 @@ export type Database = {
         }
         Relationships: []
       }
+      kitchen_stations: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          restaurant_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          restaurant_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          restaurant_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kitchen_stations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_categories: {
         Row: {
           created_at: string
@@ -319,6 +366,7 @@ export type Database = {
           name: string
           restaurant_id: string
           sort_order: number
+          station_id: string | null
         }
         Insert: {
           created_at?: string
@@ -326,6 +374,7 @@ export type Database = {
           name: string
           restaurant_id: string
           sort_order?: number
+          station_id?: string | null
         }
         Update: {
           created_at?: string
@@ -333,6 +382,7 @@ export type Database = {
           name?: string
           restaurant_id?: string
           sort_order?: number
+          station_id?: string | null
         }
         Relationships: [
           {
@@ -340,6 +390,13 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_categories_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "kitchen_stations"
             referencedColumns: ["id"]
           },
         ]
@@ -557,6 +614,7 @@ export type Database = {
           price: number
           restaurant_id: string
           sort_order: number
+          station_id: string | null
           updated_at: string
           vat_rate: number | null
         }
@@ -571,6 +629,7 @@ export type Database = {
           price?: number
           restaurant_id: string
           sort_order?: number
+          station_id?: string | null
           updated_at?: string
           vat_rate?: number | null
         }
@@ -585,6 +644,7 @@ export type Database = {
           price?: number
           restaurant_id?: string
           sort_order?: number
+          station_id?: string | null
           updated_at?: string
           vat_rate?: number | null
         }
@@ -601,6 +661,13 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_items_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "kitchen_stations"
             referencedColumns: ["id"]
           },
         ]
@@ -669,14 +736,19 @@ export type Database = {
           cancelled_at: string | null
           cancelled_by: string | null
           cancelled_reason: string | null
+          course_number: number
           created_at: string
           discount_amount: number
           discount_reason: string | null
+          fired_at: string | null
           id: string
+          is_allergy_alert: boolean
           menu_item_id: string | null
           name_snapshot: string
           order_id: string
           quantity: number
+          special_request: string | null
+          station_id: string | null
           status: string
           unit_price: number
           vat_amount: number
@@ -686,14 +758,19 @@ export type Database = {
           cancelled_at?: string | null
           cancelled_by?: string | null
           cancelled_reason?: string | null
+          course_number?: number
           created_at?: string
           discount_amount?: number
           discount_reason?: string | null
+          fired_at?: string | null
           id?: string
+          is_allergy_alert?: boolean
           menu_item_id?: string | null
           name_snapshot: string
           order_id: string
           quantity?: number
+          special_request?: string | null
+          station_id?: string | null
           status?: string
           unit_price: number
           vat_amount?: number
@@ -703,14 +780,19 @@ export type Database = {
           cancelled_at?: string | null
           cancelled_by?: string | null
           cancelled_reason?: string | null
+          course_number?: number
           created_at?: string
           discount_amount?: number
           discount_reason?: string | null
+          fired_at?: string | null
           id?: string
+          is_allergy_alert?: boolean
           menu_item_id?: string | null
           name_snapshot?: string
           order_id?: string
           quantity?: number
+          special_request?: string | null
+          station_id?: string | null
           status?: string
           unit_price?: number
           vat_amount?: number
@@ -729,6 +811,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_station_id_fkey"
+            columns: ["station_id"]
+            isOneToOne: false
+            referencedRelation: "kitchen_stations"
             referencedColumns: ["id"]
           },
         ]
@@ -786,6 +875,7 @@ export type Database = {
           id: string
           invoice_id: string | null
           invoice_number: string | null
+          merged_tables: string[] | null
           notes: string | null
           order_number: number
           payment_method: string | null
@@ -813,6 +903,7 @@ export type Database = {
           id?: string
           invoice_id?: string | null
           invoice_number?: string | null
+          merged_tables?: string[] | null
           notes?: string | null
           order_number?: number
           payment_method?: string | null
@@ -840,6 +931,7 @@ export type Database = {
           id?: string
           invoice_id?: string | null
           invoice_number?: string | null
+          merged_tables?: string[] | null
           notes?: string | null
           order_number?: number
           payment_method?: string | null
@@ -1099,43 +1191,61 @@ export type Database = {
       }
       reservations: {
         Row: {
+          allergies: string | null
           created_at: string
           created_by: string | null
           customer_name: string
           customer_phone: string | null
+          deposit_amount: number
+          deposit_status: string
+          estimated_duration_min: number
           id: string
           notes: string | null
           party_size: number
+          reminder_sent_at: string | null
           reserved_at: string
           restaurant_id: string
+          special_occasion: string | null
           status: Database["public"]["Enums"]["reservation_status"]
           table_number: string | null
           updated_at: string
         }
         Insert: {
+          allergies?: string | null
           created_at?: string
           created_by?: string | null
           customer_name: string
           customer_phone?: string | null
+          deposit_amount?: number
+          deposit_status?: string
+          estimated_duration_min?: number
           id?: string
           notes?: string | null
           party_size?: number
+          reminder_sent_at?: string | null
           reserved_at: string
           restaurant_id: string
+          special_occasion?: string | null
           status?: Database["public"]["Enums"]["reservation_status"]
           table_number?: string | null
           updated_at?: string
         }
         Update: {
+          allergies?: string | null
           created_at?: string
           created_by?: string | null
           customer_name?: string
           customer_phone?: string | null
+          deposit_amount?: number
+          deposit_status?: string
+          estimated_duration_min?: number
           id?: string
           notes?: string | null
           party_size?: number
+          reminder_sent_at?: string | null
           reserved_at?: string
           restaurant_id?: string
+          special_occasion?: string | null
           status?: Database["public"]["Enums"]["reservation_status"]
           table_number?: string | null
           updated_at?: string
@@ -1152,31 +1262,43 @@ export type Database = {
       }
       restaurant_tables: {
         Row: {
+          assigned_waiter_id: string | null
           created_at: string
           id: string
           label: string
+          pos_x: number
+          pos_y: number
           restaurant_id: string
           seats: number
+          shape: string
           sort_order: number
           status: Database["public"]["Enums"]["table_status"]
           updated_at: string
         }
         Insert: {
+          assigned_waiter_id?: string | null
           created_at?: string
           id?: string
           label: string
+          pos_x?: number
+          pos_y?: number
           restaurant_id: string
           seats?: number
+          shape?: string
           sort_order?: number
           status?: Database["public"]["Enums"]["table_status"]
           updated_at?: string
         }
         Update: {
+          assigned_waiter_id?: string | null
           created_at?: string
           id?: string
           label?: string
+          pos_x?: number
+          pos_y?: number
           restaurant_id?: string
           seats?: number
+          shape?: string
           sort_order?: number
           status?: Database["public"]["Enums"]["table_status"]
           updated_at?: string
@@ -1420,6 +1542,10 @@ export type Database = {
         Returns: boolean
       }
       next_invoice_number: { Args: { _restaurant_id: string }; Returns: string }
+      transfer_order_item: {
+        Args: { _item_id: string; _reason: string; _to_order_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "manager" | "waiter" | "kitchen" | "cashier"
