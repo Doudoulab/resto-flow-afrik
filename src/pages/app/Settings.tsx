@@ -230,14 +230,14 @@ const Settings = () => {
               <div className="space-y-3">
                 <div>
                   <Label>Lien général du menu</Label>
-                  <Input readOnly value={`${window.location.origin}/m/${restaurant.id}`} />
+                  <Input readOnly value={`${window.location.origin}/r/${restaurant.slug ?? restaurant.id}`} />
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Pour un QR par table, ajoutez <code>?table=NUMERO</code> à la fin du lien.
                 </p>
               </div>
               <div className="flex flex-col items-center gap-3 rounded-md border bg-card p-4">
-                <QRCodeSVG id="resto-qr" value={`${window.location.origin}/m/${restaurant.id}`} size={180} includeMargin />
+                <QRCodeSVG id="resto-qr" value={`${window.location.origin}/r/${restaurant.slug ?? restaurant.id}`} size={180} includeMargin />
                 <Button variant="outline" size="sm" onClick={() => {
                   const svg = document.getElementById("resto-qr") as unknown as SVGElement | null;
                   if (!svg) return;
