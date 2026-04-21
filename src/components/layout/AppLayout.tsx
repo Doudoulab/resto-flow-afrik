@@ -31,12 +31,14 @@ import {
   HardDriveDownload,
   Activity,
   Printer,
+  FileCheck2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { OfflineIndicator } from "@/components/offline/OfflineIndicator";
 import { prefetchForOffline } from "@/lib/offline/prefetch";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 
 const navItems = [
   { to: "/app", end: true, icon: LayoutDashboard, label: "Tableau de bord" },
@@ -64,6 +66,7 @@ const navItems = [
   { to: "/app/backups", icon: HardDriveDownload, label: "Sauvegardes" },
   { to: "/app/health", icon: Activity, label: "État système" },
   { to: "/app/printers", icon: Printer, label: "Imprimantes" },
+  { to: "/app/fiscal", icon: FileCheck2, label: "Vérif. fiscale" },
   { to: "/app/settings", icon: Settings, label: "Paramètres" },
 ];
 
@@ -174,11 +177,13 @@ export const AppLayout = () => {
           </Button>
           <p className="flex-1 font-semibold">{restaurant?.name || "RestoFlow"}</p>
           <OfflineIndicator />
+          <LanguageSwitcher />
           <ThemeToggle />
         </header>
         {/* Desktop top-right theme toggle */}
         <div className="hidden md:flex h-12 items-center justify-end gap-3 border-b border-border bg-card px-4">
           <OfflineIndicator />
+          <LanguageSwitcher />
           <ThemeToggle />
         </div>
 

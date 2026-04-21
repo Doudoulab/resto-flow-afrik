@@ -3,6 +3,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { ThemeProvider } from "next-themes";
 import { initOfflineSync } from "@/lib/offline/sync";
+import "@/lib/i18n";
 
 // PWA: register service worker only outside iframe & lovable preview hosts
 const isInIframe = (() => {

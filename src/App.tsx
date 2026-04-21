@@ -34,6 +34,7 @@ import Security from "./pages/app/Security";
 import Backups from "./pages/app/Backups";
 import Health from "./pages/app/Health";
 import Printers from "./pages/app/Printers";
+import Fiscal from "./pages/app/Fiscal";
 import PublicMenu from "./pages/PublicMenu";
 import PublicRestaurant from "./pages/PublicRestaurant";
 import AcceptInvitation from "./pages/AcceptInvitation";
@@ -87,6 +88,7 @@ const App = () => (
               <Route path="backups" element={<Backups />} />
               <Route path="health" element={<Health />} />
               <Route path="printers" element={<Printers />} />
+              <Route path="fiscal" element={<Fiscal />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
