@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Eager: landing & auth (smallest, first paint critical)
 import Landing from "./pages/Landing";
@@ -43,6 +44,7 @@ const Health = lazy(() => import("./pages/app/Health"));
 const Printers = lazy(() => import("./pages/app/Printers"));
 const Fiscal = lazy(() => import("./pages/app/Fiscal"));
 const Exports = lazy(() => import("./pages/app/Exports"));
+const Errors = lazy(() => import("./pages/app/Errors"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -62,6 +64,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ErrorBoundary>
           <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -104,11 +107,13 @@ const App = () => (
               <Route path="printers" element={<Printers />} />
               <Route path="fiscal" element={<Fiscal />} />
               <Route path="exports" element={<Exports />} />
+              <Route path="errors" element={<Errors />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+          </ErrorBoundary>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

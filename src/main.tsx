@@ -4,6 +4,7 @@ import "./index.css";
 import { ThemeProvider } from "next-themes";
 import { initOfflineSync } from "@/lib/offline/sync";
 import "@/lib/i18n";
+import { installGlobalErrorHandlers } from "@/lib/monitoring/logger";
 
 // PWA: register service worker only outside iframe & lovable preview hosts
 const isInIframe = (() => {
@@ -23,6 +24,7 @@ if (isPreviewHost || isInIframe) {
 
 // Always start the offline sync engine (works without SW too)
 initOfflineSync();
+installGlobalErrorHandlers();
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>

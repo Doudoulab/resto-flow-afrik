@@ -33,6 +33,7 @@ import {
   Printer,
   FileCheck2,
   FileSpreadsheet,
+  Bug,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -69,6 +70,7 @@ const navItems = [
   { to: "/app/printers", icon: Printer, label: "Imprimantes" },
   { to: "/app/fiscal", icon: FileCheck2, label: "Vérif. fiscale" },
   { to: "/app/exports", icon: FileSpreadsheet, label: "Exports compta/PMS" },
+  { to: "/app/errors", icon: Bug, label: "Monitoring erreurs" },
   { to: "/app/settings", icon: Settings, label: "Paramètres" },
 ];
 
