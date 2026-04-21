@@ -170,7 +170,8 @@ const PublicMenu = () => {
               <h2 className="mb-2 text-lg font-semibold">{cat.name}</h2>
               <div className="space-y-2">
                 {list.map((it) => {
-                  const qty = cart[it.id] ?? 0;
+                  const qty = qtyForItem(it.id);
+                  const plainKey = `${it.id}::${it.name}::${Number(it.price)}`;
                   return (
                     <Card key={it.id}>
                       <CardContent className="flex items-center gap-3 p-3">
@@ -180,12 +181,12 @@ const PublicMenu = () => {
                           <p className="mt-1 font-semibold text-primary">{formatFCFA(it.price)}</p>
                         </div>
                         {qty === 0 ? (
-                          <Button size="sm" onClick={() => inc(it.id)}><Plus className="h-4 w-4" /></Button>
+                          <Button size="sm" onClick={() => tryAdd(it)}><Plus className="h-4 w-4" /></Button>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <Button size="icon" variant="outline" onClick={() => dec(it.id)}><Minus className="h-4 w-4" /></Button>
+                            <Button size="icon" variant="outline" onClick={() => dec(plainKey)}><Minus className="h-4 w-4" /></Button>
                             <span className="w-6 text-center font-semibold">{qty}</span>
-                            <Button size="icon" onClick={() => inc(it.id)}><Plus className="h-4 w-4" /></Button>
+                            <Button size="icon" onClick={() => tryAdd(it)}><Plus className="h-4 w-4" /></Button>
                           </div>
                         )}
                       </CardContent>
