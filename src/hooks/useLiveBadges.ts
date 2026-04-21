@@ -28,7 +28,7 @@ export const useLiveBadges = () => {
           .eq("restaurant_id", rid).eq("status", "pending"),
         supabase.from("reservations").select("id", { count: "exact", head: true })
           .eq("restaurant_id", rid).gte("reserved_at", today).lt("reserved_at", tomorrow)
-          .in("status", ["confirmed", "pending"]),
+          .in("status", ["confirmed"]),
         supabase.from("stock_items").select("id, quantity, alert_threshold")
           .eq("restaurant_id", rid),
         supabase.from("order_items").select("id, status, orders!inner(restaurant_id, status)", { count: "exact", head: true })
