@@ -107,7 +107,7 @@ export async function fetchCategoryMargins(restaurantId: string, fromISO: string
 export async function fetchTopWines(restaurantId: string, fromISO: string, toISO: string): Promise<TopWine[]> {
   const { data: movs } = await supabase
     .from("wine_movements")
-    .select("wine_id,quantity,unit_price,movement_type,created_at,wines(name,vintage,stock_quantity)")
+    .select("wine_id,quantity,movement_type,created_at,wines(name,vintage,bottle_price,bottles_in_stock)")
     .eq("restaurant_id", restaurantId)
     .eq("movement_type", "out")
     .gte("created_at", fromISO)
@@ -115,11 +115,11 @@ export async function fetchTopWines(restaurantId: string, fromISO: string, toISO
 
   const agg = new Map<string, { name: string; vintage: number | null; units: number; revenue: number; stock: number }>();
   for (const m of movs ?? []) {
-    const w = m.wines as unknown as { name?: string; vintage?: number | null; stock_quantity?: number } | null;
+    const w = m.wines as unknown as { name?: string; vintage?: number | null; bottle_price?: number; bottles_in_stock?: number } | null;
     if (!w) continue;
-    const cur = agg.get(m.wine_id) ?? { name: w.name ?? "—", vintage: w.vintage ?? null, units: 0, revenue: 0, stock: w.stock_quantity ?? 0 };
+    const cur = agg.get(m.wine_id) ?? { name: w.name ?? "—", vintage: w.vintage ?? null, units: 0, revenue: 0, stock: w.bottles_in_stock ?? 0 };
     cur.units += Number(m.quantity);
-    cur.revenue += Number(m.unit_price ?? 0) * Number(m.quantity);
+    cur.revenue += Number(w.bottle_price ?? 0) * Number(m.quantity);
     agg.set(m.wine_id, cur);
   }
 
