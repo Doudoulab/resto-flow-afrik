@@ -12,12 +12,17 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { NotificationCenter } from "./NotificationCenter";
 import { PageTitle } from "./PageTitle";
 import { QuickViewProvider } from "./QuickViewSheet";
+import { ContextualFab } from "./ContextualFab";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 
 const InnerLayout = () => {
   const { restaurant } = useAuth();
   const { open: openPalette } = useCommandPalette();
+  const navigate = useNavigate();
+  useKeyboardShortcuts(() => navigate("/app/orders?new=1"));
 
   useEffect(() => {
     if (restaurant?.id) {
@@ -62,6 +67,7 @@ const InnerLayout = () => {
             </div>
           </main>
           <MobileBottomNav onSearchClick={openPalette} />
+          <ContextualFab />
         </SidebarInset>
       </div>
     </SidebarProvider>

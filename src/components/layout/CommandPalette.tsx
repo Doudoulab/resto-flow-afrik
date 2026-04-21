@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/command";
 import { useAuth } from "@/contexts/AuthContext";
 import { isModuleEnabled, type ModuleKey } from "@/lib/modules";
+import { useNavMemory } from "@/hooks/useNavMemory";
+import { Star } from "lucide-react";
 import {
   LayoutDashboard, ClipboardList, LayoutGrid, CalendarDays, UtensilsCrossed,
   Package, Users, Settings, Bell, Flame, Printer, Truck, PackagePlus,
@@ -75,6 +77,7 @@ export const CommandPaletteProvider = ({ children }: { children: ReactNode }) =>
   const { restaurant, profile } = useAuth();
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
   const isOwner = profile?.is_owner ?? false;
+  const { favorites, recents, toggleFavorite, isFavorite } = useNavMemory();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -97,6 +100,12 @@ export const CommandPaletteProvider = ({ children }: { children: ReactNode }) =>
   }, {} as Record<string, NavCmd[]>);
 
   const go = (to: string) => { setOpen(false); navigate(to); };
+  const byPath = new Map(visible.map(c => [c.to, c]));
+  const favItems = favorites.map(p => byPath.get(p)).filter(Boolean) as NavCmd[];
+  const recentItems = recents
+    .filter(p => !favorites.includes(p))
+    .map(p => byPath.get(p))
+    .filter(Boolean) as NavCmd[];
 
   return (
     <PaletteCtx.Provider value={{ open: () => setOpen(true) }}>
@@ -113,14 +122,52 @@ export const CommandPaletteProvider = ({ children }: { children: ReactNode }) =>
               </CommandItem>
             ))}
           </CommandGroup>
+          {favItems.length > 0 && (
+            <>
+              <CommandSeparator />
+              <CommandGroup heading="Favoris">
+                {favItems.map(item => (
+                  <CommandItem key={`fav-${item.to}`} onSelect={() => go(item.to)}>
+                    <item.icon className="mr-2 h-4 w-4" />
+                    <span className="flex-1">{item.label}</span>
+                    <Star className="h-3.5 w-3.5 fill-current text-primary" />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
+          {recentItems.length > 0 && (
+            <>
+              <CommandSeparator />
+              <CommandGroup heading="Récents">
+                {recentItems.slice(0, 5).map(item => (
+                  <CommandItem key={`rec-${item.to}`} onSelect={() => go(item.to)}>
+                    <item.icon className="mr-2 h-4 w-4" />
+                    {item.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
           {Object.entries(groups).map(([group, items]) => (
             <div key={group}>
               <CommandSeparator />
               <CommandGroup heading={group}>
                 {items.map(item => (
-                  <CommandItem key={item.to} onSelect={() => go(item.to)}>
+                  <CommandItem
+                    key={item.to}
+                    onSelect={() => go(item.to)}
+                  >
                     <item.icon className="mr-2 h-4 w-4" />
-                    {item.label}
+                    <span className="flex-1">{item.label}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(item.to); }}
+                      className="opacity-50 hover:opacity-100"
+                      aria-label={isFavorite(item.to) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                    >
+                      <Star className={`h-3.5 w-3.5 ${isFavorite(item.to) ? "fill-current text-primary" : ""}`} />
+                    </button>
                   </CommandItem>
                 ))}
               </CommandGroup>
