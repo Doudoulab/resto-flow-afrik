@@ -11,6 +11,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Download, QrCode } from "lucide-react";
 import { RestaurantCustomization } from "@/components/settings/RestaurantCustomization";
 import { OperatorsManager } from "@/components/payments/OperatorsManager";
+import { FiscalSettings } from "@/components/settings/FiscalSettings";
 
 interface RestaurantTable {
   id: string;
@@ -142,6 +143,10 @@ const Settings = () => {
 
       {profile?.is_owner && restaurant && (
         <RestaurantCustomization restaurant={restaurant} onSaved={refresh} />
+      )}
+
+      {profile?.is_owner && restaurant && (
+        <FiscalSettings restaurantId={restaurant.id} onSaved={refresh} />
       )}
 
       <Card className="shadow-sm">
