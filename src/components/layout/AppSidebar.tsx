@@ -177,7 +177,12 @@ export const AppSidebar = () => {
                           <NavLink to={item.to} end={item.end} className={({ isActive }) =>
                             cn(isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")
                           }>
-                            <item.icon className="h-4 w-4" />
+                            <item.icon className="h-4 w-4 relative" />
+                            {routeBadges[item.to] > 0 && (
+                              <span className="absolute -top-0.5 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[9px] font-semibold text-destructive-foreground">
+                                {routeBadges[item.to] > 9 ? "9+" : routeBadges[item.to]}
+                              </span>
+                            )}
                             <span>{item.label}</span>
                           </NavLink>
                         </SidebarMenuButton>
@@ -211,7 +216,12 @@ export const AppSidebar = () => {
                               cn(isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")
                             }>
                               <item.icon className="h-4 w-4" />
-                              <span>{item.label}</span>
+                              <span className="flex-1">{item.label}</span>
+                              {routeBadges[item.to] > 0 && (
+                                <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px]">
+                                  {routeBadges[item.to] > 9 ? "9+" : routeBadges[item.to]}
+                                </Badge>
+                              )}
                             </NavLink>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
