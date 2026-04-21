@@ -18,6 +18,7 @@ import {
   Sparkles,
   BookUser,
   Bell,
+  ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ const navItems = [
   { to: "/app/timeclock", icon: Clock, label: "Pointage" },
   { to: "/app/customers", icon: BookUser, label: "Ardoises" },
   { to: "/app/advisor", icon: Sparkles, label: "Conseil IA" },
+  { to: "/app/audit", icon: ShieldCheck, label: "Audit" },
   { to: "/app/settings", icon: Settings, label: "Paramètres" },
 ];
 
