@@ -294,17 +294,20 @@ const Orders = () => {
                   <p className="py-8 text-center text-sm text-muted-foreground">Cliquez sur un plat pour l'ajouter.</p>
                 ) : (
                   <div className="max-h-60 space-y-2 overflow-y-auto">
-                    {cart.map((c) => (
-                      <div key={c.menu_item_id} className="flex items-center gap-2 rounded-md border border-border p-2">
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{c.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatFCFA(c.price)}</p>
+                    {cart.map((c) => {
+                      const key = `${c.menu_item_id}::${c.name}::${c.price}`;
+                      return (
+                        <div key={key} className="flex items-center gap-2 rounded-md border border-border p-2">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{c.name}</p>
+                            <p className="text-xs text-muted-foreground">{formatFCFA(c.price)}</p>
+                          </div>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => incrementCart(key, -1)}><Minus className="h-3 w-3" /></Button>
+                          <span className="w-6 text-center text-sm font-bold">{c.quantity}</span>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => incrementCart(key, 1)}><Plus className="h-3 w-3" /></Button>
                         </div>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => incrementCart(c.menu_item_id, -1)}><Minus className="h-3 w-3" /></Button>
-                        <span className="w-6 text-center text-sm font-bold">{c.quantity}</span>
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => incrementCart(c.menu_item_id, 1)}><Plus className="h-3 w-3" /></Button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
                 <Textarea placeholder="Notes (optionnel)" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
