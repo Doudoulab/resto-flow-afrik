@@ -37,6 +37,7 @@ const SECTIONS: { id: string; label: string; items: Item[] }[] = [
       { to: "/app/menu", icon: UtensilsCrossed, label: "Menu" },
       { to: "/app/stock", icon: Package, label: "Stock" },
       { to: "/app/staff", icon: Users, label: "Personnel" },
+      { to: "/app/schedule", icon: CalendarDays, label: "Planning" },
     ],
   },
   {
