@@ -401,7 +401,7 @@ const PublicRestaurant = () => {
           price: Number(configItem.price),
           image_url: configItem.image_url,
           description: configItem.description,
-        } as never : null}
+        } : null}
         onOpenChange={(o) => { setConfigOpen(o); if (!o) setConfigItem(null); }}
         onConfirm={onConfigured}
       />
