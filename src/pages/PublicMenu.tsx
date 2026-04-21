@@ -250,6 +250,13 @@ const PublicMenu = () => {
           </div>
         </div>
       )}
+
+      <ItemConfigurator
+        open={configOpen}
+        item={configItem ? { id: configItem.id, name: configItem.name, price: Number(configItem.price) } : null}
+        onOpenChange={(o) => { setConfigOpen(o); if (!o) setConfigItem(null); }}
+        onConfirm={onConfigured}
+      />
     </div>
   );
 };
