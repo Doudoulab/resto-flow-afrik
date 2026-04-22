@@ -26,13 +26,19 @@ export type ModuleKey =
   | "health"
   | "fiscal"         // Vérif. fiscale
   | "exports"        // Exports compta/PMS
-  | "errors";        // Monitoring erreurs
+  | "errors"         // Monitoring erreurs
+  // Business-exclusive modules
+  | "multi_restaurant"     // Gestion multi-établissements
+  | "api_webhooks"         // Accès API & Webhooks
+  | "white_label"          // Marque blanche (logo, domaine, emails)
+  | "consolidated_reports" // Rapports consolidés multi-sites
+  | "priority_support";    // Support prioritaire
 
 export interface ModuleInfo {
   key: ModuleKey;
   label: string;
   description: string;
-  category: "operations" | "kitchen" | "finances" | "advanced" | "system";
+  category: "operations" | "kitchen" | "finances" | "advanced" | "system" | "enterprise";
 }
 
 export const ALL_MODULES: ModuleInfo[] = [
@@ -70,6 +76,13 @@ export const ALL_MODULES: ModuleInfo[] = [
   { key: "fiscal", label: "Vérif. fiscale", description: "Chaînage fiscal des factures", category: "system" },
   { key: "exports", label: "Exports compta/PMS", description: "Exports FEC, Excel, PMS", category: "system" },
   { key: "errors", label: "Monitoring erreurs", description: "Logs d'erreurs runtime", category: "system" },
+
+  // Enterprise (Business-exclusive)
+  { key: "multi_restaurant", label: "Multi-établissements", description: "Gérez plusieurs restaurants depuis un seul compte", category: "enterprise" },
+  { key: "consolidated_reports", label: "Rapports consolidés", description: "Tableaux de bord agrégés sur tous vos sites", category: "enterprise" },
+  { key: "white_label", label: "Marque blanche", description: "Logo, domaine personnalisé et emails à votre marque", category: "enterprise" },
+  { key: "api_webhooks", label: "API & Webhooks", description: "Accès API REST et webhooks pour intégrations sur mesure", category: "enterprise" },
+  { key: "priority_support", label: "Support prioritaire", description: "Réponse < 4h ouvrées et accompagnement dédié", category: "enterprise" },
 ];
 
 export const DEFAULT_ENABLED: ModuleKey[] = [
@@ -120,6 +133,13 @@ export const MODULE_PLAN_MAP: Record<ModuleKey, PlanTier> = {
   // System utilities — available to anyone authenticated
   health: "free",
   errors: "free",
+
+  // Enterprise modules — Business only
+  multi_restaurant: "business",
+  consolidated_reports: "business",
+  white_label: "business",
+  api_webhooks: "business",
+  priority_support: "business",
 };
 
 // Map app routes (under /app) to their gating module key.

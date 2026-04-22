@@ -17,6 +17,7 @@ const CATEGORY_LABELS: Record<ModuleInfo["category"], string> = {
   finances: "Finances",
   advanced: "Haut de gamme",
   system: "Système",
+  enterprise: "Entreprise (Business)",
 };
 
 const CATEGORY_DESC: Record<ModuleInfo["category"], string> = {
@@ -25,6 +26,7 @@ const CATEGORY_DESC: Record<ModuleInfo["category"], string> = {
   finances: "Comptabilité, rapports et paie",
   advanced: "Fonctionnalités pour restauration haut de gamme et hôtellerie",
   system: "Sécurité, monitoring et exports techniques",
+  enterprise: "Modules exclusifs au plan Business : multi-sites, API, marque blanche",
 };
 
 export default function Modules() {
