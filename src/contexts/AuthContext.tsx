@@ -29,6 +29,8 @@ export interface Restaurant {
   theme_color?: string | null;
   opening_hours?: unknown;
   accepts_online_orders?: boolean;
+  suspended_at?: string | null;
+  suspended_reason?: string | null;
 }
 
 interface AuthContextValue {
