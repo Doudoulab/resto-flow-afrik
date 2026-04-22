@@ -242,13 +242,13 @@ export default function Landing() {
       </section>
 
       {/* AVANT / APRÈS */}
-      <section className="py-20">
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               De la galère quotidienne à la sérénité
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Concrètement, ce qui change dans votre restaurant dès la première semaine.
             </p>
           </div>
@@ -270,14 +270,14 @@ export default function Landing() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="border-t border-border/50 bg-secondary/30 py-20">
+      <section id="features" className="border-t border-border/50 bg-secondary/30 py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
             <Badge variant="secondary" className="mb-4">Tout-en-un</Badge>
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Une plateforme, tous vos besoins
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Du carnet de commandes à la déclaration fiscale, sans changer d'outil.
             </p>
           </div>
