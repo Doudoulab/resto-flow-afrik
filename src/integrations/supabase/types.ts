@@ -351,6 +351,7 @@ export type Database = {
           is_vip: boolean
           last_visit_at: string | null
           lifetime_value: number
+          loyalty_points: number
           loyalty_tier: string
           maitre_notes: string | null
           name: string
@@ -377,6 +378,7 @@ export type Database = {
           is_vip?: boolean
           last_visit_at?: string | null
           lifetime_value?: number
+          loyalty_points?: number
           loyalty_tier?: string
           maitre_notes?: string | null
           name: string
@@ -403,6 +405,7 @@ export type Database = {
           is_vip?: boolean
           last_visit_at?: string | null
           lifetime_value?: number
+          loyalty_points?: number
           loyalty_tier?: string
           maitre_notes?: string | null
           name?: string
@@ -841,6 +844,64 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "kitchen_stations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_transactions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          id: string
+          notes: string | null
+          order_id: string | null
+          points: number
+          reason: string
+          restaurant_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          points: number
+          reason?: string
+          restaurant_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          points?: number
+          reason?: string
+          restaurant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_transactions_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
@@ -2414,6 +2475,8 @@ export type Database = {
           invoice_footer: string | null
           invoice_prefix: string
           logo_url: string | null
+          loyalty_enabled: boolean
+          loyalty_points_per_100: number
           name: string
           next_invoice_number: number
           opening_hours: Json | null
@@ -2447,6 +2510,8 @@ export type Database = {
           invoice_footer?: string | null
           invoice_prefix?: string
           logo_url?: string | null
+          loyalty_enabled?: boolean
+          loyalty_points_per_100?: number
           name: string
           next_invoice_number?: number
           opening_hours?: Json | null
@@ -2480,6 +2545,8 @@ export type Database = {
           invoice_footer?: string | null
           invoice_prefix?: string
           logo_url?: string | null
+          loyalty_enabled?: boolean
+          loyalty_points_per_100?: number
           name?: string
           next_invoice_number?: number
           opening_hours?: Json | null
@@ -3564,6 +3631,16 @@ export type Database = {
         Returns: Database["public"]["Enums"]["platform_role"]
       }
       current_user_restaurant_id: { Args: never; Returns: string }
+      ensure_accounting_account: {
+        Args: {
+          _class: number
+          _code: string
+          _label: string
+          _restaurant_id: string
+          _type: string
+        }
+        Returns: undefined
+      }
       get_invitation_by_token: { Args: { _token: string }; Returns: Json }
       get_platform_stats: { Args: never; Returns: Json }
       get_public_menu_extras: {
