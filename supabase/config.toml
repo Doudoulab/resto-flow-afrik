@@ -3,6 +3,9 @@ project_id = "vatnoiwkvznbzzeqmzat"
 [functions.mobile-money-webhook]
 verify_jwt = false
 
+[functions.public-api]
+verify_jwt = false
+
 [functions.mobile-money-init]
 verify_jwt = false
 

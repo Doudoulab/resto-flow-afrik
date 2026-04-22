@@ -174,6 +174,7 @@ export const ROUTE_MODULE_MAP: Record<string, ModuleKey> = {
   "/app/backups": "backups",
   "/app/exports": "exports",
   "/app/consolidated": "consolidated_reports",
+  "/app/api-keys": "api_webhooks",
 };
 
 export const getRequiredTier = (moduleKey: ModuleKey | undefined): PlanTier => {
