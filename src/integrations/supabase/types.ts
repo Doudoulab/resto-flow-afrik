@@ -2768,6 +2768,57 @@ export type Database = {
           },
         ]
       }
+      subscription_invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          cycle: string | null
+          event_type: string
+          external_id: string | null
+          id: string
+          invoice_url: string | null
+          occurred_at: string
+          plan_key: string | null
+          provider: string
+          raw_payload: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          cycle?: string | null
+          event_type: string
+          external_id?: string | null
+          id?: string
+          invoice_url?: string | null
+          occurred_at?: string
+          plan_key?: string | null
+          provider?: string
+          raw_payload?: Json | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          cycle?: string | null
+          event_type?: string
+          external_id?: string | null
+          id?: string
+          invoice_url?: string | null
+          occurred_at?: string
+          plan_key?: string | null
+          provider?: string
+          raw_payload?: Json | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
