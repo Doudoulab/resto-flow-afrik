@@ -5,6 +5,10 @@ import { ThemeProvider } from "next-themes";
 import { initOfflineSync } from "@/lib/offline/sync";
 import "@/lib/i18n";
 import { installGlobalErrorHandlers } from "@/lib/monitoring/logger";
+import { initSentry } from "@/lib/monitoring/sentry";
+
+// Initialize Sentry as early as possible (no-op when VITE_SENTRY_DSN is absent)
+initSentry();
 
 // PWA: register service worker only outside iframe & lovable preview hosts
 const isInIframe = (() => {

@@ -74,6 +74,7 @@ const Gueridon = lazy(() => import("./pages/app/Gueridon"));
 const Modules = lazy(() => import("./pages/app/Modules"));
 const Schedule = lazy(() => import("./pages/app/Schedule"));
 const Billing = lazy(() => import("./pages/app/Billing"));
+const Help = lazy(() => import("./pages/app/Help"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -165,6 +166,7 @@ const App = () => (
               <Route path="settings" element={<SettingsPage />} />
               <Route path="modules" element={<Modules />} />
               <Route path="billing" element={<Billing />} />
+              <Route path="help" element={<Help />} />
             </Route>
             <Route
               path="/admin"

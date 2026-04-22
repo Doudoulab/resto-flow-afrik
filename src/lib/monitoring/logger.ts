@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { captureException } from "@/lib/monitoring/sentry";
 
 export interface LogContext {
   [key: string]: unknown;
@@ -19,6 +20,9 @@ export async function logError(
 ) {
   try {
     const { data: { user } } = await supabase.auth.getUser();
+    // Always forward to Sentry (no-op if not configured) before the auth gate,
+    // so that unauthenticated errors are still captured in production monitoring.
+    captureException(err, { ...context, level });
     if (!user) return; // RLS requires authenticated user
     const message =
       err instanceof Error ? err.message : typeof err === "string" ? err : "Unknown error";
