@@ -6,13 +6,20 @@ const CHARIOW_API = "https://api.chariow.com/v1";
 async function chariow(path: string, init: RequestInit = {}) {
   const key = Deno.env.get("CHARIOW_API_KEY");
   if (!key) throw new Error("CHARIOW_API_KEY missing in edge function secrets");
+  const method = init.method ?? "GET";
+  const headers = new Headers(init.headers ?? undefined);
+  headers.set("Authorization", `Bearer ${key}`);
+  if (init.body) {
+    headers.set("Content-Type", "application/json");
+  } else {
+    headers.delete("Content-Type");
+  }
+
   const res = await fetch(`${CHARIOW_API}${path}`, {
     ...init,
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-      ...(init.headers ?? {}),
-    },
+    method,
+    body: method === "GET" || method === "HEAD" ? undefined : init.body,
+    headers,
   });
   const text = await res.text();
   let json: unknown = null;
