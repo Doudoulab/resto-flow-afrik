@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   ChefHat, ClipboardList, Package, BarChart3, Users, Smartphone, Check,
-  Wifi, Receipt, Calculator, Wallet, Star, Quote, ArrowRight,
+  Wifi, Receipt, Calculator, Wallet, Star, Quote, ArrowRight, Info,
 } from "lucide-react";
 
 const features = [
@@ -74,7 +76,19 @@ const testimonials = [
   },
 ];
 
-const pricingTiers = [
+type PlanDetailSection = { title: string; items: string[] };
+type PricingTier = {
+  name: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  cta: string;
+  highlight: boolean;
+  details: PlanDetailSection[];
+};
+
+const pricingTiers: PricingTier[] = [
   {
     name: "Starter",
     price: "9 900",
@@ -83,6 +97,37 @@ const pricingTiers = [
     features: ["1 restaurant", "Jusqu'à 3 employés", "Caisse & menu simple", "Mobile Money (Wave, OM, MTN)", "Tickets de caisse"],
     cta: "Choisir Starter",
     highlight: false,
+    details: [
+      {
+        title: "Idéal pour",
+        items: [
+          "Maquis, gargotes, petits restos de quartier",
+          "Boulangeries et points de vente simples",
+          "Restos qui démarrent leur digitalisation",
+          "Équipes de 1 à 3 personnes",
+        ],
+      },
+      {
+        title: "Inclus",
+        items: [
+          "Caisse simple avec impression de tickets",
+          "Gestion basique du menu (catégories + plats)",
+          "Suivi des stocks en quantités",
+          "Encaissement Mobile Money & espèces",
+          "Historique des ventes du jour/mois",
+          "Sauvegarde automatique de vos données",
+        ],
+      },
+      {
+        title: "Non inclus (passez Pro)",
+        items: [
+          "Plan de salle, réservations, KDS cuisine",
+          "Variantes, modificateurs, recettes",
+          "Multi-langues, fiches clients VIP",
+          "Module fiscal avancé, exports comptables",
+        ],
+      },
+    ],
   },
   {
     name: "Pro",
@@ -92,6 +137,55 @@ const pricingTiers = [
     features: ["Staff illimité", "KDS + plan de salle", "Réservations & dépôts", "Module fiscal & factures", "Multi-langues + analytics"],
     cta: "Passer Pro",
     highlight: true,
+    details: [
+      {
+        title: "Restaurant & équipe",
+        items: [
+          "1 restaurant",
+          "Employés illimités avec rôles (manager, serveur, cuisine, caisse)",
+          "Pointage avec PIN, planning hebdomadaire",
+          "Documents employés (contrats, pièces d'identité)",
+        ],
+      },
+      {
+        title: "Salle & service",
+        items: [
+          "Plan de salle interactif (tables, statuts, transferts)",
+          "Réservations avec dépôts en ligne (Wave, OM, MTN)",
+          "Fiches clients VIP, allergies, préférences sommelier",
+          "Service au guéridon, menus dégustation",
+        ],
+      },
+      {
+        title: "Cuisine & menu",
+        items: [
+          "Cuisine display (KDS) par station",
+          "Stations multiples (chaud, froid, bar, pâtisserie)",
+          "Menu multi-langues (FR, EN, ES, etc.)",
+          "Variantes, modificateurs, recettes & coût matière",
+          "Carte des vins avec accords mets & vins",
+        ],
+      },
+      {
+        title: "Caisse, factures & fiscal",
+        items: [
+          "Caisse complète avec impressions ESC/POS",
+          "Factures conformes avec chaînage cryptographique",
+          "Module fiscal (TVA, signature, archivage)",
+          "Mobile Money (Wave, Orange Money, MTN, Moov)",
+          "Split bill, pourboires, remises avec audit",
+        ],
+      },
+      {
+        title: "Analytics & support",
+        items: [
+          "Tableaux de bord avancés (CA, marges, top items)",
+          "Menu engineering (étoiles, vaches à lait, énigmes)",
+          "Exports CSV/Excel, sauvegardes manuelles",
+          "Support par email sous 24h",
+        ],
+      },
+    ],
   },
   {
     name: "Business",
@@ -101,6 +195,54 @@ const pricingTiers = [
     features: ["Tout Pro inclus", "Multi-restaurants", "Comptabilité SYSCOHADA", "Paie CNSS/IPRES/IRPP", "PMS hôtelier + API", "Support prioritaire"],
     cta: "Passer Business",
     highlight: false,
+    details: [
+      {
+        title: "Multi-établissements",
+        items: [
+          "Restaurants illimités sous un même compte",
+          "Vue consolidée groupe (CA, performances, comparatifs)",
+          "Transferts de stock inter-restaurants",
+          "Rôles cross-restaurant pour managers régionaux",
+        ],
+      },
+      {
+        title: "Comptabilité SYSCOHADA",
+        items: [
+          "Plan comptable SYSCOHADA pré-configuré",
+          "Journaux automatiques (ventes, achats, paie)",
+          "Grand livre, balance, exports comptables",
+          "TVA collectée/déductible automatique",
+        ],
+      },
+      {
+        title: "Paie & RH avancée",
+        items: [
+          "Bulletins de paie avec CNSS, IPRES, IRPP",
+          "Déclarations fiscales mensuelles",
+          "Gestion des congés et avances",
+          "Charges patronales calculées automatiquement",
+        ],
+      },
+      {
+        title: "Intégrations & API",
+        items: [
+          "Intégration PMS hôtelier (room charge, réconciliation)",
+          "API REST pour vos outils internes",
+          "Webhooks pour événements clés",
+          "Export comptable vers Sage, Ciel, etc.",
+        ],
+      },
+      {
+        title: "Sécurité & support",
+        items: [
+          "Backups automatiques quotidiens",
+          "Journal d'audit complet (qui a fait quoi)",
+          "Authentification renforcée (MFA)",
+          "Support prioritaire (réponse < 4h)",
+          "Onboarding personnalisé",
+        ],
+      },
+    ],
   },
 ];
 
@@ -114,6 +256,8 @@ const faqs = [
 ];
 
 const Landing = () => {
+  const [detailsPlan, setDetailsPlan] = useState<PricingTier | null>(null);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -312,9 +456,20 @@ const Landing = () => {
                   <li key={f} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-success mt-0.5" /> {f}</li>
                 ))}
               </ul>
-              <Link to="/auth?mode=signup" className="mt-auto">
-                <Button className="w-full" variant={tier.highlight ? "default" : "outline"}>{tier.cta}</Button>
-              </Link>
+              <div className="mt-auto flex flex-col gap-2">
+                <Link to="/auth?mode=signup">
+                  <Button className="w-full" variant={tier.highlight ? "default" : "outline"}>{tier.cta}</Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-muted-foreground"
+                  onClick={() => setDetailsPlan(tier)}
+                >
+                  <Info className="h-4 w-4 mr-1" />
+                  Voir tous les détails
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -401,6 +556,45 @@ const Landing = () => {
           © {new Date().getFullYear()} RestoFlow — Conçu en Afrique, pour l'Afrique 🌍
         </div>
       </footer>
+
+      <Dialog open={!!detailsPlan} onOpenChange={(o) => !o && setDetailsPlan(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {detailsPlan && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  Plan {detailsPlan.name}
+                  <span className="text-base font-normal text-muted-foreground">
+                    — {detailsPlan.price} {detailsPlan.period}
+                  </span>
+                </DialogTitle>
+                <DialogDescription>{detailsPlan.description}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 mt-2">
+                {detailsPlan.details.map((section) => (
+                  <div key={section.title}>
+                    <h4 className="font-semibold mb-2 text-sm">{section.title}</h4>
+                    <ul className="space-y-1.5">
+                      {section.items.map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <Check className="h-4 w-4 mt-0.5 shrink-0 text-success" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 mt-6 pt-4 border-t border-border">
+                <Button variant="outline" className="sm:flex-1" onClick={() => setDetailsPlan(null)}>Fermer</Button>
+                <Link to="/auth?mode=signup" className="sm:flex-1">
+                  <Button className="w-full">{detailsPlan.cta}</Button>
+                </Link>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
