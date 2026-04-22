@@ -125,10 +125,11 @@ export const MODULE_PLAN_MAP: Record<ModuleKey, PlanTier> = {
   payroll: "business",
   pms: "business",
   analytics: "business",
-  audit: "business",
-  security: "business",
-  backups: "business",
-  exports: "business",
+  // Moved to Pro (standard chez les concurrents)
+  audit: "pro",
+  security: "pro",
+  backups: "pro",
+  exports: "pro",
 
   // System utilities — available to anyone authenticated
   health: "free",
