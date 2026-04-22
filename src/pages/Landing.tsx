@@ -133,18 +133,23 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       {/* NAV */}
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="RestoFlow" className="h-9 w-auto" width={160} height={36} />
+        <div className="container mx-auto flex h-14 items-center justify-between gap-2 px-3 sm:h-16 sm:px-4">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <img src={logo} alt="RestoFlow" className="h-7 w-auto sm:h-9" width={160} height={36} />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Fonctionnalités</a>
             <a href="#pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Tarifs</a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">FAQ</a>
           </nav>
-          <div className="flex items-center gap-2">
-            <Link to="/auth"><Button variant="ghost" size="sm">Connexion</Button></Link>
-            <Link to="/auth"><Button size="sm" className="shadow-md">Démarrer gratuitement</Button></Link>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Link to="/auth" className="hidden sm:block"><Button variant="ghost" size="sm">Connexion</Button></Link>
+            <Link to="/auth">
+              <Button size="sm" className="shadow-md">
+                <span className="sm:hidden">Démarrer</span>
+                <span className="hidden sm:inline">Démarrer gratuitement</span>
+              </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -152,17 +157,17 @@ export default function Landing() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_60%)]" />
-        <div className="container relative mx-auto grid gap-12 px-4 py-20 lg:grid-cols-2 lg:gap-16 lg:py-28">
+        <div className="container relative mx-auto grid gap-10 px-4 py-12 sm:py-16 lg:grid-cols-2 lg:gap-16 lg:py-28">
           <div className="flex flex-col justify-center">
             <Badge variant="secondary" className="mb-6 w-fit gap-1.5 px-3 py-1 text-xs font-medium">
               <Sparkles className="h-3 w-3 text-primary" />
-              Le POS nouvelle génération pour l'Afrique
+              <span className="truncate">Le POS nouvelle génération pour l'Afrique</span>
             </Badge>
-            <h1 className="text-balance text-5xl font-bold leading-[1.05] tracking-tight text-foreground md:text-6xl lg:text-7xl">
+            <h1 className="text-balance text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-6xl lg:text-7xl">
               Pilotez votre restaurant en{" "}
               <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">un seul écran</span>
             </h1>
-            <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
+            <p className="mt-5 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg md:text-xl">
               Commandes, cuisine, stock, Mobile Money, comptabilité SYSCOHADA. Tout-en-un, pensé pour l'Afrique francophone, fonctionne hors-ligne.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -188,7 +193,7 @@ export default function Landing() {
         </div>
 
         {/* Stats */}
-        <div className="container mx-auto px-4 pb-16">
+        <div className="container mx-auto px-4 pb-12 md:pb-16">
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border/60 bg-border/60 md:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label} className="bg-card p-6 text-center">
@@ -201,13 +206,13 @@ export default function Landing() {
       </section>
 
       {/* 3 PILIERS */}
-      <section className="border-t border-border/50 bg-secondary/30 py-20">
+      <section className="border-t border-border/50 bg-secondary/30 py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Pourquoi RestoFlow change la donne
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Trois promesses, tenues sur chaque écran de l'application.
             </p>
           </div>
@@ -237,13 +242,13 @@ export default function Landing() {
       </section>
 
       {/* AVANT / APRÈS */}
-      <section className="py-20">
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               De la galère quotidienne à la sérénité
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Concrètement, ce qui change dans votre restaurant dès la première semaine.
             </p>
           </div>
@@ -265,14 +270,14 @@ export default function Landing() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="border-t border-border/50 bg-secondary/30 py-20">
+      <section id="features" className="border-t border-border/50 bg-secondary/30 py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
             <Badge variant="secondary" className="mb-4">Tout-en-un</Badge>
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Une plateforme, tous vos besoins
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Du carnet de commandes à la déclaration fiscale, sans changer d'outil.
             </p>
           </div>
@@ -298,13 +303,13 @@ export default function Landing() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-20">
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
             <div className="mb-4 inline-flex items-center gap-1 text-primary">
               {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
             </div>
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Des restaurateurs qui dorment mieux
             </h2>
           </div>
@@ -324,14 +329,14 @@ export default function Landing() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="border-t border-border/50 bg-secondary/30 py-20">
+      <section id="pricing" className="border-t border-border/50 bg-secondary/30 py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
             <Badge variant="secondary" className="mb-4">Tarifs simples</Badge>
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Démarrez gratuitement, scalez quand vous voulez
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Pas d'engagement. Annulez à tout moment.
             </p>
           </div>
@@ -339,7 +344,7 @@ export default function Landing() {
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative rounded-2xl border bg-card p-8 ${
+                className={`relative rounded-2xl border bg-card p-6 sm:p-8 ${
                   plan.highlight
                     ? "border-primary shadow-2xl ring-2 ring-primary/20"
                     : "border-border"
@@ -352,9 +357,9 @@ export default function Landing() {
                 )}
                 <h3 className="text-xl font-bold">{plan.name}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
-                <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold tracking-tight">{plan.price}</span>
-                  <span className="text-sm text-muted-foreground">/{plan.cycle}</span>
+                <div className="mt-5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
+                  <span className="text-3xl font-bold tracking-tight sm:text-4xl">{plan.price}</span>
+                  <span className="text-xs text-muted-foreground sm:text-sm">/{plan.cycle}</span>
                 </div>
                 <Link to="/auth" className="mt-6 block">
                   <Button className="w-full" variant={plan.highlight ? "default" : "outline"} size="lg">
@@ -379,9 +384,9 @@ export default function Landing() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-20">
+      <section id="faq" className="py-14 md:py-20">
         <div className="container mx-auto max-w-3xl px-4">
-          <h2 className="mb-10 text-center text-4xl font-bold tracking-tight md:text-5xl">Questions fréquentes</h2>
+          <h2 className="mb-8 text-center text-3xl font-bold tracking-tight sm:text-4xl md:mb-10 md:text-5xl">Questions fréquentes</h2>
           <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((f, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="rounded-xl border border-border bg-card px-5">
@@ -397,16 +402,16 @@ export default function Landing() {
       <section className="relative overflow-hidden border-t border-border/50">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary-glow" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary-glow)/0.6),transparent_50%)]" />
-        <div className="container relative mx-auto px-4 py-24 text-center">
-          <h2 className="mx-auto max-w-3xl text-balance text-4xl font-bold tracking-tight text-primary-foreground md:text-6xl">
+        <div className="container relative mx-auto px-4 py-16 text-center md:py-24">
+          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl md:text-6xl">
             Prêt à reprendre le contrôle de votre restaurant&nbsp;?
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-primary-foreground/85">
+          <p className="mx-auto mt-5 max-w-xl text-base text-primary-foreground/85 md:text-lg">
             Rejoignez les restaurateurs qui ont choisi la simplicité. 10 minutes pour démarrer.
           </p>
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link to="/auth">
-              <Button size="lg" variant="secondary" className="gap-2 px-8 shadow-xl">
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 px-2 sm:flex-row md:mt-9">
+            <Link to="/auth" className="w-full sm:w-auto">
+              <Button size="lg" variant="secondary" className="w-full gap-2 px-8 shadow-xl sm:w-auto">
                 <Clock className="h-4 w-4" /> Démarrer maintenant — Gratuit
               </Button>
             </Link>
