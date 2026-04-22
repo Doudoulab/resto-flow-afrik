@@ -19,6 +19,7 @@ import { OnboardingTour } from "./OnboardingTour";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import { ReadOnlyBanner } from "@/components/billing/ReadOnlyBanner";
 
 const InnerLayout = () => {
   const { restaurant } = useAuth();
@@ -63,6 +64,7 @@ const InnerLayout = () => {
               <ThemeToggle />
             </div>
           </header>
+          <ReadOnlyBanner />
           <PageTitle />
           <main className="flex-1 overflow-y-auto p-4 pb-20 md:p-8 md:pb-8">
             <div className="mx-auto max-w-7xl animate-fade-in">
