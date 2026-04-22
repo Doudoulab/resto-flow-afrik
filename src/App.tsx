@@ -144,6 +144,22 @@ const App = () => (
               <Route path="modules" element={<Modules />} />
               <Route path="billing" element={<Billing />} />
             </Route>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminOverview />} />
+              <Route path="restaurants" element={<AdminRestaurants />} />
+              <Route path="subscriptions" element={<AdminSubscriptions />} />
+              <Route path="stats" element={<AdminStats />} />
+              <Route path="webhooks" element={<AdminWebhooks />} />
+              <Route path="errors" element={<AdminErrors />} />
+              <Route path="admins" element={<AdminAdmins />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
