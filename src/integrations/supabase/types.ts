@@ -2562,11 +2562,14 @@ export type Database = {
           cover_url: string | null
           created_at: string
           currency: string
+          custom_domain: string | null
           default_service_pct: number
           default_vat_rate: number
           description: string | null
+          email_sender_name: string | null
           enabled_modules: string[]
           facebook_url: string | null
+          hide_powered_by: boolean
           id: string
           instagram_url: string | null
           invoice_footer: string | null
@@ -2597,11 +2600,14 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           currency?: string
+          custom_domain?: string | null
           default_service_pct?: number
           default_vat_rate?: number
           description?: string | null
+          email_sender_name?: string | null
           enabled_modules?: string[]
           facebook_url?: string | null
+          hide_powered_by?: boolean
           id?: string
           instagram_url?: string | null
           invoice_footer?: string | null
@@ -2632,11 +2638,14 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           currency?: string
+          custom_domain?: string | null
           default_service_pct?: number
           default_vat_rate?: number
           description?: string | null
+          email_sender_name?: string | null
           enabled_modules?: string[]
           facebook_url?: string | null
+          hide_powered_by?: boolean
           id?: string
           instagram_url?: string | null
           invoice_footer?: string | null
