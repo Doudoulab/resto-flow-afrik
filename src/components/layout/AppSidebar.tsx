@@ -7,6 +7,7 @@ import {
   Receipt, Banknote, Lock, HardDriveDownload, Activity, Printer, FileCheck2,
   FileSpreadsheet, Bug, Wine, Utensils, TrendingUp, LineChart, Hotel, Hand,
   ChevronDown, ToggleRight, CreditCard,
+  HelpCircle,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -105,6 +106,7 @@ const SECTIONS: { id: string; label: string; items: Item[] }[] = [
       { to: "/app/modules", icon: ToggleRight, label: "Modules" },
       { to: "/app/billing", icon: CreditCard, label: "Facturation" },
       { to: "/app/settings", icon: Settings, label: "Paramètres" },
+      { to: "/app/help", icon: HelpCircle, label: "Aide & FAQ" },
     ],
   },
 ];
