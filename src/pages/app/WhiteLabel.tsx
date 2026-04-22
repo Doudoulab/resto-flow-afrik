@@ -10,7 +10,6 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ImageUpload } from "@/components/ImageUpload";
-import { PageTitle } from "@/components/layout/PageTitle";
 import { toast } from "sonner";
 import { Loader2, Globe, Mail, Receipt, Image as ImageIcon, Info } from "lucide-react";
 
@@ -65,7 +64,10 @@ const WhiteLabel = () => {
 
   return (
     <div className="space-y-6">
-      <PageTitle title="Marque blanche" description="Personnalisez l'identité visuelle, les factures et les emails à votre image." />
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Marque blanche</h1>
+        <p className="text-sm text-muted-foreground">Personnalisez l'identité visuelle, les factures et les emails à votre image.</p>
+      </div>
 
       <Card>
         <CardHeader>
