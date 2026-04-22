@@ -17,7 +17,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { isModuleEnabled, type ModuleKey } from "@/lib/modules";
+import { isModuleEnabled, getRequiredTier, type ModuleKey } from "@/lib/modules";
+import { useSubscription } from "@/hooks/useSubscription";
 import { useLiveBadges } from "@/hooks/useLiveBadges";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -118,6 +119,14 @@ export const AppSidebar = () => {
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
   const isOwner = profile?.is_owner ?? false;
   const liveBadges = useLiveBadges();
+  const { hasTier, isTrialing, trialDaysLeft } = useSubscription();
+  const planBadgeFor = (mod?: ModuleKey): "PRO" | "BIZ" | null => {
+    if (!mod) return null;
+    const required = getRequiredTier(mod);
+    if (required === "free") return null;
+    if (hasTier(required)) return null;
+    return required === "business" ? "BIZ" : "PRO";
+  };
   const routeBadges: Record<string, number> = {
     "/app/incoming": liveBadges.incomingOrders,
     "/app/reservations": liveBadges.todayReservations,
@@ -219,6 +228,11 @@ export const AppSidebar = () => {
                             }>
                               <item.icon className="h-4 w-4" />
                               <span className="flex-1">{item.label}</span>
+                            {planBadgeFor(item.module) && (
+                              <Badge variant="outline" className="h-5 px-1.5 text-[9px] font-semibold border-primary/40 text-primary">
+                                {planBadgeFor(item.module)}
+                              </Badge>
+                            )}
                               {routeBadges[item.to] > 0 && (
                                 <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-[10px]">
                                   {routeBadges[item.to] > 9 ? "9+" : routeBadges[item.to]}
@@ -238,6 +252,14 @@ export const AppSidebar = () => {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
+        {!collapsed && isTrialing && (
+          <div className="mx-2 mb-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs">
+            <p className="font-semibold text-primary">Essai Pro — {trialDaysLeft}j restants</p>
+            <NavLink to="/pricing" className="text-primary/80 hover:underline">
+              Choisir un plan →
+            </NavLink>
+          </div>
+        )}
         {!collapsed && (
           <div className="flex items-center gap-2 px-2 py-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground shrink-0">

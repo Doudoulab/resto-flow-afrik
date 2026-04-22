@@ -11,6 +11,7 @@ interface Props {
 }
 
 export function UpgradePrompt({ required, feature }: Props) {
+  const { isTrialing, trialDaysLeft } = useSubscription();
   const planLabel = required === "pro" ? "Pro" : "Business";
   return (
     <Card className="max-w-lg mx-auto my-8">
@@ -22,6 +23,11 @@ export function UpgradePrompt({ required, feature }: Props) {
         <p className="text-muted-foreground">
           {feature} est disponible avec le plan {planLabel}.
         </p>
+        {isTrialing && (
+          <p className="text-sm text-primary font-medium">
+            Votre essai expire dans {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""}.
+          </p>
+        )}
         <Button asChild>
           <Link to="/pricing">
             <Sparkles className="h-4 w-4 mr-2" />

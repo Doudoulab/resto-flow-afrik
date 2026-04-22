@@ -9,6 +9,23 @@ import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { FeatureGate } from "@/components/billing/UpgradePrompt";
+import { ROUTE_MODULE_MAP, getRequiredTier, ALL_MODULES } from "@/lib/modules";
+import type { ReactNode } from "react";
+
+const gate = (path: string, label: string, node: ReactNode): ReactNode => {
+  const moduleKey = ROUTE_MODULE_MAP[path];
+  if (!moduleKey) return node;
+  const required = getRequiredTier(moduleKey);
+  if (required === "free") return node;
+  return <FeatureGate required={required} feature={label}>{node}</FeatureGate>;
+};
+
+const featureLabel = (path: string): string => {
+  const key = ROUTE_MODULE_MAP[path];
+  if (!key) return "Cette fonctionnalité";
+  return ALL_MODULES.find(m => m.key === key)?.label ?? "Cette fonctionnalité";
+};
 
 // Eager: landing & auth (smallest, first paint critical)
 import Landing from "./pages/Landing";
@@ -110,35 +127,35 @@ const App = () => (
               <Route path="reservations" element={<Reservations />} />
               <Route path="menu" element={<Menu />} />
               <Route path="stock" element={<Stock />} />
-              <Route path="suppliers" element={<Suppliers />} />
-              <Route path="receipts" element={<Receipts />} />
-              <Route path="inventory" element={<Inventory />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="accounting" element={<Accounting />} />
-              <Route path="ledger" element={<Ledger />} />
-              <Route path="payroll" element={<Payroll />} />
-              <Route path="tax" element={<TaxReturns />} />
+              <Route path="suppliers" element={gate("/app/suppliers", featureLabel("/app/suppliers"), <Suppliers />)} />
+              <Route path="receipts" element={gate("/app/receipts", featureLabel("/app/receipts"), <Receipts />)} />
+              <Route path="inventory" element={gate("/app/inventory", featureLabel("/app/inventory"), <Inventory />)} />
+              <Route path="reports" element={gate("/app/reports", featureLabel("/app/reports"), <Reports />)} />
+              <Route path="accounting" element={gate("/app/accounting", featureLabel("/app/accounting"), <Accounting />)} />
+              <Route path="ledger" element={gate("/app/ledger", featureLabel("/app/ledger"), <Ledger />)} />
+              <Route path="payroll" element={gate("/app/payroll", featureLabel("/app/payroll"), <Payroll />)} />
+              <Route path="tax" element={gate("/app/tax", featureLabel("/app/tax"), <TaxReturns />)} />
               <Route path="staff" element={<Staff />} />
               <Route path="schedule" element={<Schedule />} />
-              <Route path="timeclock" element={<TimeClock />} />
-              <Route path="customers" element={<Customers />} />
-              <Route path="incoming" element={<IncomingOrders />} />
-              <Route path="advisor" element={<Advisor />} />
-              <Route path="audit" element={<AuditLog />} />
-              <Route path="kitchen" element={<KitchenDisplay />} />
-              <Route path="security" element={<Security />} />
-              <Route path="backups" element={<Backups />} />
+              <Route path="timeclock" element={gate("/app/timeclock", featureLabel("/app/timeclock"), <TimeClock />)} />
+              <Route path="customers" element={gate("/app/customers", featureLabel("/app/customers"), <Customers />)} />
+              <Route path="incoming" element={gate("/app/incoming", featureLabel("/app/incoming"), <IncomingOrders />)} />
+              <Route path="advisor" element={gate("/app/advisor", featureLabel("/app/advisor"), <Advisor />)} />
+              <Route path="audit" element={gate("/app/audit", featureLabel("/app/audit"), <AuditLog />)} />
+              <Route path="kitchen" element={gate("/app/kitchen", featureLabel("/app/kitchen"), <KitchenDisplay />)} />
+              <Route path="security" element={gate("/app/security", featureLabel("/app/security"), <Security />)} />
+              <Route path="backups" element={gate("/app/backups", featureLabel("/app/backups"), <Backups />)} />
               <Route path="health" element={<Health />} />
-              <Route path="printers" element={<Printers />} />
-              <Route path="fiscal" element={<Fiscal />} />
-              <Route path="exports" element={<Exports />} />
+              <Route path="printers" element={gate("/app/printers", featureLabel("/app/printers"), <Printers />)} />
+              <Route path="fiscal" element={gate("/app/fiscal", featureLabel("/app/fiscal"), <Fiscal />)} />
+              <Route path="exports" element={gate("/app/exports", featureLabel("/app/exports"), <Exports />)} />
               <Route path="errors" element={<Errors />} />
-              <Route path="wines" element={<Wines />} />
-              <Route path="tasting" element={<TastingMenus />} />
-              <Route path="menu-engineering" element={<MenuEngineering />} />
-              <Route path="analytics" element={<Analytics />} />
-              <Route path="pms" element={<PmsReconciliation />} />
-              <Route path="gueridon" element={<Gueridon />} />
+              <Route path="wines" element={gate("/app/wines", featureLabel("/app/wines"), <Wines />)} />
+              <Route path="tasting" element={gate("/app/tasting", featureLabel("/app/tasting"), <TastingMenus />)} />
+              <Route path="menu-engineering" element={gate("/app/menu-engineering", featureLabel("/app/menu-engineering"), <MenuEngineering />)} />
+              <Route path="analytics" element={gate("/app/analytics", featureLabel("/app/analytics"), <Analytics />)} />
+              <Route path="pms" element={gate("/app/pms", featureLabel("/app/pms"), <PmsReconciliation />)} />
+              <Route path="gueridon" element={gate("/app/gueridon", featureLabel("/app/gueridon"), <Gueridon />)} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="modules" element={<Modules />} />
               <Route path="billing" element={<Billing />} />

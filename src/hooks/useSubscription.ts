@@ -75,5 +75,22 @@ export function useSubscription() {
 
   const hasTier = (required: PlanTier) => TIER_RANK[tier] >= TIER_RANK[required];
 
-  return { subscription, loading, isActive, tier, hasTier, environment: env, refetch: fetchSub };
+  const isTrialing = !!subscription && subscription.status === "trialing" && isActive;
+  const trialDaysLeft = (() => {
+    if (!isTrialing || !subscription?.current_period_end) return 0;
+    const ms = new Date(subscription.current_period_end).getTime() - Date.now();
+    return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+  })();
+
+  return {
+    subscription,
+    loading,
+    isActive,
+    tier,
+    hasTier,
+    isTrialing,
+    trialDaysLeft,
+    environment: env,
+    refetch: fetchSub,
+  };
 }
