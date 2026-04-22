@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, Bell } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
+import { playNewOrderAlert } from "@/lib/audio/beep";
 
 interface PublicOrderItem { menu_item_id: string; name: string; unit_price: number; quantity: number; }
 interface PublicOrder {
@@ -43,7 +44,7 @@ const IncomingOrders = () => {
         (payload) => {
           if (payload.eventType === "INSERT") {
             toast.success("🔔 Nouvelle commande client !");
-            try { new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=").play(); } catch { /* ignore */ }
+            playNewOrderAlert();
           }
           load();
         }
