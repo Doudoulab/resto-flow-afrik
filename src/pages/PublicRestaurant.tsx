@@ -29,6 +29,7 @@ interface PublicResto {
   currency: string;
   country_code: string;
   accepts_online_orders: boolean;
+  hide_powered_by?: boolean;
 }
 interface Category { id: string; name: string; sort_order: number }
 interface MenuItem { id: string; name: string; description: string | null; price: number; category_id: string | null; image_url: string | null; sort_order: number }
@@ -405,6 +406,12 @@ const PublicRestaurant = () => {
         onOpenChange={(o) => { setConfigOpen(o); if (!o) setConfigItem(null); }}
         onConfirm={onConfigured}
       />
+
+      {!resto?.hide_powered_by && (
+        <footer className="mt-8 border-t border-border py-4 text-center text-xs text-muted-foreground">
+          Propulsé par <a href="https://resto-flow-afrik.lovable.app" target="_blank" rel="noreferrer" className="font-medium hover:text-foreground">RestoFlow</a>
+        </footer>
+      )}
     </div>
   );
 };
