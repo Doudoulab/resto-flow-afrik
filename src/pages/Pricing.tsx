@@ -254,7 +254,7 @@ export default function Pricing() {
               : null;
 
             return (
-              <Card key={plan.id} className={plan.highlight ? "border-primary shadow-lg" : ""}>
+              <Card key={plan.id} className={plan.highlight ? "border-primary shadow-lg relative overflow-hidden" : "relative overflow-hidden"}>
                 {plan.highlight && (
                   <div className="bg-primary px-4 py-1 text-center text-xs font-semibold text-primary-foreground">
                     POPULAIRE
@@ -263,7 +263,7 @@ export default function Pricing() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>{plan.name}</CardTitle>
-                    {isCurrent && <Badge>Actuel</Badge>}
+                    {isCurrent ? <Badge>Actuel</Badge> : ("badge" in plan && plan.badge ? <Badge variant="secondary">{plan.badge}</Badge> : null)}
                   </div>
                   <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
@@ -280,6 +280,11 @@ export default function Pricing() {
                         Soit {monthlyEquiv} FCFA/mois
                       </p>
                     )}
+                    {plan.id === "free" && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        7 jours • Sans CB • Sans engagement
+                      </p>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
@@ -291,14 +296,25 @@ export default function Pricing() {
                       </li>
                     ))}
                   </ul>
-                  <Button
-                    className="w-full"
-                    variant={plan.highlight ? "default" : "outline"}
-                    disabled={loading || isCurrent}
-                    onClick={() => handleSelect(cycleData.planKey, plan.id)}
-                  >
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isCurrent ? "Plan actuel" : plan.cta}
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      className="w-full"
+                      variant={plan.highlight ? "default" : "outline"}
+                      disabled={loading || isCurrent}
+                      onClick={() => handleSelect(cycleData.planKey, plan.id)}
+                    >
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isCurrent ? "Plan actuel" : plan.cta}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-muted-foreground"
+                      onClick={() => setDetailsPlan(plan)}
+                    >
+                      <Info className="h-4 w-4 mr-1" />
+                      Voir tous les détails
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -309,6 +325,49 @@ export default function Pricing() {
           Paiements sécurisés via Chariow • Wave, Orange Money, MTN MoMo, Moov & Carte bancaire
         </p>
       </main>
+
+      <Dialog open={!!detailsPlan} onOpenChange={(o) => !o && setDetailsPlan(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {detailsPlan && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <DialogTitle className="text-2xl">Plan {detailsPlan.name}</DialogTitle>
+                </div>
+                <DialogDescription>{detailsPlan.description}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 mt-4">
+                {detailsPlan.details?.map((section) => (
+                  <div key={section.title}>
+                    <h3 className="font-semibold text-base mb-2 text-foreground">{section.title}</h3>
+                    <ul className="space-y-1.5">
+                      {section.items.map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                <div className="pt-4 border-t">
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      const cycleData = cycle === "monthly" ? detailsPlan.monthly : detailsPlan.yearly;
+                      handleSelect(cycleData.planKey, detailsPlan.id);
+                      setDetailsPlan(null);
+                    }}
+                  >
+                    {detailsPlan.cta}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
