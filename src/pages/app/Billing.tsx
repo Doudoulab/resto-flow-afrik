@@ -157,6 +157,63 @@ export default function Billing() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Receipt className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle>Historique des paiements</CardTitle>
+              <CardDescription>Vos paiements d'abonnement Chariow</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {invoicesLoading ? (
+            <div className="flex justify-center py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : invoices.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              Aucun paiement enregistré pour le moment.
+            </p>
+          ) : (
+            <div className="divide-y divide-border">
+              {invoices.map((inv) => (
+                <div key={inv.id} className="flex items-center justify-between py-3 gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm truncate">
+                      {inv.plan_key === "business_plan" ? "Business" : inv.plan_key === "pro_plan" ? "Pro" : "Abonnement"}
+                      {inv.cycle && <span className="text-muted-foreground"> · {inv.cycle === "yearly" ? "Annuel" : "Mensuel"}</span>}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(inv.occurred_at).toLocaleDateString("fr-FR", {
+                        day: "numeric", month: "short", year: "numeric",
+                      })}
+                      {inv.external_id && <span> · Réf {inv.external_id.slice(0, 12)}</span>}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="font-semibold text-sm">
+                      {inv.amount.toLocaleString("fr-FR")} {inv.currency}
+                    </span>
+                    <Badge variant={inv.status === "paid" ? "default" : "secondary"} className="text-xs">
+                      {inv.status === "paid" ? "Payé" : inv.status}
+                    </Badge>
+                    {inv.invoice_url && (
+                      <Button variant="ghost" size="icon" asChild className="h-8 w-8">
+                        <a href={inv.invoice_url} target="_blank" rel="noopener noreferrer" aria-label="Voir le reçu">
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
