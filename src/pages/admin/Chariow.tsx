@@ -32,8 +32,12 @@ type ChariowProduct = {
 const PLAN_OPTIONS: Array<{ value: string; label: string; plan_key: string; cycle: string }> = [
   { value: "pro_plan|monthly", label: "Pro — Mensuel", plan_key: "pro_plan", cycle: "monthly" },
   { value: "pro_plan|yearly",  label: "Pro — Annuel",  plan_key: "pro_plan", cycle: "yearly" },
+  { value: "pro_plan|lifetime", label: "Pro — À vie", plan_key: "pro_plan", cycle: "lifetime" },
   { value: "business_plan|monthly", label: "Business — Mensuel", plan_key: "business_plan", cycle: "monthly" },
   { value: "business_plan|yearly",  label: "Business — Annuel",  plan_key: "business_plan", cycle: "yearly" },
+  { value: "business_plan|lifetime", label: "Business — À vie", plan_key: "business_plan", cycle: "lifetime" },
+  { value: "starter_plan|monthly", label: "Starter — Mensuel", plan_key: "starter_plan", cycle: "monthly" },
+  { value: "starter_plan|yearly", label: "Starter — Annuel", plan_key: "starter_plan", cycle: "yearly" },
 ];
 
 export default function AdminChariow() {
@@ -191,7 +195,7 @@ export default function AdminChariow() {
                       </p>
                       {existing && (
                         <Badge variant="default" className="mt-1">
-                          Mappé : {existing.plan_key.replace("_plan","")} {existing.cycle === "monthly" ? "Mensuel" : "Annuel"}
+                          Mappé : {existing.plan_key.replace("_plan","")} {existing.cycle === "monthly" ? "Mensuel" : existing.cycle === "yearly" ? "Annuel" : "À vie"}
                         </Badge>
                       )}
                     </div>
@@ -214,12 +218,12 @@ export default function AdminChariow() {
 
           {rows.length > 0 && (
             <div className="pt-4 border-t border-border">
-              <p className="text-sm font-medium mb-2">Mappings actifs ({rows.length}/4)</p>
+              <p className="text-sm font-medium mb-2">Mappings actifs ({rows.length})</p>
               <div className="space-y-1">
                 {rows.map((r) => (
                   <div key={r.id} className="flex items-center justify-between text-sm rounded-md bg-muted/50 px-3 py-2">
                     <span>
-                      <strong className="capitalize">{r.plan_key.replace("_plan","")} {r.cycle === "monthly" ? "Mensuel" : "Annuel"}</strong>
+                      <strong className="capitalize">{r.plan_key.replace("_plan","")} {r.cycle === "monthly" ? "Mensuel" : r.cycle === "yearly" ? "Annuel" : "À vie"}</strong>
                       {" → "}<code className="text-xs">{r.chariow_product_id}</code>
                       {" · "}{Number(r.amount).toLocaleString("fr-FR")} {r.currency}
                     </span>
