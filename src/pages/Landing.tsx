@@ -342,25 +342,63 @@ const Landing = () => {
       </section>
 
       {/* CTA */}
-      <section className="container pb-20">
+      <section className="container py-20">
         <div className="rounded-2xl bg-gradient-hero p-10 text-center shadow-lg md:p-16">
           <h2 className="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">
             Prêt à transformer votre restaurant ?
           </h2>
           <p className="mb-8 text-lg text-primary-foreground/90">
-            Rejoignez les restaurateurs qui ont choisi la simplicité.
+            Configuration en 2 minutes. Aucune carte bancaire requise.
           </p>
-          <Link to="/auth?mode=signup">
-            <Button size="lg" variant="secondary" className="shadow-md">
-              Démarrer maintenant
-            </Button>
-          </Link>
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link to="/auth?mode=signup">
+              <Button size="lg" variant="secondary" className="shadow-md">Créer mon compte gratuit</Button>
+            </Link>
+            <a href="https://wa.me/221000000000" target="_blank" rel="noreferrer">
+              <Button size="lg" variant="outline" className="border-primary-foreground/40 bg-transparent text-primary-foreground hover:bg-primary-foreground/10">
+                Parler à un conseiller
+              </Button>
+            </a>
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-border py-8">
-        <div className="container text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} RestoFlow — Conçu pour l'Afrique francophone
+      <footer className="border-t border-border py-12">
+        <div className="container grid gap-8 md:grid-cols-4">
+          <div>
+            <Link to="/" className="flex items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+                <ChefHat className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="text-lg font-bold">RestoFlow</span>
+            </Link>
+            <p className="mt-3 text-sm text-muted-foreground">La plateforme de gestion pensée pour les restaurants d'Afrique francophone.</p>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold">Produit</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="#features" className="hover:text-foreground">Fonctionnalités</a></li>
+              <li><a href="#pricing" className="hover:text-foreground">Tarifs</a></li>
+              <li><Link to="/pricing" className="hover:text-foreground">Comparatif des plans</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold">Support</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="#faq" className="hover:text-foreground">FAQ</a></li>
+              <li><Link to="/auth" className="hover:text-foreground">Se connecter</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold">Légal</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>Conditions d'utilisation</li>
+              <li>Politique de confidentialité</li>
+            </ul>
+          </div>
+        </div>
+        <div className="container mt-8 border-t border-border pt-6 text-center text-sm text-muted-foreground">
+          © {new Date().getFullYear()} RestoFlow — Conçu en Afrique, pour l'Afrique 🌍
         </div>
       </footer>
     </div>
