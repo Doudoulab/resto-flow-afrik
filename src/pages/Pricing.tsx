@@ -95,9 +95,13 @@ export default function Pricing() {
           <Link to="/" className="font-bold text-xl">RestoFlow</Link>
           <div className="flex items-center gap-2">
             {user ? (
-              <Button variant="outline" asChild><Link to="/app">Mon espace</Link></Button>
+              <Link to="/app">
+                <Button variant="outline">Mon espace</Button>
+              </Link>
             ) : (
-              <Button variant="outline" asChild><Link to="/auth">Se connecter</Link></Button>
+              <Link to="/auth">
+                <Button variant="outline">Se connecter</Button>
+              </Link>
             )}
           </div>
         </div>
