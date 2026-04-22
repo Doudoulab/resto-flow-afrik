@@ -61,13 +61,13 @@ Deno.serve(async (req) => {
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         product_id: prod.chariow_product_id,
-        customer_email: userEmail,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        metadata: {
+        email: userEmail,
+        redirect_url: successUrl,
+        custom_metadata: {
           user_id: userId,
           plan_key: planKey,
           cycle,
+          cancel_url: cancelUrl,
         },
       }),
     });
@@ -79,7 +79,18 @@ Deno.serve(async (req) => {
     }
     const checkoutJson = JSON.parse(checkoutText);
     const data = checkoutJson.data ?? checkoutJson;
-    const url = data.checkout_url ?? data.url ?? data.payment_url;
+    // Per Chariow docs: data.payment.checkout_url
+    const url =
+      data?.payment?.checkout_url ??
+      data?.checkout_url ??
+      data?.url ??
+      null;
+    // Free products complete immediately (step === "completed") — treat as success
+    if (!url && data?.step === "completed") {
+      return new Response(JSON.stringify({ ok: true, url: successUrl, completed: true, raw: data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     if (!url) {
       return new Response(JSON.stringify({ ok: false, error: "no_checkout_url", raw: checkoutJson }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },

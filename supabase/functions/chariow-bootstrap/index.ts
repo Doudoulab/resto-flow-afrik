@@ -3,22 +3,6 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const CHARIOW_API = "https://api.chariow.com/v1";
 
-type PlanDef = {
-  plan_key: "pro_plan" | "business_plan";
-  cycle: "monthly" | "yearly";
-  name: string;
-  amount: number; // in XOF
-  currency: string;
-  recurring_interval: "month" | "year";
-};
-
-const PLANS: PlanDef[] = [
-  { plan_key: "pro_plan", cycle: "monthly", name: "RestoFlow Pro - Mensuel", amount: 19000, currency: "XOF", recurring_interval: "month" },
-  { plan_key: "pro_plan", cycle: "yearly",  name: "RestoFlow Pro - Annuel",  amount: 182000, currency: "XOF", recurring_interval: "year" },
-  { plan_key: "business_plan", cycle: "monthly", name: "RestoFlow Business - Mensuel", amount: 52000, currency: "XOF", recurring_interval: "month" },
-  { plan_key: "business_plan", cycle: "yearly",  name: "RestoFlow Business - Annuel",  amount: 499000, currency: "XOF", recurring_interval: "year" },
-];
-
 async function chariow(path: string, init: RequestInit = {}) {
   const key = Deno.env.get("CHARIOW_API_KEY");
   if (!key) throw new Error("CHARIOW_API_KEY missing in edge function secrets");
@@ -65,52 +49,24 @@ Deno.serve(async (req) => {
       });
     }
 
-    const results: Array<Record<string, unknown>> = [];
+    // Chariow API does NOT allow product creation — only listing.
+    // We fetch all published products from Chariow so the admin can map them.
+    const listed = await chariow("/products?per_page=100", { method: "GET" });
+    const items = (((listed.data as Record<string, unknown>)?.data) ?? listed.data ?? []) as Array<Record<string, unknown>>;
 
-    for (const plan of PLANS) {
-      // Skip if already in DB
-      const { data: existing } = await supabase
-        .from("chariow_products")
-        .select("*")
-        .eq("plan_key", plan.plan_key)
-        .eq("cycle", plan.cycle)
-        .maybeSingle();
-      if (existing) {
-        results.push({ plan_key: plan.plan_key, cycle: plan.cycle, status: "exists", id: existing.chariow_product_id });
-        continue;
-      }
+    const products = items.map((p) => ({
+      id: String(p.id ?? ""),
+      name: String(p.name ?? ""),
+      slug: String(p.slug ?? ""),
+      type: String(p.type ?? ""),
+      pricing_type: String(p.pricing_type ?? ""),
+      price_amount: Number(p.price_amount ?? 0),
+      price_formatted: String(p.price_formatted ?? ""),
+      currency: String(p.currency ?? ""),
+      thumbnail: p.thumbnail ?? null,
+    }));
 
-      // Create product on Chariow as a "license" (subscription type)
-      const created = await chariow("/products", {
-        method: "POST",
-        body: JSON.stringify({
-          name: plan.name,
-          type: "license",
-          price: plan.amount,
-          currency: plan.currency,
-          recurring: true,
-          recurring_interval: plan.recurring_interval,
-          description: `Abonnement ${plan.plan_key === "pro_plan" ? "Pro" : "Business"} RestoFlow (${plan.cycle === "monthly" ? "mensuel" : "annuel"}).`,
-        }),
-      });
-
-      const data = (created.data ?? created) as Record<string, unknown>;
-      const productId = String(data.id ?? data.product_id ?? "");
-      const priceId = data.price_id ? String(data.price_id) : null;
-
-      await supabase.from("chariow_products").insert({
-        plan_key: plan.plan_key,
-        cycle: plan.cycle,
-        chariow_product_id: productId,
-        chariow_price_id: priceId,
-        amount: plan.amount,
-        currency: plan.currency,
-      });
-
-      results.push({ plan_key: plan.plan_key, cycle: plan.cycle, status: "created", id: productId });
-    }
-
-    return new Response(JSON.stringify({ ok: true, results }), {
+    return new Response(JSON.stringify({ ok: true, products }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
