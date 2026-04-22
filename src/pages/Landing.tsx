@@ -384,9 +384,9 @@ export default function Landing() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-20">
+      <section id="faq" className="py-14 md:py-20">
         <div className="container mx-auto max-w-3xl px-4">
-          <h2 className="mb-10 text-center text-4xl font-bold tracking-tight md:text-5xl">Questions fréquentes</h2>
+          <h2 className="mb-8 text-center text-3xl font-bold tracking-tight sm:text-4xl md:mb-10 md:text-5xl">Questions fréquentes</h2>
           <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((f, i) => (
               <AccordionItem key={i} value={`item-${i}`} className="rounded-xl border border-border bg-card px-5">
@@ -402,16 +402,16 @@ export default function Landing() {
       <section className="relative overflow-hidden border-t border-border/50">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary-glow" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary-glow)/0.6),transparent_50%)]" />
-        <div className="container relative mx-auto px-4 py-24 text-center">
-          <h2 className="mx-auto max-w-3xl text-balance text-4xl font-bold tracking-tight text-primary-foreground md:text-6xl">
+        <div className="container relative mx-auto px-4 py-16 text-center md:py-24">
+          <h2 className="mx-auto max-w-3xl text-balance text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl md:text-6xl">
             Prêt à reprendre le contrôle de votre restaurant&nbsp;?
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-primary-foreground/85">
+          <p className="mx-auto mt-5 max-w-xl text-base text-primary-foreground/85 md:text-lg">
             Rejoignez les restaurateurs qui ont choisi la simplicité. 10 minutes pour démarrer.
           </p>
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link to="/auth">
-              <Button size="lg" variant="secondary" className="gap-2 px-8 shadow-xl">
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 px-2 sm:flex-row md:mt-9">
+            <Link to="/auth" className="w-full sm:w-auto">
+              <Button size="lg" variant="secondary" className="w-full gap-2 px-8 shadow-xl sm:w-auto">
                 <Clock className="h-4 w-4" /> Démarrer maintenant — Gratuit
               </Button>
             </Link>
