@@ -556,6 +556,45 @@ const Landing = () => {
           © {new Date().getFullYear()} RestoFlow — Conçu en Afrique, pour l'Afrique 🌍
         </div>
       </footer>
+
+      <Dialog open={!!detailsPlan} onOpenChange={(o) => !o && setDetailsPlan(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {detailsPlan && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  Plan {detailsPlan.name}
+                  <span className="text-base font-normal text-muted-foreground">
+                    — {detailsPlan.price} {detailsPlan.period}
+                  </span>
+                </DialogTitle>
+                <DialogDescription>{detailsPlan.description}</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 mt-2">
+                {detailsPlan.details.map((section) => (
+                  <div key={section.title}>
+                    <h4 className="font-semibold mb-2 text-sm">{section.title}</h4>
+                    <ul className="space-y-1.5">
+                      {section.items.map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <Check className="h-4 w-4 mt-0.5 shrink-0 text-success" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col-reverse sm:flex-row gap-2 mt-6 pt-4 border-t border-border">
+                <Button variant="outline" className="sm:flex-1" onClick={() => setDetailsPlan(null)}>Fermer</Button>
+                <Link to="/auth?mode=signup" className="sm:flex-1">
+                  <Button className="w-full">{detailsPlan.cta}</Button>
+                </Link>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
