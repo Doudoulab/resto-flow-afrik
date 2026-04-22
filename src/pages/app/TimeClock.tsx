@@ -39,6 +39,10 @@ const TimeClock = () => {
   const [employees, setEmployees] = useState<EmployeeProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [kioskMode, setKioskMode] = useState(false);
+  const [pinDigits, setPinDigits] = useState("");
+  const [pinBusy, setPinBusy] = useState(false);
+  const [lastPunch, setLastPunch] = useState<{ name: string; action: string; at: string } | null>(null);
 
   const isOwner = profile?.is_owner ?? false;
 
