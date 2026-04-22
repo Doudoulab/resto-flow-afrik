@@ -77,29 +77,29 @@ const testimonials = [
 const pricingTiers = [
   {
     name: "Starter",
-    price: "Gratuit",
-    period: "à vie",
-    description: "Pour démarrer ou tester",
-    features: ["1 restaurant", "Jusqu'à 50 commandes/mois", "Menu & POS de base", "1 utilisateur"],
-    cta: "Commencer",
+    price: "9 900",
+    period: "FCFA / mois",
+    description: "Maquis & petits restos qui démarrent",
+    features: ["1 restaurant", "Jusqu'à 3 employés", "Caisse & menu simple", "Mobile Money (Wave, OM, MTN)", "Tickets de caisse"],
+    cta: "Choisir Starter",
     highlight: false,
   },
   {
     name: "Pro",
-    price: "15 000",
+    price: "25 000",
     period: "FCFA / mois",
     description: "Pour restaurants en croissance",
-    features: ["Commandes illimitées", "KDS + plan de salle", "Stock & recettes", "Équipe illimitée", "Mobile Money intégré"],
-    cta: "Essayer Pro",
+    features: ["Staff illimité", "KDS + plan de salle", "Réservations & dépôts", "Module fiscal & factures", "Multi-langues + analytics"],
+    cta: "Passer Pro",
     highlight: true,
   },
   {
     name: "Business",
-    price: "35 000",
+    price: "75 000",
     period: "FCFA / mois",
-    description: "Multi-établissements",
-    features: ["Tout Pro +", "SYSCOHADA & TVA", "Paie CNSS/IPRES", "PMS hôtelier", "Support prioritaire"],
-    cta: "Contacter",
+    description: "Groupes & chaînes multi-restos",
+    features: ["Tout Pro inclus", "Multi-restaurants", "Comptabilité SYSCOHADA", "Paie CNSS/IPRES/IRPP", "PMS hôtelier + API", "Support prioritaire"],
+    cta: "Passer Business",
     highlight: false,
   },
 ];
@@ -286,7 +286,7 @@ const Landing = () => {
       <section id="pricing" className="container py-20">
         <div className="mx-auto mb-12 max-w-2xl text-center">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Des tarifs simples et honnêtes</h2>
-          <p className="text-lg text-muted-foreground">Sans engagement. Changez ou arrêtez quand vous voulez.</p>
+          <p className="text-lg text-muted-foreground">7 jours d'essai Pro gratuit, sans carte. Puis sans engagement.</p>
         </div>
         <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
           {pricingTiers.map((tier) => (
