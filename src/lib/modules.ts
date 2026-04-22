@@ -103,12 +103,14 @@ export const isModuleEnabled = (enabled: string[] | null | undefined, key: Modul
 import type { PlanTier } from "@/hooks/useSubscription";
 
 export const MODULE_PLAN_MAP: Record<ModuleKey, PlanTier> = {
-  // Pro tier (most operational features)
-  kitchen: "pro",
-  printers: "pro",
+  // Starter tier (basic POS for small restos)
+  kitchen: "starter",
+  printers: "starter",
+  reports: "starter",
+  customers: "starter",
+
+  // Pro tier (operations + advanced)
   incoming: "pro",
-  reports: "pro",
-  customers: "pro",
   suppliers: "pro",
   receipts: "pro",
   inventory: "pro",

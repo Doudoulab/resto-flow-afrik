@@ -3556,6 +3556,10 @@ export type Database = {
         Args: { _restaurant_id: string }
         Returns: boolean
       }
+      restaurant_owner_product: {
+        Args: { _restaurant_id: string }
+        Returns: string
+      }
       seed_syscohada_accounts: {
         Args: { _restaurant_id: string }
         Returns: undefined
