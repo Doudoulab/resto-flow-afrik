@@ -303,13 +303,13 @@ export default function Landing() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-20">
+      <section className="py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
             <div className="mb-4 inline-flex items-center gap-1 text-primary">
               {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
             </div>
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Des restaurateurs qui dorment mieux
             </h2>
           </div>
@@ -329,14 +329,14 @@ export default function Landing() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="border-t border-border/50 bg-secondary/30 py-20">
+      <section id="pricing" className="border-t border-border/50 bg-secondary/30 py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
             <Badge variant="secondary" className="mb-4">Tarifs simples</Badge>
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Démarrez gratuitement, scalez quand vous voulez
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Pas d'engagement. Annulez à tout moment.
             </p>
           </div>
@@ -344,7 +344,7 @@ export default function Landing() {
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative rounded-2xl border bg-card p-8 ${
+                className={`relative rounded-2xl border bg-card p-6 sm:p-8 ${
                   plan.highlight
                     ? "border-primary shadow-2xl ring-2 ring-primary/20"
                     : "border-border"
@@ -357,9 +357,9 @@ export default function Landing() {
                 )}
                 <h3 className="text-xl font-bold">{plan.name}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{plan.description}</p>
-                <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-4xl font-bold tracking-tight">{plan.price}</span>
-                  <span className="text-sm text-muted-foreground">/{plan.cycle}</span>
+                <div className="mt-5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
+                  <span className="text-3xl font-bold tracking-tight sm:text-4xl">{plan.price}</span>
+                  <span className="text-xs text-muted-foreground sm:text-sm">/{plan.cycle}</span>
                 </div>
                 <Link to="/auth" className="mt-6 block">
                   <Button className="w-full" variant={plan.highlight ? "default" : "outline"} size="lg">
