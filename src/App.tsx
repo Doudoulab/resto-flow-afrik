@@ -34,6 +34,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Vente from "./pages/Vente";
 
 // Lazy: app pages (each becomes its own chunk)
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
@@ -120,6 +121,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/vente" element={<Vente />} />
             <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/invitation/:token" element={<AcceptInvitation />} />
             <Route path="/m/:restaurantId" element={<PublicMenu />} />
