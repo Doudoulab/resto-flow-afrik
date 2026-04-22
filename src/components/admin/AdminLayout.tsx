@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { usePlatformAdmin } from "@/hooks/usePlatformAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,23 @@ export default function AdminLayout() {
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [isClaiming, setIsClaiming] = useState(false);
+  const [bootstrapAvailable, setBootstrapAvailable] = useState<boolean | null>(null);
+
+  // Check if any platform admin already exists. If yes, the claim button must be hidden.
+  useEffect(() => {
+    if (loading || isAdmin) return;
+    let cancelled = false;
+    (async () => {
+      const [{ count: adminsCount }, { count: assignmentsCount }] = await Promise.all([
+        supabase.from("platform_admins").select("id", { count: "exact", head: true }),
+        supabase.from("platform_role_assignments").select("id", { count: "exact", head: true }),
+      ]);
+      if (cancelled) return;
+      const total = (adminsCount ?? 0) + (assignmentsCount ?? 0);
+      setBootstrapAvailable(total === 0);
+    })();
+    return () => { cancelled = true; };
+  }, [loading, isAdmin]);
 
   const handleClaimFirstAdmin = async () => {
     if (!user || isClaiming) return;
@@ -63,6 +80,18 @@ export default function AdminLayout() {
   }
 
   if (!isAdmin) {
+    // If a super-admin already exists, do not even display the bootstrap UI.
+    // Redirect non-admins straight back to the app to avoid any leakage.
+    if (bootstrapAvailable === false) {
+      return <Navigate to="/app" replace />;
+    }
+    if (bootstrapAvailable === null) {
+      return (
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      );
+    }
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 p-6 text-center">
         <Shield className="h-12 w-12 text-muted-foreground" />
