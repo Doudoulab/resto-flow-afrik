@@ -3429,6 +3429,10 @@ export type Database = {
           entry_id: string
         }[]
       }
+      restaurant_has_write_access: {
+        Args: { _restaurant_id: string }
+        Returns: boolean
+      }
       seed_syscohada_accounts: {
         Args: { _restaurant_id: string }
         Returns: undefined
