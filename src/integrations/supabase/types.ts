@@ -3277,19 +3277,6 @@ export type Database = {
           },
         ]
       }
-      platform_stats: {
-        Row: {
-          active_restaurants: number | null
-          active_subscriptions: number | null
-          canceled_subscriptions: number | null
-          orders_last_30d: number | null
-          revenue_last_30d: number | null
-          suspended_restaurants: number | null
-          total_restaurants: number | null
-          total_users: number | null
-        }
-        Relationships: []
-      }
       profiles_safe: {
         Row: {
           created_at: string | null
