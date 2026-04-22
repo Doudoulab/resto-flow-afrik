@@ -377,6 +377,111 @@ export default function Pricing() {
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Paiements sécurisés via Chariow • Wave, Orange Money, MTN MoMo, Moov & Carte bancaire
         </p>
+
+        <section className="mt-20">
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge variant="secondary" className="mb-3">Sans abonnement</Badge>
+            <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Licence à vie</h2>
+            <p className="mt-3 text-muted-foreground">
+              Payez une seule fois, utilisez à vie. Idéal si vous préférez un investissement unique sans abonnement mensuel.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
+            <Card className="relative overflow-hidden">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Pro à vie</CardTitle>
+                  <Badge variant="secondary">One-shot</Badge>
+                </div>
+                <CardDescription>Toutes les fonctionnalités Pro, paiement unique</CardDescription>
+                <div className="mt-4">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold">600 000 FCFA</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Équivaut à 24 mois Pro • Économie après 2 ans
+                  </p>
+                </div>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Toutes les fonctionnalités du plan Pro</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Mises à jour incluses à vie</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Support email prioritaire 1 an inclus</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Aucun engagement mensuel, aucune CB</span>
+                  </li>
+                </ul>
+                <Button variant="outline" className="w-full" onClick={() => navigate(user ? "/app/billing" : "/auth")}>
+                  Nous contacter
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary shadow-lg relative overflow-hidden">
+              <div className="bg-primary px-4 py-1 text-center text-xs font-semibold text-primary-foreground">
+                MEILLEURE VALEUR
+              </div>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Business à vie</CardTitle>
+                  <Badge variant="secondary">One-shot</Badge>
+                </div>
+                <CardDescription>Multi-restos, comptabilité, paie — paiement unique</CardDescription>
+                <div className="mt-4">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold">1 800 000 FCFA</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Équivaut à 30 mois Business • Rentabilisé en 2,5 ans
+                  </p>
+                </div>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Toutes les fonctionnalités du plan Business</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Multi-restaurants illimités à vie</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Onboarding personnalisé inclus</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Support prioritaire 2 ans inclus</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                    <span>Mises à jour à vie, aucun abonnement</span>
+                  </li>
+                </ul>
+                <Button className="w-full" onClick={() => navigate(user ? "/app/billing" : "/auth")}>
+                  Nous contacter
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Licence à vie disponible sur demande • Paiement par virement, Mobile Money ou échelonné sur 3 mois
+          </p>
+        </section>
       </main>
 
       <Dialog open={!!detailsPlan} onOpenChange={(o) => !o && setDetailsPlan(null)}>
