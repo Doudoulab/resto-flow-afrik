@@ -182,7 +182,7 @@ const Landing = () => {
       </section>
 
       {/* Features */}
-      <section className="container py-20">
+      <section id="features" className="container py-20">
         <div className="mx-auto mb-16 max-w-2xl text-center">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">
             Tout ce dont votre restaurant a besoin
@@ -205,6 +205,139 @@ const Landing = () => {
               <p className="text-sm text-muted-foreground">{description}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Problems / Solutions */}
+      <section className="bg-muted/40 py-20">
+        <div className="container">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Du chaos quotidien à la sérénité</h2>
+            <p className="text-lg text-muted-foreground">Voici ce que RestoFlow change concrètement dans votre journée.</p>
+          </div>
+          <div className="mx-auto max-w-4xl space-y-3">
+            {problems.map(({ before, after }) => (
+              <div key={before} className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-4">
+                <div className="flex items-start gap-2 text-sm text-muted-foreground line-through decoration-destructive/60">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">✕</span>
+                  {before}
+                </div>
+                <ArrowRight className="hidden h-4 w-4 text-muted-foreground sm:block" />
+                <div className="flex items-start gap-2 text-sm font-medium text-foreground">
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-success" />
+                  {after}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* West Africa specific */}
+      <section className="container py-20">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
+            🌍 Pensé pour l'Afrique de l'Ouest
+          </div>
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl">Conformité locale, sans compromis</h2>
+          <p className="text-lg text-muted-foreground">Les outils internationaux ignorent SYSCOHADA et Mobile Money. Pas nous.</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {westAfricaFeatures.map(({ icon: Icon, title, description }) => (
+            <div key={title} className="rounded-xl border border-border bg-card p-6">
+              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+              <h3 className="mb-2 font-semibold">{title}</h3>
+              <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="bg-muted/40 py-20">
+        <div className="container">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Ils nous font confiance</h2>
+            <p className="text-lg text-muted-foreground">Des restaurateurs comme vous, partout en Afrique francophone.</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map(({ name, role, quote, rating }) => (
+              <div key={name} className="flex flex-col rounded-xl border border-border bg-card p-6 shadow-sm">
+                <Quote className="mb-3 h-6 w-6 text-primary/60" />
+                <p className="mb-4 flex-1 text-sm text-foreground">« {quote} »</p>
+                <div className="mb-3 flex gap-0.5">
+                  {Array.from({ length: rating }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-warning text-warning" />
+                  ))}
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">{name}</p>
+                  <p className="text-xs text-muted-foreground">{role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="container py-20">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl">Des tarifs simples et honnêtes</h2>
+          <p className="text-lg text-muted-foreground">Sans engagement. Changez ou arrêtez quand vous voulez.</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+          {pricingTiers.map((tier) => (
+            <div
+              key={tier.name}
+              className={`relative flex flex-col rounded-xl border p-6 ${
+                tier.highlight ? "border-primary bg-card shadow-lg ring-2 ring-primary/20" : "border-border bg-card"
+              }`}
+            >
+              {tier.highlight && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-medium text-primary-foreground">
+                  Plus populaire
+                </span>
+              )}
+              <h3 className="text-lg font-semibold">{tier.name}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{tier.description}</p>
+              <div className="mt-4 mb-6">
+                <span className="text-3xl font-bold">{tier.price}</span>
+                <span className="ml-1 text-sm text-muted-foreground">{tier.period}</span>
+              </div>
+              <ul className="mb-6 space-y-2 text-sm">
+                {tier.features.map((f) => (
+                  <li key={f} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-success mt-0.5" /> {f}</li>
+                ))}
+              </ul>
+              <Link to="/auth?mode=signup" className="mt-auto">
+                <Button className="w-full" variant={tier.highlight ? "default" : "outline"}>{tier.cta}</Button>
+              </Link>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          Voir <Link to="/pricing" className="text-primary underline-offset-4 hover:underline">tous les détails et plans</Link>.
+        </p>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="bg-muted/40 py-20">
+        <div className="container max-w-3xl">
+          <div className="mb-12 text-center">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Questions fréquentes</h2>
+            <p className="text-lg text-muted-foreground">Tout ce que vous devez savoir avant de commencer.</p>
+          </div>
+          <Accordion type="single" collapsible className="rounded-xl border border-border bg-card px-4">
+            {faqs.map((faq, i) => (
+              <AccordionItem key={faq.q} value={`item-${i}`} className="border-border">
+                <AccordionTrigger className="text-left text-sm font-medium hover:no-underline">{faq.q}</AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground">{faq.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </section>
 
