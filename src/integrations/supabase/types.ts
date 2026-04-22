@@ -3732,6 +3732,53 @@ export type Database = {
         Args: { _restaurant_id: string }
         Returns: boolean
       }
+      mark_order_paid: {
+        Args: {
+          _amount_paid: number
+          _order_id: string
+          _payment_method: string
+        }
+        Returns: {
+          amount_paid: number
+          cancelled_at: string | null
+          cancelled_by: string | null
+          cancelled_reason: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          discount_amount: number
+          discount_reason: string | null
+          guest_name: string | null
+          id: string
+          invoice_id: string | null
+          invoice_number: string | null
+          merged_tables: string[] | null
+          notes: string | null
+          order_number: number
+          payment_method: string | null
+          payment_status: string
+          pms_confirmed_at: string | null
+          pms_export_status: string | null
+          pms_exported_at: string | null
+          pms_room_charge_id: string | null
+          restaurant_id: string
+          room_number: string | null
+          service_amount: number
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          table_number: string | null
+          tax_amount: number
+          tip_amount: number
+          total: number
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       next_invoice_number: { Args: { _restaurant_id: string }; Returns: string }
       punch_with_pin: {
         Args: { _pin: string; _restaurant_id: string }
