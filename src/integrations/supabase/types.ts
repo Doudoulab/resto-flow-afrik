@@ -206,6 +206,45 @@ export type Database = {
           },
         ]
       }
+      chariow_products: {
+        Row: {
+          amount: number
+          chariow_price_id: string | null
+          chariow_product_id: string
+          created_at: string
+          currency: string
+          cycle: string
+          id: string
+          is_active: boolean
+          plan_key: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          chariow_price_id?: string | null
+          chariow_product_id: string
+          created_at?: string
+          currency?: string
+          cycle: string
+          id?: string
+          is_active?: boolean
+          plan_key: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          chariow_price_id?: string | null
+          chariow_product_id?: string
+          created_at?: string
+          currency?: string
+          cycle?: string
+          id?: string
+          is_active?: boolean
+          plan_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_credit_transactions: {
         Row: {
           amount: number
@@ -2741,6 +2780,7 @@ export type Database = {
           paddle_subscription_id: string
           price_id: string
           product_id: string
+          provider: string
           status: string
           updated_at: string | null
           user_id: string
@@ -2756,6 +2796,7 @@ export type Database = {
           paddle_subscription_id: string
           price_id: string
           product_id: string
+          provider?: string
           status?: string
           updated_at?: string | null
           user_id: string
@@ -2771,6 +2812,7 @@ export type Database = {
           paddle_subscription_id?: string
           price_id?: string
           product_id?: string
+          provider?: string
           status?: string
           updated_at?: string | null
           user_id?: string

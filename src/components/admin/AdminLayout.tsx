@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { usePlatformAdmin } from "@/hooks/usePlatformAdmin";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Shield, LayoutDashboard, Building2, CreditCard, BarChart3, Bug, Webhook, UserCog, ArrowLeft, LogOut } from "lucide-react";
+import { Loader2, Shield, LayoutDashboard, Building2, CreditCard, BarChart3, Bug, Webhook, UserCog, ArrowLeft, LogOut, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -12,8 +12,9 @@ const NAV = [
   { to: "/admin", end: true, icon: LayoutDashboard, label: "Vue d'ensemble" },
   { to: "/admin/restaurants", icon: Building2, label: "Restaurants" },
   { to: "/admin/subscriptions", icon: CreditCard, label: "Abonnements" },
+  { to: "/admin/chariow", icon: Wallet, label: "Paiements Chariow" },
   { to: "/admin/stats", icon: BarChart3, label: "Statistiques" },
-  { to: "/admin/webhooks", icon: Webhook, label: "Webhooks Paddle" },
+  { to: "/admin/webhooks", icon: Webhook, label: "Webhooks" },
   { to: "/admin/errors", icon: Bug, label: "Erreurs globales" },
   { to: "/admin/admins", icon: UserCog, label: "Super-admins" },
 ];

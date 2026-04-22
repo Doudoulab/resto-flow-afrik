@@ -70,6 +70,7 @@ const AdminStats = lazy(() => import("./pages/admin/Stats"));
 const AdminWebhooks = lazy(() => import("./pages/admin/Webhooks"));
 const AdminErrors = lazy(() => import("./pages/admin/Errors"));
 const AdminAdmins = lazy(() => import("./pages/admin/Admins"));
+const AdminChariow = lazy(() => import("./pages/admin/Chariow"));
 
 const PageFallback = () => (
   <div className="flex h-[60vh] items-center justify-center">
@@ -159,6 +160,7 @@ const App = () => (
               <Route path="webhooks" element={<AdminWebhooks />} />
               <Route path="errors" element={<AdminErrors />} />
               <Route path="admins" element={<AdminAdmins />} />
+              <Route path="chariow" element={<AdminChariow />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
