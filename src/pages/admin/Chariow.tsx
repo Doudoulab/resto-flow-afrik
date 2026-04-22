@@ -39,9 +39,20 @@ export default function AdminChariow() {
     setBootstrapping(true);
     try {
       const { data, error } = await supabase.functions.invoke("chariow-bootstrap");
-      if (error) throw error;
-      toast.success("Bootstrap terminé");
+      if (error) {
+        const ctx: any = (error as any).context;
+        let detail = error.message;
+        try {
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json();
+            detail = body?.error || JSON.stringify(body);
+          }
+        } catch { /* ignore */ }
+        throw new Error(detail);
+      }
+      if (data?.ok === false) throw new Error(data.error || "Erreur inconnue");
       console.log("[chariow-bootstrap]", data);
+      toast.success("Bootstrap terminé");
       await fetchRows();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
