@@ -7,7 +7,7 @@
  *   2. Add VITE_SENTRY_DSN=https://xxx@oXXX.ingest.sentry.io/XXX to your env
  *   3. Re-deploy
  */
-import * as Sentry from "@sentry/react";
+import * as Sentry from "@sentry/browser";
 
 let initialized = false;
 
