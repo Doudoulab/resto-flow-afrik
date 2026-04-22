@@ -3679,6 +3679,7 @@ export type Database = {
         Returns: undefined
       }
       claim_first_platform_admin: { Args: never; Returns: Json }
+      consolidated_kpis: { Args: { _from: string; _to: string }; Returns: Json }
       create_additional_restaurant: {
         Args: { _name: string; _switch?: boolean }
         Returns: Json
