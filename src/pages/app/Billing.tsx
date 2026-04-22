@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/hooks/useSubscription";
 
 export default function Billing() {
-  const { subscription, tier, isActive, loading } = useSubscription();
+  const { subscription, tier, isActive, loading, isTrialing, trialDaysLeft } = useSubscription();
 
   if (loading) {
     return (
@@ -17,6 +17,9 @@ export default function Billing() {
     );
   }
 
+  const planLabel = tier === "business" ? "Business" : tier === "pro" ? "Pro" : "Gratuit";
+  const isExpired = !isActive && subscription;
+
   return (
     <div className="container mx-auto p-4 md:p-6 space-y-6 max-w-3xl">
       <div>
@@ -24,13 +27,49 @@ export default function Billing() {
         <p className="text-muted-foreground mt-1">Gérez votre plan et vos paiements (Mobile Money & Carte).</p>
       </div>
 
+      {isTrialing && (
+        <Card className="border-primary/40 bg-primary/5">
+          <CardContent className="pt-6 flex items-start gap-3">
+            <Clock className="h-5 w-5 text-primary mt-0.5" />
+            <div className="flex-1">
+              <p className="font-semibold text-primary">
+                Essai Pro — {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Toutes les fonctionnalités Pro sont débloquées. À la fin de l'essai, votre compte passera en lecture seule jusqu'à souscription.
+              </p>
+            </div>
+            <Button asChild size="sm">
+              <Link to="/pricing"><Sparkles className="h-4 w-4 mr-1" />Choisir un plan</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {isExpired && (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="pt-6 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+            <div className="flex-1">
+              <p className="font-semibold text-destructive">Abonnement expiré</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Vos données sont conservées. Réactivez un plan pour reprendre l'usage complet.
+              </p>
+            </div>
+            <Button asChild size="sm" variant="destructive">
+              <Link to="/pricing">Réactiver</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="capitalize">Plan {tier}</CardTitle>
+              <CardTitle>Plan {planLabel}</CardTitle>
               <CardDescription>
-                {isActive ? "Votre abonnement est actif" : "Aucun abonnement payant actif"}
+                {isTrialing ? "Essai Pro en cours" : isActive ? "Votre abonnement est actif" : "Aucun abonnement actif"}
               </CardDescription>
             </div>
             <Badge variant={isActive ? "default" : "secondary"}>
@@ -42,7 +81,9 @@ export default function Billing() {
           {subscription?.current_period_end && (
             <div className="text-sm">
               <span className="text-muted-foreground">
-                {subscription.cancel_at_period_end ? "Accès jusqu'au : " : "Prochain renouvellement : "}
+                {isTrialing
+                  ? "Fin de l'essai : "
+                  : subscription.cancel_at_period_end ? "Accès jusqu'au : " : "Prochain renouvellement : "}
               </span>
               <span className="font-medium">
                 {new Date(subscription.current_period_end).toLocaleDateString("fr-FR", {
@@ -54,17 +95,32 @@ export default function Billing() {
 
           {subscription?.cancel_at_period_end && (
             <div className="rounded-md border border-border bg-muted p-3 text-sm">
-              Votre abonnement est annulé. Vous gardez l'accès jusqu'à la fin de la période, puis vous repasserez automatiquement en Free.
+              Votre abonnement est annulé. Vous gardez l'accès jusqu'à la fin de la période, puis vous repasserez automatiquement en Gratuit.
             </div>
           )}
 
+          <div className="grid grid-cols-2 gap-3 text-sm pt-2">
+            <div className="rounded-md border border-border p-3">
+              <p className="text-muted-foreground text-xs">Restaurants autorisés</p>
+              <p className="font-semibold mt-1">
+                {tier === "business" ? "Illimités" : tier === "pro" ? "1 restaurant" : "1 restaurant"}
+              </p>
+            </div>
+            <div className="rounded-md border border-border p-3">
+              <p className="text-muted-foreground text-xs">Modules débloqués</p>
+              <p className="font-semibold mt-1">
+                {tier === "business" ? "Tous (Pro + Business)" : tier === "pro" ? "Pack Pro" : "Lecture seule"}
+              </p>
+            </div>
+          </div>
+
           <div className="rounded-md border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
-            Paiements gérés par <strong>Chariow</strong> (Wave, Orange Money, MTN MoMo, Moov, Carte bancaire). Pour annuler ou modifier ton abonnement, contacte le support.
+            Paiements gérés par <strong>Chariow</strong> (Wave, Orange Money, MTN MoMo, Moov, Carte bancaire). Pour annuler ou modifier votre abonnement, contactez le support.
           </div>
 
           <div className="flex flex-wrap gap-2 pt-2">
             <Button variant="outline" asChild>
-              <Link to="/pricing">{isActive ? "Changer de plan" : "Voir les plans"}</Link>
+              <Link to="/pricing">{isTrialing ? "Souscrire maintenant" : isActive ? "Changer de plan" : "Voir les plans"}</Link>
             </Button>
           </div>
         </CardContent>
