@@ -6,11 +6,18 @@ export function usePlatformAdmin() {
   const { user, loading: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refreshAdminStatus = () => {
+    setLoading(true);
+    setRefreshKey((current) => current + 1);
+  };
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { setIsAdmin(false); setLoading(false); return; }
     let cancelled = false;
+    setLoading(true);
     (async () => {
       const { data, error } = await supabase
         .from("platform_admins")
@@ -22,7 +29,7 @@ export function usePlatformAdmin() {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [user, authLoading]);
+  }, [user, authLoading, refreshKey]);
 
-  return { isAdmin: !!isAdmin, loading: loading || authLoading };
+  return { isAdmin: !!isAdmin, loading: loading || authLoading, refreshAdminStatus };
 }
