@@ -121,7 +121,7 @@ const Orders = () => {
       );
       if (newOnes.length > 0) {
         toast.success(`🔔 Nouvelle commande #${newOnes[0].order_number}${newOnes[0].table_number ? ` — Table ${newOnes[0].table_number}` : ""}`);
-        try { audioRef.current?.play().catch(() => {}); } catch {}
+        playNewOrderAlert();
       }
     }
     lastSeenIdsRef.current = new Set(incoming.map((o) => o.id));
