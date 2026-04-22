@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 export type ChariowPlan = {
   plan_key: "pro_plan" | "business_plan";
-  cycle: "monthly" | "yearly";
+  cycle: "monthly" | "yearly" | "lifetime";
 };
 
 export function useChariowCheckout() {
