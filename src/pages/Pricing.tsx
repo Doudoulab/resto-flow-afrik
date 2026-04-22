@@ -53,6 +53,56 @@ const PLANS = [
     ] satisfies PlanDetailSection[],
   },
   {
+    id: "starter" as const,
+    name: "Starter",
+    description: "Pour les maquis et petits restos qui démarrent",
+    monthly: { price: 9900, planKey: "starter_plan" as const },
+    yearly: { price: 95000, planKey: "starter_plan" as const },
+    features: [
+      "1 restaurant",
+      "Jusqu'à 3 employés",
+      "Caisse & commandes basiques",
+      "Menu simple (sans variantes)",
+      "Stocks basiques",
+      "Mobile Money (Wave, OM, MTN)",
+      "Tickets de caisse",
+      "Support email",
+    ],
+    cta: "Choisir Starter",
+    badge: "Petit budget",
+    details: [
+      {
+        title: "Idéal pour",
+        items: [
+          "Maquis, gargotes, petits restos de quartier",
+          "Boulangeries et points de vente simples",
+          "Restos qui démarrent leur digitalisation",
+          "Équipes de 1 à 3 personnes",
+        ],
+      },
+      {
+        title: "Inclus",
+        items: [
+          "Caisse simple avec impression de tickets",
+          "Gestion basique du menu (catégories + plats)",
+          "Suivi des stocks en quantités",
+          "Encaissement Mobile Money & espèces",
+          "Historique des ventes du jour/mois",
+          "Sauvegarde automatique de vos données",
+        ],
+      },
+      {
+        title: "Non inclus (passez Pro)",
+        items: [
+          "Plan de salle, réservations, KDS cuisine",
+          "Variantes, modificateurs, recettes",
+          "Multi-langues, fiches clients VIP",
+          "Module fiscal avancé, exports comptables",
+        ],
+      },
+    ] satisfies PlanDetailSection[],
+  },
+  {
     id: "pro" as const,
     name: "Pro",
     description: "Pour les restaurants en croissance",
