@@ -9,6 +9,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 function addInterval(from: Date, cycle: string): Date {
   const d = new Date(from);
   if (cycle === "yearly") d.setFullYear(d.getFullYear() + 1);
+  else if (cycle === "lifetime") d.setFullYear(d.getFullYear() + 100);
   else d.setMonth(d.getMonth() + 1);
   return d;
 }
@@ -49,7 +50,11 @@ Deno.serve(async (req) => {
       const periodEnd = addInterval(now, cycle);
       const externalId = String(data.id ?? data.sale_id ?? data.license_id ?? `chariow_${Date.now()}`);
       const customerId = String(data.customer_id ?? data.customer?.id ?? data.customer_email ?? userId);
-      const priceId = `${planKey === "pro_plan" ? "pro" : "business"}_${cycle}`;
+      const planShort = planKey === "starter_plan" ? "starter"
+        : planKey === "pro_plan" ? "pro"
+        : planKey === "business_plan" ? "business"
+        : planKey;
+      const priceId = `${planShort}_${cycle}`;
 
       const { error } = await supabase.from("subscriptions").upsert({
         user_id: userId,
