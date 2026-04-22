@@ -109,9 +109,14 @@ Deno.serve(async (req) => {
       is_active: true,
     });
 
-    // Optional PIN
+    // Optional PIN — set via direct SQL using crypt() since auth.uid() is null in service role
     if (body.pin && /^[0-9]{4,6}$/.test(body.pin)) {
-      await admin.rpc("set_clock_pin", { _user_id: newUserId, _pin: body.pin });
+      // We can't call set_clock_pin (it checks auth.uid). Use a small SQL via the admin client.
+      const { error: pinErr } = await admin.rpc("admin_set_clock_pin", {
+        _user_id: newUserId,
+        _pin: body.pin,
+      });
+      if (pinErr) console.warn("PIN set failed:", pinErr.message);
     }
 
     return json({ ok: true, user_id: newUserId }, 200);

@@ -3546,6 +3546,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_clock_pin: {
+        Args: { _pin: string; _user_id: string }
+        Returns: undefined
+      }
       admin_suspend_restaurant: {
         Args: { _reason: string; _restaurant_id: string }
         Returns: undefined
