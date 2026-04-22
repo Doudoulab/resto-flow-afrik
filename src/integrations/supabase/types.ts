@@ -1862,6 +1862,33 @@ export type Database = {
           },
         ]
       }
+      platform_admins: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pms_sync_log: {
         Row: {
           confirmed_at: string | null
@@ -2236,6 +2263,8 @@ export type Database = {
           phone: string | null
           slug: string | null
           stock_decrement_mode: string
+          suspended_at: string | null
+          suspended_reason: string | null
           tax_id: string | null
           theme_color: string | null
           updated_at: string
@@ -2267,6 +2296,8 @@ export type Database = {
           phone?: string | null
           slug?: string | null
           stock_decrement_mode?: string
+          suspended_at?: string | null
+          suspended_reason?: string | null
           tax_id?: string | null
           theme_color?: string | null
           updated_at?: string
@@ -2298,6 +2329,8 @@ export type Database = {
           phone?: string | null
           slug?: string | null
           stock_decrement_mode?: string
+          suspended_at?: string | null
+          suspended_reason?: string | null
           tax_id?: string | null
           theme_color?: string | null
           updated_at?: string
@@ -3244,6 +3277,19 @@ export type Database = {
           },
         ]
       }
+      platform_stats: {
+        Row: {
+          active_restaurants: number | null
+          active_subscriptions: number | null
+          canceled_subscriptions: number | null
+          orders_last_30d: number | null
+          revenue_last_30d: number | null
+          suspended_restaurants: number | null
+          total_restaurants: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
       profiles_safe: {
         Row: {
           created_at: string | null
@@ -3288,8 +3334,30 @@ export type Database = {
     }
     Functions: {
       accept_invitation: { Args: { _token: string }; Returns: Json }
+      admin_delete_restaurant: {
+        Args: { _restaurant_id: string }
+        Returns: undefined
+      }
+      admin_grant_subscription: {
+        Args: {
+          _days?: number
+          _price_id: string
+          _product_id: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      admin_suspend_restaurant: {
+        Args: { _reason: string; _restaurant_id: string }
+        Returns: undefined
+      }
+      admin_unsuspend_restaurant: {
+        Args: { _restaurant_id: string }
+        Returns: undefined
+      }
       current_user_restaurant_id: { Args: never; Returns: string }
       get_invitation_by_token: { Args: { _token: string }; Returns: Json }
+      get_platform_stats: { Args: never; Returns: Json }
       get_public_menu_extras: {
         Args: { _restaurant_id: string }
         Returns: Json
@@ -3316,6 +3384,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_platform_admin: { Args: never; Returns: boolean }
       is_restaurant_owner: {
         Args: { _restaurant_id: string }
         Returns: boolean
