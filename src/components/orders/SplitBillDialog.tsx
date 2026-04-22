@@ -77,11 +77,24 @@ export const SplitBillDialog = ({ open, onOpenChange, orderId, restaurantId, tot
 
     const newPaid = amountPaid + totalNew;
     const fullyPaid = newPaid >= total - 0.01;
-    await supabase.from("orders").update({
-      amount_paid: newPaid,
-      payment_status: fullyPaid ? "paid" : "partial",
-      ...(fullyPaid ? { status: "paid" as const } : {}),
-    }).eq("id", orderId);
+    if (fullyPaid) {
+      // Verrou atomique côté DB pour empêcher tout double-encaissement
+      const { error: payErr } = await supabase.rpc("mark_order_paid", {
+        _order_id: orderId,
+        _payment_method: payments[0]?.method ?? "cash",
+        _amount_paid: newPaid,
+      });
+      if (payErr) {
+        setSaving(false);
+        toast.error(payErr.message.includes("déjà encaissée") ? "Cette commande est déjà encaissée" : payErr.message);
+        return;
+      }
+    } else {
+      await supabase.from("orders").update({
+        amount_paid: newPaid,
+        payment_status: "partial",
+      }).eq("id", orderId);
+    }
 
     await logAudit({
       restaurantId,
