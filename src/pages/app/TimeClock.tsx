@@ -145,12 +145,109 @@ const TimeClock = () => {
 
   if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
+  const punchWithPin = async (code: string) => {
+    if (!restaurant) return;
+    if (!/^[0-9]{4,6}$/.test(code)) return;
+    setPinBusy(true);
+    const { data, error } = await supabase.rpc("punch_with_pin", {
+      _restaurant_id: restaurant.id,
+      _pin: code,
+    });
+    setPinBusy(false);
+    setPinDigits("");
+    if (error) {
+      toast.error(error.message || "PIN incorrect");
+      return;
+    }
+    const row = (data as any)?.[0];
+    if (!row) { toast.error("PIN incorrect"); return; }
+    setLastPunch({
+      name: row.employee_name,
+      action: row.action,
+      at: row.at,
+    });
+    toast.success(`${row.action === "clock_in" ? "Entrée" : "Sortie"} — ${row.employee_name}`);
+    load();
+    setTimeout(() => setLastPunch(null), 6000);
+  };
+
+  const onPinKey = (k: string) => {
+    if (pinBusy) return;
+    if (k === "del") { setPinDigits((p) => p.slice(0, -1)); return; }
+    if (k === "ok") { punchWithPin(pinDigits); return; }
+    setPinDigits((p) => {
+      const next = (p + k).slice(0, 6);
+      if (next.length >= 4 && k !== "" && next.length === 6) {
+        // auto-submit at 6 digits
+        setTimeout(() => punchWithPin(next), 50);
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Pointage</h1>
-        <p className="mt-1 text-muted-foreground">Gérez vos heures de travail.</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Pointage</h1>
+            <p className="mt-1 text-muted-foreground">Gérez vos heures de travail.</p>
+          </div>
+          <div className="flex items-center gap-2 rounded-md border bg-card px-3 py-2">
+            <KeyRound className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="kiosk" className="text-sm font-medium">Mode kiosque (PIN)</Label>
+            <Switch id="kiosk" checked={kioskMode} onCheckedChange={setKioskMode} />
+          </div>
+        </div>
       </div>
+
+      {kioskMode && (
+        <Card className="border-primary/40 bg-accent/20 shadow-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <KeyRound className="h-4 w-4 text-primary" /> Pointage par PIN
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-4">
+              <div className="flex h-14 items-center justify-center rounded-md border bg-background px-4 font-mono text-2xl tracking-[0.6em] w-full">
+                {pinDigits.padEnd(4, "•").split("").map((c, i) => (
+                  <span key={i} className={i < pinDigits.length ? "text-foreground" : "text-muted-foreground/40"}>
+                    {i < pinDigits.length ? "•" : "•"}
+                  </span>
+                ))}
+              </div>
+              <div className="grid w-full grid-cols-3 gap-2">
+                {["1","2","3","4","5","6","7","8","9"].map((k) => (
+                  <Button key={k} type="button" variant="outline" size="lg" className="h-14 text-xl" onClick={() => onPinKey(k)} disabled={pinBusy}>
+                    {k}
+                  </Button>
+                ))}
+                <Button type="button" variant="outline" size="lg" className="h-14" onClick={() => onPinKey("del")} disabled={pinBusy || pinDigits.length === 0}>
+                  <Delete className="h-5 w-5" />
+                </Button>
+                <Button type="button" variant="outline" size="lg" className="h-14 text-xl" onClick={() => onPinKey("0")} disabled={pinBusy}>
+                  0
+                </Button>
+                <Button type="button" size="lg" className="h-14" onClick={() => onPinKey("ok")} disabled={pinBusy || pinDigits.length < 4}>
+                  {pinBusy ? <Loader2 className="h-5 w-5 animate-spin" /> : "OK"}
+                </Button>
+              </div>
+              {lastPunch && (
+                <div className={`w-full rounded-md border p-3 text-center text-sm ${lastPunch.action === "clock_in" ? "border-primary/40 bg-primary/10" : "border-destructive/40 bg-destructive/10"}`}>
+                  <p className="font-semibold">{lastPunch.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {lastPunch.action === "clock_in" ? "Entrée enregistrée" : "Sortie enregistrée"} à {new Date(lastPunch.at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+              )}
+            </div>
+            <p className="text-center text-xs text-muted-foreground">
+              Demander aux employés de saisir leur PIN. Idéal pour une tablette partagée à l'entrée du service.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Personal clock-in/out card */}
       <Card className="shadow-sm">
