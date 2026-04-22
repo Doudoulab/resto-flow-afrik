@@ -76,6 +76,7 @@ const Schedule = lazy(() => import("./pages/app/Schedule"));
 const Billing = lazy(() => import("./pages/app/Billing"));
 const Help = lazy(() => import("./pages/app/Help"));
 const Restaurants = lazy(() => import("./pages/app/Restaurants"));
+const ConsolidatedReports = lazy(() => import("./pages/app/ConsolidatedReports"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -169,6 +170,7 @@ const App = () => (
               <Route path="billing" element={<Billing />} />
               <Route path="help" element={<Help />} />
               <Route path="restaurants" element={<Restaurants />} />
+              <Route path="consolidated" element={gate("/app/consolidated", featureLabel("/app/consolidated"), <ConsolidatedReports />)} />
             </Route>
             <Route
               path="/admin"

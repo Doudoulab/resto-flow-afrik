@@ -7,7 +7,7 @@ import {
   Receipt, Banknote, Lock, HardDriveDownload, Activity, Printer, FileCheck2,
   FileSpreadsheet, Bug, Wine, Utensils, TrendingUp, LineChart, Hotel, Hand,
   ChevronDown, ToggleRight, CreditCard,
-  HelpCircle,
+  HelpCircle, Layers,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -68,6 +68,7 @@ const SECTIONS: { id: string; label: string; items: Item[] }[] = [
     label: "Finances",
     items: [
       { to: "/app/reports", icon: BarChart3, label: "Rapports", module: "reports" },
+      { to: "/app/consolidated", icon: Layers, label: "Rapports consolidés", module: "consolidated_reports" },
       { to: "/app/accounting", icon: Wallet, label: "Comptabilité", module: "accounting" },
       { to: "/app/ledger", icon: BookOpen, label: "Grand livre", module: "accounting" },
       { to: "/app/tax", icon: Receipt, label: "TVA", module: "accounting" },
