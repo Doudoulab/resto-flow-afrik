@@ -423,8 +423,15 @@ export default function Pricing() {
                     <span>Aucun engagement mensuel, aucune CB</span>
                   </li>
                 </ul>
-                <Button variant="outline" className="w-full" onClick={() => navigate(user ? "/app/billing" : "/auth")}>
-                  Nous contacter
+                <Button
+                  className="w-full"
+                  disabled={loading}
+                  onClick={() => {
+                    if (!user) { navigate("/auth"); return; }
+                    openCheckout({ plan_key: "pro_plan", cycle: "lifetime" });
+                  }}
+                >
+                  {loading ? "Chargement..." : "Acheter à vie"}
                 </Button>
               </CardContent>
             </Card>
