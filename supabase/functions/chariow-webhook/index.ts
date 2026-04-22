@@ -70,6 +70,25 @@ Deno.serve(async (req) => {
         console.error("[chariow-webhook] upsert error", error);
         throw error;
       }
+
+      // Log invoice
+      const amount = Number(data.amount ?? data.total ?? data.price ?? 0);
+      const currency = String(data.currency ?? "XOF");
+      const invoiceUrl = data.invoice_url ?? data.receipt_url ?? data.url ?? null;
+      await supabase.from("subscription_invoices").upsert({
+        user_id: userId,
+        provider: "chariow",
+        event_type: event,
+        external_id: externalId,
+        plan_key: planKey,
+        cycle,
+        amount,
+        currency,
+        status: "paid",
+        invoice_url: invoiceUrl,
+        raw_payload: payload,
+        occurred_at: now.toISOString(),
+      }, { onConflict: "provider,external_id" });
     } else if (event.startsWith("license.cancelled") || event.startsWith("subscription.cancelled")) {
       await supabase.from("subscriptions")
         .update({ cancel_at_period_end: true, updated_at: now.toISOString() })
