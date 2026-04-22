@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Bell, ChefHat, PackageCheck, Utensils } from "lucide-react";
+import { Check, X, Bell, PackageCheck, Utensils } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
 import { playNewOrderAlert } from "@/lib/audio/beep";
