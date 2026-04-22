@@ -61,6 +61,16 @@ const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
 
+// Super-admin panel
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/Overview"));
+const AdminRestaurants = lazy(() => import("./pages/admin/Restaurants"));
+const AdminSubscriptions = lazy(() => import("./pages/admin/Subscriptions"));
+const AdminStats = lazy(() => import("./pages/admin/Stats"));
+const AdminWebhooks = lazy(() => import("./pages/admin/Webhooks"));
+const AdminErrors = lazy(() => import("./pages/admin/Errors"));
+const AdminAdmins = lazy(() => import("./pages/admin/Admins"));
+
 const PageFallback = () => (
   <div className="flex h-[60vh] items-center justify-center">
     <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -133,6 +143,22 @@ const App = () => (
               <Route path="settings" element={<SettingsPage />} />
               <Route path="modules" element={<Modules />} />
               <Route path="billing" element={<Billing />} />
+            </Route>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<AdminOverview />} />
+              <Route path="restaurants" element={<AdminRestaurants />} />
+              <Route path="subscriptions" element={<AdminSubscriptions />} />
+              <Route path="stats" element={<AdminStats />} />
+              <Route path="webhooks" element={<AdminWebhooks />} />
+              <Route path="errors" element={<AdminErrors />} />
+              <Route path="admins" element={<AdminAdmins />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
