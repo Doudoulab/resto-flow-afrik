@@ -132,8 +132,10 @@ export default function AdminChariow() {
         <CardHeader>
           <CardTitle>1. Crée tes produits dans Chariow</CardTitle>
           <CardDescription>
-            L'API Chariow ne permet pas la création de produits. Va dans ton dashboard Chariow et crée 4 produits de type <code>license</code> :
+            L'API Chariow ne permet pas la création de produits. Va dans ton dashboard Chariow et crée <strong>uniquement les 4 produits payants</strong> de type <code>license</code> :
             Pro Mensuel (19 000 XOF), Pro Annuel (182 000 XOF), Business Mensuel (52 000 XOF), Business Annuel (499 000 XOF). Marque-les <strong>Published</strong>.
+            <br /><br />
+            <strong>⚠️ Ne crée PAS de produit gratuit dans Chariow</strong> — l'essai gratuit de 7 jours est géré directement par RestoFlow (pas de checkout, pas de CB).
           </CardDescription>
         </CardHeader>
         <CardContent>
