@@ -30,6 +30,34 @@ Deno.serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
+    // Vérifier le JWT et l'appartenance au restaurant
+    const auth = req.headers.get("Authorization") ?? "";
+    const jwt = auth.replace("Bearer ", "");
+    const { data: userData } = await supabase.auth.getUser(jwt);
+    if (!userData.user) {
+      return new Response(JSON.stringify({ error: "unauthenticated" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("restaurant_id")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    if (!prof || prof.restaurant_id !== body.restaurant_id) {
+      return new Response(JSON.stringify({ error: "forbidden" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Récupérer le vrai nom du restaurant pour les reçus PayDunya
+    const { data: restoRow } = await supabase
+      .from("restaurants")
+      .select("name")
+      .eq("id", body.restaurant_id)
+      .maybeSingle();
+    const restoName = (restoRow?.name as string | undefined) || "Restaurant";
+
     const { data: cfg, error: cfgErr } = await supabase
       .from("payment_configs")
       .select("*")
@@ -85,7 +113,7 @@ Deno.serve(async (req: Request) => {
             total_amount: body.amount,
             description: `Commande${body.order_id ? ` ${body.order_id.slice(0, 8)}` : ""}`,
           },
-          store: { name: "Restaurant" },
+          store: { name: restoName },
           actions: {
             callback_url: `${webhookBase}?provider=paydunya&payment_id=${payment.id}`,
             return_url: body.return_url ?? "",

@@ -60,6 +60,22 @@ const runItem = async (item: QueueItem): Promise<{ ok: boolean; error?: string }
       if (error) return { ok: false, error: error.message };
       return { ok: true };
     }
+    if (item.op.kind === "order_status_update") {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: item.op.payload.status })
+        .eq("id", item.op.payload.order_id);
+      if (error) return { ok: false, error: error.message };
+      return { ok: true };
+    }
+    if (item.op.kind === "order_item_add") {
+      const { error } = await supabase.from("order_items").insert({
+        order_id: item.op.payload.order_id,
+        ...item.op.payload.item,
+      });
+      if (error) return { ok: false, error: error.message };
+      return { ok: true };
+    }
     return { ok: false, error: "unknown_op" };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "exception" };
