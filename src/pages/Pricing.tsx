@@ -439,14 +439,14 @@ export default function Pricing() {
                   <Badge variant="secondary">One-shot</Badge>
                 </div>
                 <CardDescription>Multi-restos, comptabilité, paie — paiement unique</CardDescription>
-                <div className="mt-4">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">1 800 000 FCFA</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Équivaut à 30 mois Business • Rentabilisé en 2,5 ans
-                  </p>
-                </div>
+                 <div className="mt-4">
+                   <div className="flex items-baseline gap-1">
+                     <span className="text-4xl font-bold">1 150 000 FCFA</span>
+                   </div>
+                   <p className="text-sm text-muted-foreground mt-1">
+                     Équivaut à ~19 mois Business • Rentabilisé en moins de 2 ans
+                   </p>
+                 </div>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <ul className="space-y-2">
