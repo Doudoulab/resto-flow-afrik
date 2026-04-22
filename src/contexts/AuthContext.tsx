@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { setMonitoringRestaurantId } from "@/lib/monitoring/logger";
+import { setSentryUser, setSentryRestaurant } from "@/lib/monitoring/sentry";
 
 export interface Profile {
   id: string;
@@ -69,9 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .maybeSingle();
         setRestaurant(resto as Restaurant | null);
         setMonitoringRestaurantId(prof.restaurant_id);
+        setSentryRestaurant(prof.restaurant_id);
       } else {
         setRestaurant(null);
         setMonitoringRestaurantId(null);
+        setSentryRestaurant(null);
       }
     } finally {
       setLoading(false);
@@ -83,6 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, sess) => {
       setSession(sess);
       setUser(sess?.user ?? null);
+      setSentryUser(sess?.user ? { id: sess.user.id, email: sess.user.email } : null);
       if (sess?.user) {
         setLoading(true);
         // defer to avoid deadlock — loadProfile owns setLoading(false)
