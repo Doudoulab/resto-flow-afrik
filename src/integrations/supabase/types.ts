@@ -3679,6 +3679,10 @@ export type Database = {
         Returns: undefined
       }
       claim_first_platform_admin: { Args: never; Returns: Json }
+      create_additional_restaurant: {
+        Args: { _name: string; _switch?: boolean }
+        Returns: Json
+      }
       current_platform_role: {
         Args: never
         Returns: Database["public"]["Enums"]["platform_role"]
@@ -3805,9 +3809,24 @@ export type Database = {
         Args: { _pin: string; _user_id: string }
         Returns: undefined
       }
+      switch_active_restaurant: {
+        Args: { _restaurant_id: string }
+        Returns: Json
+      }
       transfer_order_item: {
         Args: { _item_id: string; _reason: string; _to_order_id: string }
         Returns: undefined
+      }
+      user_owned_restaurants: {
+        Args: never
+        Returns: {
+          id: string
+          is_active: boolean
+          logo_url: string
+          name: string
+          slug: string
+          suspended_at: string
+        }[]
       }
     }
     Enums: {

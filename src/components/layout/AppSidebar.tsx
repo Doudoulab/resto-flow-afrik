@@ -24,6 +24,7 @@ import { useLiveBadges } from "@/hooks/useLiveBadges";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { RestaurantSwitcher } from "@/components/layout/RestaurantSwitcher";
 
 type Item = { to: string; end?: boolean; icon: any; label: string; module?: ModuleKey };
 
@@ -174,6 +175,7 @@ export const AppSidebar = () => {
           )}
         </div>
       </SidebarHeader>
+      <RestaurantSwitcher collapsed={collapsed} />
 
       <SidebarContent>
         {filteredSections.map(section => {

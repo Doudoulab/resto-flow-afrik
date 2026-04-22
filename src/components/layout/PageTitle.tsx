@@ -14,7 +14,7 @@ const ROUTE_LABELS: Record<string, string> = {
   advisor: "Conseil IA", audit: "Audit", security: "Sécurité (2FA)",
   backups: "Sauvegardes", health: "État système", fiscal: "Vérif. fiscale",
   exports: "Exports", errors: "Monitoring erreurs", modules: "Modules",
-  settings: "Paramètres",
+  settings: "Paramètres", restaurants: "Mes établissements", billing: "Abonnement", help: "Aide",
 };
 
 export const PageTitle = () => {
