@@ -75,6 +75,7 @@ const Modules = lazy(() => import("./pages/app/Modules"));
 const Schedule = lazy(() => import("./pages/app/Schedule"));
 const Billing = lazy(() => import("./pages/app/Billing"));
 const Help = lazy(() => import("./pages/app/Help"));
+const Restaurants = lazy(() => import("./pages/app/Restaurants"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -167,6 +168,7 @@ const App = () => (
               <Route path="modules" element={<Modules />} />
               <Route path="billing" element={<Billing />} />
               <Route path="help" element={<Help />} />
+              <Route path="restaurants" element={<Restaurants />} />
             </Route>
             <Route
               path="/admin"
