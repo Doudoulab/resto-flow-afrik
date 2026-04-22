@@ -3247,6 +3247,11 @@ export type Database = {
         Returns: Json
       }
       get_public_restaurant: { Args: { _slug: string }; Returns: Json }
+      get_public_tasting_menus: {
+        Args: { _restaurant_id: string }
+        Returns: Json
+      }
+      get_public_wine_list: { Args: { _restaurant_id: string }; Returns: Json }
       get_restaurant_slug_by_id: {
         Args: { _restaurant_id: string }
         Returns: string
