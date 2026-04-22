@@ -523,7 +523,8 @@ const Orders = () => {
           amount={Number(detailOrder.total)}
           onPaid={() => {
             setMobileMoneyOpen(false);
-            updateStatus(detailOrder.id, "paid");
+            // L'encaissement est déjà persisté côté DB par MobileMoneyDialog → mark_order_paid()
+            load();
           }}
         />
       )}
