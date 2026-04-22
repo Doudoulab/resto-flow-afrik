@@ -3342,6 +3342,7 @@ export type Database = {
         Args: { _restaurant_id: string }
         Returns: undefined
       }
+      claim_first_platform_admin: { Args: never; Returns: Json }
       current_user_restaurant_id: { Args: never; Returns: string }
       get_invitation_by_token: { Args: { _token: string }; Returns: Json }
       get_platform_stats: { Args: never; Returns: Json }
