@@ -456,9 +456,20 @@ const Landing = () => {
                   <li key={f} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-success mt-0.5" /> {f}</li>
                 ))}
               </ul>
-              <Link to="/auth?mode=signup" className="mt-auto">
-                <Button className="w-full" variant={tier.highlight ? "default" : "outline"}>{tier.cta}</Button>
-              </Link>
+              <div className="mt-auto flex flex-col gap-2">
+                <Link to="/auth?mode=signup">
+                  <Button className="w-full" variant={tier.highlight ? "default" : "outline"}>{tier.cta}</Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-muted-foreground"
+                  onClick={() => setDetailsPlan(tier)}
+                >
+                  <Info className="h-4 w-4 mr-1" />
+                  Voir tous les détails
+                </Button>
+              </div>
             </div>
           ))}
         </div>
