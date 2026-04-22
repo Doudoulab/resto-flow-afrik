@@ -157,7 +157,7 @@ export default function Landing() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_60%)]" />
-        <div className="container relative mx-auto grid gap-12 px-4 py-20 lg:grid-cols-2 lg:gap-16 lg:py-28">
+        <div className="container relative mx-auto grid gap-10 px-4 py-12 sm:py-16 lg:grid-cols-2 lg:gap-16 lg:py-28">
           <div className="flex flex-col justify-center">
             <Badge variant="secondary" className="mb-6 w-fit gap-1.5 px-3 py-1 text-xs font-medium">
               <Sparkles className="h-3 w-3 text-primary" />
@@ -193,7 +193,7 @@ export default function Landing() {
         </div>
 
         {/* Stats */}
-        <div className="container mx-auto px-4 pb-16">
+        <div className="container mx-auto px-4 pb-12 md:pb-16">
           <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border/60 bg-border/60 md:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label} className="bg-card p-6 text-center">
