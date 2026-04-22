@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Bell } from "lucide-react";
+import { Check, X, Bell, PackageCheck, Utensils } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
 import { playNewOrderAlert } from "@/lib/audio/beep";
@@ -27,7 +27,7 @@ const IncomingOrders = () => {
       .from("public_orders")
       .select("*")
       .eq("restaurant_id", restaurant.id)
-      .in("status", ["new", "accepted"])
+      .in("status", ["new", "accepted", "preparing", "ready"])
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     else setOrders((data ?? []) as unknown as PublicOrder[]);
@@ -92,6 +92,20 @@ const IncomingOrders = () => {
     load();
   };
 
+  const advance = async (o: PublicOrder, next: string, label: string) => {
+    const { error } = await supabase.from("public_orders").update({ status: next }).eq("id", o.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Statut: ${label}`);
+    load();
+  };
+
+  const STATUS_LABEL: Record<string, string> = {
+    new: "Nouveau",
+    accepted: "Envoyée en cuisine",
+    preparing: "En préparation",
+    ready: "Prête",
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -112,7 +126,7 @@ const IncomingOrders = () => {
                       {o.table_number ? `Table ${o.table_number}` : "Sans table"}
                     </CardTitle>
                     <Badge variant={o.status === "new" ? "default" : "secondary"}>
-                      {o.status === "new" ? "Nouveau" : "Accepté"}
+                      {STATUS_LABEL[o.status] ?? o.status}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -139,6 +153,21 @@ const IncomingOrders = () => {
                       <Button className="flex-1" onClick={() => accept(o)}><Check className="mr-1 h-4 w-4" />Accepter</Button>
                       <Button variant="outline" onClick={() => reject(o)}><X className="h-4 w-4" /></Button>
                     </div>
+                  )}
+                  {o.status === "accepted" && (
+                    <Button className="w-full" variant="secondary" onClick={() => advance(o, "preparing", "En préparation")}>
+                      <Utensils className="mr-2 h-4 w-4" /> Démarrer la préparation
+                    </Button>
+                  )}
+                  {o.status === "preparing" && (
+                    <Button className="w-full" variant="secondary" onClick={() => advance(o, "ready", "Prête")}>
+                      <PackageCheck className="mr-2 h-4 w-4" /> Marquer prête
+                    </Button>
+                  )}
+                  {o.status === "ready" && (
+                    <Button className="w-full" onClick={() => advance(o, "delivered", "Servie")}>
+                      <Check className="mr-2 h-4 w-4" /> Marquer servie
+                    </Button>
                   )}
                 </CardContent>
               </Card>

@@ -82,6 +82,7 @@ const ApiKeys = lazy(() => import("./pages/app/ApiKeys"));
 const WhiteLabel = lazy(() => import("./pages/app/WhiteLabel"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
+const PublicOrderTracking = lazy(() => import("./pages/PublicOrderTracking"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
 
 // Super-admin panel
@@ -126,6 +127,7 @@ const App = () => (
             <Route path="/invitation/:token" element={<AcceptInvitation />} />
             <Route path="/m/:restaurantId" element={<PublicMenu />} />
             <Route path="/r/:slug" element={<PublicRestaurant />} />
+            <Route path="/r/:slug/order/:orderId" element={<PublicOrderTracking />} />
             <Route
               path="/app"
               element={
