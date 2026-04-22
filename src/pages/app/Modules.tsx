@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { ALL_MODULES, DEFAULT_ENABLED, type ModuleKey, type ModuleInfo } from "@/lib/modules";
+import { ALL_MODULES, DEFAULT_ENABLED, MODULE_PLAN_MAP, type ModuleKey, type ModuleInfo } from "@/lib/modules";
+import { useSubscription, type PlanTier } from "@/hooks/useSubscription";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CATEGORY_LABELS: Record<ModuleInfo["category"], string> = {
   operations: "Opérations",
@@ -26,6 +29,7 @@ const CATEGORY_DESC: Record<ModuleInfo["category"], string> = {
 
 export default function Modules() {
   const { restaurant, refresh } = useAuth();
+  const { tier, hasTier } = useSubscription();
   const [enabled, setEnabled] = useState<Set<ModuleKey>>(new Set(DEFAULT_ENABLED));
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,7 +43,14 @@ export default function Modules() {
       });
   }, [restaurant?.id]);
 
+  const TIER_LABEL: Record<PlanTier, string> = { free: "Gratuit", pro: "Pro", business: "Business" };
+
   const toggle = (key: ModuleKey) => {
+    const required = MODULE_PLAN_MAP[key] ?? "free";
+    if (!hasTier(required)) {
+      toast.error(`Ce module requiert le plan ${TIER_LABEL[required]}`);
+      return;
+    }
     setEnabled(prev => {
       const next = new Set(prev);
       next.has(key) ? next.delete(key) : next.add(key);
@@ -49,12 +60,15 @@ export default function Modules() {
 
   const save = async () => {
     if (!restaurant?.id) return;
+    // Strip out modules the current plan can't access (defensive)
+    const allowed = Array.from(enabled).filter(k => hasTier(MODULE_PLAN_MAP[k] ?? "free"));
     setSaving(true);
     const { error } = await supabase.from("restaurants")
-      .update({ enabled_modules: Array.from(enabled) })
+      .update({ enabled_modules: allowed })
       .eq("id", restaurant.id);
     setSaving(false);
     if (error) { toast.error("Erreur : " + error.message); return; }
+    setEnabled(new Set(allowed));
     toast.success("Modules mis à jour");
     refresh?.();
   };
