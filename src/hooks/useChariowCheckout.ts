@@ -28,7 +28,16 @@ export function useChariowCheckout() {
         } catch { /* ignore */ }
         throw new Error(detail);
       }
-      if (data?.ok === false) throw new Error(data.error || "Erreur inconnue");
+      if (data?.ok === false) {
+        const detail =
+          typeof data.details === "string"
+            ? data.details
+            : data.details
+              ? JSON.stringify(data.details)
+              : "";
+        const status = data.status ? ` (HTTP ${data.status})` : "";
+        throw new Error(`${data.error || "Erreur inconnue"}${status}${detail ? ` — ${detail}` : ""}`);
+      }
       if (!data?.url) throw new Error("Aucune URL de paiement renvoyée");
       window.location.href = data.url as string;
     } catch (e) {
