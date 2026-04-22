@@ -56,12 +56,67 @@ Deno.serve(async (req) => {
     const successUrl = body.success_url || `${origin}/checkout-success?provider=chariow`;
     const cancelUrl = body.cancel_url || `${origin}/pricing`;
 
+    // Chariow requires first_name, last_name and phone (number + country_code)
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("first_name, last_name, restaurant_id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    let restaurantPhone: string | null = null;
+    let restaurantCountry: string | null = null;
+    if (profile?.restaurant_id) {
+      const { data: resto } = await supabase
+        .from("restaurants")
+        .select("phone, whatsapp, country_code, name")
+        .eq("id", profile.restaurant_id)
+        .maybeSingle();
+      restaurantPhone = resto?.phone || resto?.whatsapp || null;
+      restaurantCountry = resto?.country_code || null;
+    }
+
+    const emailLocal = userEmail.split("@")[0] || "Client";
+    const firstName = String(body.first_name || profile?.first_name || emailLocal || "Client").trim();
+    const lastName = String(body.last_name || profile?.last_name || "RestoFlow").trim();
+
+    // Phone: accept body override, else restaurant phone. Strip non-digits, keep leading +.
+    const rawPhone = String(body.phone || restaurantPhone || "").trim();
+    const country = String(body.country_code || restaurantCountry || "CI").toUpperCase().slice(0, 2);
+    // Country dial codes for common WAEMU/CEMAC countries (fallback table)
+    const dialMap: Record<string, string> = {
+      CI: "225", SN: "221", BJ: "229", BF: "226", TG: "228", ML: "223", NE: "227",
+      GN: "224", CM: "237", GA: "241", CG: "242", CD: "243", TD: "235", CF: "236",
+      FR: "33", BE: "32", CH: "41", CA: "1", US: "1", MA: "212", DZ: "213", TN: "216",
+    };
+    let phoneNumber = rawPhone.replace(/[^\d+]/g, "");
+    let dialCode = dialMap[country] || "225";
+    if (phoneNumber.startsWith("+")) {
+      // Try to detect dial code from the +XXX prefix
+      const m = phoneNumber.match(/^\+(\d{1,4})/);
+      if (m) {
+        dialCode = m[1];
+        phoneNumber = phoneNumber.slice(m[0].length);
+      } else {
+        phoneNumber = phoneNumber.replace(/^\+/, "");
+      }
+    } else if (phoneNumber.startsWith(dialCode)) {
+      phoneNumber = phoneNumber.slice(dialCode.length);
+    }
+    // Fallback if still empty (Chariow rejects empty)
+    if (!phoneNumber) phoneNumber = "0000000000";
+
     const checkoutRes = await fetch(`${CHARIOW_API}/checkout`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         product_id: prod.chariow_product_id,
         email: userEmail,
+        first_name: firstName,
+        last_name: lastName,
+        phone: {
+          number: phoneNumber,
+          country_code: dialCode,
+        },
         redirect_url: successUrl,
         custom_metadata: {
           user_id: userId,
