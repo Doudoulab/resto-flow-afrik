@@ -1,13 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Sparkles, Clock, AlertCircle } from "lucide-react";
+import { Loader2, Sparkles, Clock, AlertCircle, Receipt, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface SubInvoice {
+  id: string;
+  event_type: string;
+  plan_key: string | null;
+  cycle: string | null;
+  amount: number;
+  currency: string;
+  status: string;
+  invoice_url: string | null;
+  occurred_at: string;
+  external_id: string | null;
+}
 
 export default function Billing() {
   const { subscription, tier, isActive, loading, isTrialing, trialDaysLeft } = useSubscription();
+  const { user } = useAuth();
+  const [invoices, setInvoices] = useState<SubInvoice[]>([]);
+  const [invoicesLoading, setInvoicesLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("subscription_invoices")
+        .select("id, event_type, plan_key, cycle, amount, currency, status, invoice_url, occurred_at, external_id")
+        .eq("user_id", user.id)
+        .order("occurred_at", { ascending: false })
+        .limit(50);
+      setInvoices((data as SubInvoice[]) ?? []);
+      setInvoicesLoading(false);
+    })();
+  }, [user]);
 
   if (loading) {
     return (
