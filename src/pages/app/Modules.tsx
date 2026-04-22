@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { ALL_MODULES, DEFAULT_ENABLED, type ModuleKey, type ModuleInfo } from "@/lib/modules";
+import { ALL_MODULES, DEFAULT_ENABLED, MODULE_PLAN_MAP, type ModuleKey, type ModuleInfo } from "@/lib/modules";
+import { useSubscription, type PlanTier } from "@/hooks/useSubscription";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CATEGORY_LABELS: Record<ModuleInfo["category"], string> = {
   operations: "Opérations",
@@ -26,6 +29,7 @@ const CATEGORY_DESC: Record<ModuleInfo["category"], string> = {
 
 export default function Modules() {
   const { restaurant, refresh } = useAuth();
+  const { tier, hasTier } = useSubscription();
   const [enabled, setEnabled] = useState<Set<ModuleKey>>(new Set(DEFAULT_ENABLED));
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,7 +43,14 @@ export default function Modules() {
       });
   }, [restaurant?.id]);
 
+  const TIER_LABEL: Record<PlanTier, string> = { free: "Gratuit", pro: "Pro", business: "Business" };
+
   const toggle = (key: ModuleKey) => {
+    const required = MODULE_PLAN_MAP[key] ?? "free";
+    if (!hasTier(required)) {
+      toast.error(`Ce module requiert le plan ${TIER_LABEL[required]}`);
+      return;
+    }
     setEnabled(prev => {
       const next = new Set(prev);
       next.has(key) ? next.delete(key) : next.add(key);
@@ -49,12 +60,15 @@ export default function Modules() {
 
   const save = async () => {
     if (!restaurant?.id) return;
+    // Strip out modules the current plan can't access (defensive)
+    const allowed = Array.from(enabled).filter(k => hasTier(MODULE_PLAN_MAP[k] ?? "free"));
     setSaving(true);
     const { error } = await supabase.from("restaurants")
-      .update({ enabled_modules: Array.from(enabled) })
+      .update({ enabled_modules: allowed })
       .eq("id", restaurant.id);
     setSaving(false);
     if (error) { toast.error("Erreur : " + error.message); return; }
+    setEnabled(new Set(allowed));
     toast.success("Modules mis à jour");
     refresh?.();
   };
@@ -73,6 +87,15 @@ export default function Modules() {
         <p className="text-muted-foreground mt-1">
           Activez seulement les fonctionnalités dont vous avez besoin. Les modules désactivés disparaissent du menu.
         </p>
+        <div className="mt-3 flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Votre plan actuel :</span>
+          <Badge variant={tier === "business" ? "default" : "secondary"}>{TIER_LABEL[tier]}</Badge>
+          {tier !== "business" && (
+            <Link to="/pricing" className="text-primary hover:underline ml-2">
+              Mettre à niveau →
+            </Link>
+          )}
+        </div>
       </div>
 
       {(Object.keys(grouped) as ModuleInfo["category"][]).map(cat => (
@@ -82,15 +105,39 @@ export default function Modules() {
             <CardDescription>{CATEGORY_DESC[cat]}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {grouped[cat].map(mod => (
-              <div key={mod.key} className="flex items-center justify-between rounded-md border border-border p-3">
-                <div className="flex-1 min-w-0 mr-4">
-                  <p className="font-medium">{mod.label}</p>
-                  <p className="text-sm text-muted-foreground">{mod.description}</p>
+            {grouped[cat].map(mod => {
+              const required = MODULE_PLAN_MAP[mod.key] ?? "free";
+              const locked = !hasTier(required);
+              return (
+                <div
+                  key={mod.key}
+                  className={`flex items-center justify-between rounded-md border border-border p-3 ${locked ? "opacity-60" : ""}`}
+                >
+                  <div className="flex-1 min-w-0 mr-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium">{mod.label}</p>
+                      {required !== "free" && (
+                        <Badge variant={locked ? "outline" : "secondary"} className="text-xs">
+                          {locked && <Lock className="h-3 w-3 mr-1" />}
+                          {TIER_LABEL[required]}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                    {locked && (
+                      <Link to="/pricing" className="text-xs text-primary hover:underline">
+                        Passez au plan {TIER_LABEL[required]} pour débloquer
+                      </Link>
+                    )}
+                  </div>
+                  <Switch
+                    checked={enabled.has(mod.key) && !locked}
+                    disabled={locked}
+                    onCheckedChange={() => toggle(mod.key)}
+                  />
                 </div>
-                <Switch checked={enabled.has(mod.key)} onCheckedChange={() => toggle(mod.key)} />
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
       ))}
