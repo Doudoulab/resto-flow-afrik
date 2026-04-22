@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/hooks/useSubscription";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { useChariowCheckout } from "@/hooks/useChariowCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 type Cycle = "monthly" | "yearly";
@@ -17,8 +17,8 @@ const PLANS = [
     id: "free" as const,
     name: "Free",
     description: "Pour démarrer ou tester l'app",
-    monthly: { price: 0, priceId: null },
-    yearly: { price: 0, priceId: null },
+    monthly: { price: 0, planKey: null },
+    yearly: { price: 0, planKey: null },
     features: [
       "1 restaurant",
       "Jusqu'à 3 employés",
@@ -32,8 +32,8 @@ const PLANS = [
     id: "pro" as const,
     name: "Pro",
     description: "Pour les restaurants en croissance",
-    monthly: { price: 29, priceId: "pro_monthly" },
-    yearly: { price: 278, priceId: "pro_yearly" },
+    monthly: { price: 19000, planKey: "pro_plan" as const },
+    yearly: { price: 182000, planKey: "pro_plan" as const },
     features: [
       "Staff illimité",
       "Analytics avancés",
@@ -50,8 +50,8 @@ const PLANS = [
     id: "business" as const,
     name: "Business",
     description: "Pour les groupes et chaînes",
-    monthly: { price: 79, priceId: "business_monthly" },
-    yearly: { price: 758, priceId: "business_yearly" },
+    monthly: { price: 52000, planKey: "business_plan" as const },
+    yearly: { price: 499000, planKey: "business_plan" as const },
     features: [
       "Tout Pro inclus",
       "Multi-restaurants",
@@ -69,24 +69,27 @@ export default function Pricing() {
   const [cycle, setCycle] = useState<Cycle>("monthly");
   const { user } = useAuth();
   const { tier, isActive } = useSubscription();
-  const { openCheckout, loading } = usePaddleCheckout();
+  const { openCheckout, loading } = useChariowCheckout();
   const navigate = useNavigate();
 
-  const handleSelect = (priceId: string | null, planId: string) => {
-    if (!priceId) {
+  const handleSelect = (planKey: "pro_plan" | "business_plan" | null, planId: string) => {
+    if (!planKey) {
       navigate(user ? "/app" : "/auth");
+      return;
+    }
+    if (!user) {
+      navigate("/auth");
       return;
     }
     if (isActive && tier === planId) {
       navigate("/app/billing");
       return;
     }
-    openCheckout(priceId);
+    openCheckout({ plan_key: planKey, cycle });
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <PaymentTestModeBanner />
       <header className="border-b border-border">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/" className="font-bold text-xl">RestoFlow</Link>
@@ -120,7 +123,7 @@ export default function Pricing() {
             const cycleData = cycle === "monthly" ? plan.monthly : plan.yearly;
             const isCurrent = isActive && tier === plan.id;
             const monthlyEquiv = cycle === "yearly" && plan.yearly.price > 0
-              ? (plan.yearly.price / 12).toFixed(2)
+              ? Math.round(plan.yearly.price / 12).toLocaleString("fr-FR")
               : null;
 
             return (
@@ -138,12 +141,16 @@ export default function Pricing() {
                   <CardDescription>{plan.description}</CardDescription>
                   <div className="mt-4">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-4xl font-bold">${cycleData.price}</span>
-                      <span className="text-muted-foreground">/{cycle === "monthly" ? "mois" : "an"}</span>
+                      <span className="text-4xl font-bold">
+                        {cycleData.price === 0 ? "Gratuit" : `${cycleData.price.toLocaleString("fr-FR")} FCFA`}
+                      </span>
+                      {cycleData.price > 0 && (
+                        <span className="text-muted-foreground">/{cycle === "monthly" ? "mois" : "an"}</span>
+                      )}
                     </div>
                     {monthlyEquiv && (
                       <p className="text-sm text-muted-foreground mt-1">
-                        Soit ${monthlyEquiv}/mois
+                        Soit {monthlyEquiv} FCFA/mois
                       </p>
                     )}
                   </div>
@@ -161,7 +168,7 @@ export default function Pricing() {
                     className="w-full"
                     variant={plan.highlight ? "default" : "outline"}
                     disabled={loading || isCurrent}
-                    onClick={() => handleSelect(cycleData.priceId, plan.id)}
+                    onClick={() => handleSelect(cycleData.planKey, plan.id)}
                   >
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isCurrent ? "Plan actuel" : plan.cta}
                   </Button>
@@ -172,7 +179,7 @@ export default function Pricing() {
         </div>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          Paiements sécurisés via Paddle • Conversion automatique XOF/EUR/USD • TVA gérée pour vous
+          Paiements sécurisés via Chariow • Wave, Orange Money, MTN MoMo, Moov & Carte bancaire
         </p>
       </main>
     </div>

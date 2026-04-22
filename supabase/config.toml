@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.mobile-money-init]
 verify_jwt = false
+
+[functions.chariow-webhook]
+verify_jwt = false
