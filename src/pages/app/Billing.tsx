@@ -7,6 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface SubInvoice {
   id: string;
@@ -22,10 +27,11 @@ interface SubInvoice {
 }
 
 export default function Billing() {
-  const { subscription, tier, isActive, loading, isTrialing, trialDaysLeft } = useSubscription();
+  const { subscription, tier, isActive, loading, isTrialing, trialDaysLeft, refetch } = useSubscription();
   const { user } = useAuth();
   const [invoices, setInvoices] = useState<SubInvoice[]>([]);
   const [invoicesLoading, setInvoicesLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -40,6 +46,21 @@ export default function Billing() {
       setInvoicesLoading(false);
     })();
   }, [user]);
+
+  async function handleSubscriptionAction(action: "cancel" | "reactivate") {
+    setActionLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("subscription-cancel", { body: { action } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).message || (data as any).error);
+      toast.success(action === "cancel" ? "Abonnement annulé. Accès maintenu jusqu'à la fin de la période." : "Abonnement réactivé.");
+      await refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur inattendue");
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
   if (loading) {
     return (
