@@ -286,7 +286,7 @@ const Landing = () => {
       <section id="pricing" className="container py-20">
         <div className="mx-auto mb-12 max-w-2xl text-center">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Des tarifs simples et honnêtes</h2>
-          <p className="text-lg text-muted-foreground">Sans engagement. Changez ou arrêtez quand vous voulez.</p>
+          <p className="text-lg text-muted-foreground">7 jours d'essai Pro gratuit, sans carte. Puis sans engagement.</p>
         </div>
         <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
           {pricingTiers.map((tier) => (
