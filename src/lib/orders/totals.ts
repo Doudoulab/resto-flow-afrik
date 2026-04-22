@@ -54,7 +54,8 @@ export function computeTotals(input: TotalsInput): TotalsResult {
     taxSum = taxSum * (1 - ratio);
   }
 
-  const serviceAmount = (netSum + taxSum) * (servicePct / 100);
+  // Service charge calculé sur la base HT (norme SYSCOHADA)
+  const serviceAmount = netSum * (servicePct / 100);
   const total = netSum + taxSum + serviceAmount + tipAmount;
 
   return {

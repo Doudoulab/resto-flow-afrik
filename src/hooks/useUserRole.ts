@@ -1,28 +1,19 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export type UserRole = "manager" | "waiter" | "chef";
 
-const KEY = "user:role";
-
+/**
+ * Le rôle UI est dérivé UNIQUEMENT du profil serveur (profile.is_owner).
+ * Aucune écriture/lecture en localStorage : un employé ne peut pas
+ * s'auto-promouvoir en manager via la console. Les permissions réelles
+ * restent appliquées par les RLS Supabase.
+ */
 export const useUserRole = () => {
   const { profile } = useAuth();
-  const [role, setRoleState] = useState<UserRole>(() => {
-    const stored = localStorage.getItem(KEY) as UserRole | null;
-    if (stored) return stored;
-    return profile?.is_owner ? "manager" : "waiter";
-  });
-
-  useEffect(() => {
-    if (!localStorage.getItem(KEY) && profile) {
-      setRoleState(profile.is_owner ? "manager" : "waiter");
-    }
-  }, [profile?.is_owner]);
-
-  const setRole = (r: UserRole) => {
-    localStorage.setItem(KEY, r);
-    setRoleState(r);
+  const role: UserRole = profile?.is_owner ? "manager" : "waiter";
+  // setRole conservé pour compat API mais désactivé (no-op)
+  const setRole = (_r: UserRole) => {
+    // intentionally no-op: role is server-derived
   };
-
   return { role, setRole };
 };

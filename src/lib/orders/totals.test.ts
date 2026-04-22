@@ -27,8 +27,9 @@ describe("computeTotals", () => {
     });
     expect(r.subtotal).toBe(1000);
     expect(r.taxAmount).toBe(180);
-    expect(r.serviceAmount).toBe(118);
-    expect(r.total).toBe(1348);
+    // Service = 10% du HT (1000) = 100 (SYSCOHADA)
+    expect(r.serviceAmount).toBe(100);
+    expect(r.total).toBe(1330);
   });
 
   it("applies order-level discount proportionally", () => {

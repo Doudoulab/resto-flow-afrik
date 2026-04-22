@@ -53,24 +53,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = async (uid: string) => {
-    const { data: prof } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", uid)
-      .maybeSingle();
-    setProfile(prof as Profile | null);
-
-    if (prof?.restaurant_id) {
-      const { data: resto } = await supabase
-        .from("restaurants")
+    try {
+      const { data: prof } = await supabase
+        .from("profiles")
         .select("*")
-        .eq("id", prof.restaurant_id)
+        .eq("id", uid)
         .maybeSingle();
-      setRestaurant(resto as Restaurant | null);
-      setMonitoringRestaurantId(prof.restaurant_id);
-    } else {
-      setRestaurant(null);
-      setMonitoringRestaurantId(null);
+      setProfile(prof as Profile | null);
+
+      if (prof?.restaurant_id) {
+        const { data: resto } = await supabase
+          .from("restaurants")
+          .select("*")
+          .eq("id", prof.restaurant_id)
+          .maybeSingle();
+        setRestaurant(resto as Restaurant | null);
+        setMonitoringRestaurantId(prof.restaurant_id);
+      } else {
+        setRestaurant(null);
+        setMonitoringRestaurantId(null);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,11 +84,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
-        // defer to avoid deadlock
+        setLoading(true);
+        // defer to avoid deadlock — loadProfile owns setLoading(false)
         setTimeout(() => { loadProfile(sess.user.id); }, 0);
       } else {
         setProfile(null);
         setRestaurant(null);
+        setLoading(false);
       }
     });
 
@@ -93,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
-        loadProfile(sess.user.id).finally(() => setLoading(false));
+        loadProfile(sess.user.id);
       } else {
         setLoading(false);
       }

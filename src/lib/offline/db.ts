@@ -23,6 +23,17 @@ export type QueueOperation =
   | {
       kind: "expense_create";
       payload: { restaurant_id: string; category: string; description: string; amount: number; expense_date: string };
+    }
+  | {
+      kind: "order_status_update";
+      payload: { order_id: string; status: "pending" | "preparing" | "ready" | "served" | "paid" | "cancelled" };
+    }
+  | {
+      kind: "order_item_add";
+      payload: {
+        order_id: string;
+        item: { menu_item_id: string | null; name_snapshot: string; unit_price: number; quantity: number };
+      };
     };
 
 export interface QueueItem {
