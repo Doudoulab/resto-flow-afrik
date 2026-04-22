@@ -61,6 +61,16 @@ const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
 
+// Super-admin panel
+const AdminLayout = lazy(() => import("./components/admin/AdminLayout"));
+const AdminOverview = lazy(() => import("./pages/admin/Overview"));
+const AdminRestaurants = lazy(() => import("./pages/admin/Restaurants"));
+const AdminSubscriptions = lazy(() => import("./pages/admin/Subscriptions"));
+const AdminStats = lazy(() => import("./pages/admin/Stats"));
+const AdminWebhooks = lazy(() => import("./pages/admin/Webhooks"));
+const AdminErrors = lazy(() => import("./pages/admin/Errors"));
+const AdminAdmins = lazy(() => import("./pages/admin/Admins"));
+
 const PageFallback = () => (
   <div className="flex h-[60vh] items-center justify-center">
     <Loader2 className="h-6 w-6 animate-spin text-primary" />

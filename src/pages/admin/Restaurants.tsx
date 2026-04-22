@@ -77,7 +77,7 @@ export default function Restaurants() {
                   {r.suspended_at ? (
                     <Badge variant="destructive">Suspendu</Badge>
                   ) : (
-                    <Badge variant="default" className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20">Actif</Badge>
+                    <Badge variant="secondary">Actif</Badge>
                   )}
                 </TableCell>
                 <TableCell className="text-sm">{new Date(r.created_at).toLocaleDateString("fr-FR")}</TableCell>
