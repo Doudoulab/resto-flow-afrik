@@ -98,12 +98,25 @@ const Payroll = () => {
     if (!restaurant || !activePeriod || !settings) return;
     const start = startOfMonth(parseISO(activePeriod.period_month));
     const end = endOfMonth(start);
-    const { data: te } = await supabase.from("time_entries")
-      .select("user_id, clock_in, clock_out")
-      .eq("restaurant_id", restaurant.id)
-      .gte("clock_in", start.toISOString())
-      .lte("clock_in", end.toISOString())
-      .not("clock_out", "is", null);
+    const [teRes, adjRes] = await Promise.all([
+      supabase.from("time_entries")
+        .select("user_id, clock_in, clock_out")
+        .eq("restaurant_id", restaurant.id)
+        .gte("clock_in", start.toISOString())
+        .lte("clock_in", end.toISOString())
+        .not("clock_out", "is", null),
+      supabase.from("payroll_adjustments")
+        .select("user_id, adjustment_type, amount")
+        .eq("restaurant_id", restaurant.id)
+        .eq("period_month", format(start, "yyyy-MM-dd")),
+    ]);
+    const te = teRes.data;
+    // Aggregate adjustments per user (bonus +, advance -, deduction -)
+    const adjByUser: Record<string, number> = {};
+    (adjRes.data ?? []).forEach((a: any) => {
+      const sign = a.adjustment_type === "bonus" ? 1 : -1;
+      adjByUser[a.user_id] = (adjByUser[a.user_id] ?? 0) + sign * Number(a.amount);
+    });
     const hoursByUser: Record<string, number> = {};
     (te ?? []).forEach((t: any) => {
       const h = (new Date(t.clock_out).getTime() - new Date(t.clock_in).getTime()) / 3600000;
@@ -112,17 +125,18 @@ const Payroll = () => {
     await supabase.from("payroll_entries").delete().eq("period_id", activePeriod.id);
     const inserts = employees.map((emp) => {
       const h = Math.round((hoursByUser[emp.id] ?? 0) * 100) / 100;
-      const calc = computeEntry(h, Number(emp.hourly_rate), 0, settings);
+      const bonus = Math.round((adjByUser[emp.id] ?? 0) * 100) / 100;
+      const calc = computeEntry(h, Number(emp.hourly_rate), bonus, settings);
       return {
         restaurant_id: restaurant.id, period_id: activePeriod.id, user_id: emp.id,
         employee_name: `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employé",
-        hours_worked: h, hourly_rate: Number(emp.hourly_rate), bonus: 0, ...calc,
+        hours_worked: h, hourly_rate: Number(emp.hourly_rate), bonus, ...calc,
       };
-    }).filter((e) => e.hours_worked > 0 || (e.hourly_rate ?? 0) > 0);
+    }).filter((e) => e.hours_worked > 0 || (e.hourly_rate ?? 0) > 0 || e.bonus !== 0);
     if (inserts.length === 0) { toast.warning("Aucun employé avec heures/taux"); return; }
     const { error } = await supabase.from("payroll_entries").insert(inserts);
     if (error) return toast.error(error.message);
-    toast.success(`${inserts.length} fiche(s) générée(s)`);
+    toast.success(`${inserts.length} fiche(s) générée(s) (primes & avances incluses)`);
     loadEntries(activePeriod.id);
   };
 

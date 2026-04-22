@@ -1987,6 +1987,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          clock_pin_hash: string | null
           created_at: string
           first_name: string | null
           hourly_rate: number
@@ -1997,6 +1998,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          clock_pin_hash?: string | null
           created_at?: string
           first_name?: string | null
           hourly_rate?: number
@@ -2007,6 +2009,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          clock_pin_hash?: string | null
           created_at?: string
           first_name?: string | null
           hourly_rate?: number
@@ -3163,8 +3166,21 @@ export type Database = {
         Returns: boolean
       }
       next_invoice_number: { Args: { _restaurant_id: string }; Returns: string }
+      punch_with_pin: {
+        Args: { _pin: string; _restaurant_id: string }
+        Returns: {
+          action: string
+          at: string
+          employee_name: string
+          entry_id: string
+        }[]
+      }
       seed_syscohada_accounts: {
         Args: { _restaurant_id: string }
+        Returns: undefined
+      }
+      set_clock_pin: {
+        Args: { _pin: string; _user_id: string }
         Returns: undefined
       }
       transfer_order_item: {

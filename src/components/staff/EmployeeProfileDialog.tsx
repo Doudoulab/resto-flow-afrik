@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Upload, Trash2, FileText, Plus } from "lucide-react";
+import { Loader2, Upload, Trash2, FileText, Plus, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -90,6 +90,10 @@ export function EmployeeProfileDialog({
     reason: "",
   });
 
+  const [pin, setPin] = useState("");
+  const [pinSaving, setPinSaving] = useState(false);
+  const [hasPin, setHasPin] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     (async () => {
@@ -122,6 +126,13 @@ export function EmployeeProfileDialog({
       setRoles((r.data ?? []).map((x: any) => x.role));
       setDocuments(docs.data ?? []);
       setAdjustments(adj.data ?? []);
+      const { data: pinRow } = await supabase
+        .from("profiles")
+        .select("clock_pin_hash")
+        .eq("id", employeeId)
+        .maybeSingle();
+      setHasPin(!!(pinRow as any)?.clock_pin_hash);
+      setPin("");
       setLoading(false);
     })();
   }, [open, employeeId, restaurantId]);
@@ -227,6 +238,20 @@ export function EmployeeProfileDialog({
   const adjustmentLabel = (t: string) => ADJ_TYPES.find((x) => x.v === t)?.l ?? t;
   const docLabel = (t: string) => DOC_TYPES.find((x) => x.v === t)?.l ?? t;
 
+  const savePin = async () => {
+    if (!/^[0-9]{4,6}$/.test(pin)) {
+      toast.error("PIN doit être 4 à 6 chiffres");
+      return;
+    }
+    setPinSaving(true);
+    const { error } = await supabase.rpc("set_clock_pin", { _user_id: employeeId, _pin: pin });
+    setPinSaving(false);
+    if (error) { toast.error(error.message); return; }
+    setHasPin(true);
+    setPin("");
+    toast.success("PIN enregistré");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -239,10 +264,11 @@ export function EmployeeProfileDialog({
           <div className="flex h-48 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
         ) : (
           <Tabs defaultValue="info" className="mt-2">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="info">Infos</TabsTrigger>
               <TabsTrigger value="docs">Documents</TabsTrigger>
               <TabsTrigger value="access">Accès</TabsTrigger>
+              <TabsTrigger value="pin">PIN</TabsTrigger>
               <TabsTrigger value="payroll">Paie</TabsTrigger>
             </TabsList>
 
@@ -398,6 +424,43 @@ export function EmployeeProfileDialog({
               )}
               <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
                 Les rôles déterminent les modules accessibles. Pour réinitialiser le mot de passe, l'employé doit utiliser "mot de passe oublié" sur la page de connexion.
+              </div>
+            </TabsContent>
+
+            {/* PIN */}
+            <TabsContent value="pin" className="space-y-4 pt-4">
+              <div className="rounded-md border p-4">
+                <div className="flex items-center gap-3">
+                  <KeyRound className="h-5 w-5 text-primary" />
+                  <div className="flex-1">
+                    <p className="font-medium">Code PIN de pointage</p>
+                    <p className="text-xs text-muted-foreground">
+                      {hasPin ? "Un PIN est défini. Saisir un nouveau code pour le remplacer." : "Aucun PIN défini. Définir un code 4 à 6 chiffres."}
+                    </p>
+                  </div>
+                  {hasPin && <Badge variant="default">Actif</Badge>}
+                </div>
+                <div className="mt-4 flex items-end gap-2">
+                  <div className="flex-1">
+                    <Label className="text-xs">Nouveau PIN (4 à 6 chiffres)</Label>
+                    <Input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={pin}
+                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+                      placeholder="••••"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  <Button onClick={savePin} disabled={pinSaving || pin.length < 4}>
+                    {pinSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Enregistrer
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
+                Le PIN permet à l'employé de pointer entrée/sortie depuis un poste partagé (mode kiosque) sans se connecter. Le code est stocké haché et n'est jamais visible.
               </div>
             </TabsContent>
 
