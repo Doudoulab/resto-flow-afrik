@@ -11,7 +11,6 @@ import {
 import { useOwnedRestaurants, useSwitchRestaurant, useCreateRestaurant } from "@/hooks/useRestaurants";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Link } from "react-router-dom";
-import { PageTitle } from "@/components/layout/PageTitle";
 
 export default function Restaurants() {
   const { data: restaurants = [], isLoading } = useOwnedRestaurants();
@@ -40,12 +39,17 @@ export default function Restaurants() {
 
   return (
     <div className="space-y-6">
-      <PageTitle title="Mes établissements" subtitle="Gérez plusieurs restaurants depuis un seul compte" />
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Mes établissements</h1>
+        <p className="text-sm text-muted-foreground">
+          Gérez plusieurs restaurants depuis un seul compte
+        </p>
+      </div>
 
       {!isBusiness && (
-        <Card className="border-amber-500/30 bg-amber-500/5">
+        <Card className="border-warning/40 bg-warning/5">
           <CardContent className="flex items-start gap-3 pt-6">
-            <Crown className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <Crown className="h-5 w-5 text-warning shrink-0 mt-0.5" />
             <div className="flex-1 space-y-1">
               <p className="font-medium">Le multi-établissements est réservé au plan Business</p>
               <p className="text-sm text-muted-foreground">
