@@ -78,6 +78,7 @@ const Help = lazy(() => import("./pages/app/Help"));
 const Restaurants = lazy(() => import("./pages/app/Restaurants"));
 const ConsolidatedReports = lazy(() => import("./pages/app/ConsolidatedReports"));
 const ApiKeys = lazy(() => import("./pages/app/ApiKeys"));
+const WhiteLabel = lazy(() => import("./pages/app/WhiteLabel"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -173,6 +174,7 @@ const App = () => (
               <Route path="restaurants" element={<Restaurants />} />
               <Route path="consolidated" element={gate("/app/consolidated", featureLabel("/app/consolidated"), <ConsolidatedReports />)} />
               <Route path="api-keys" element={gate("/app/api-keys", featureLabel("/app/api-keys"), <ApiKeys />)} />
+              <Route path="white-label" element={gate("/app/white-label", featureLabel("/app/white-label"), <WhiteLabel />)} />
             </Route>
             <Route
               path="/admin"
