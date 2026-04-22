@@ -169,7 +169,15 @@ export const MobileMoneyDialog = ({ open, onOpenChange, restaurantId, orderId, a
     if (!paymentId) return;
     await supabase.from("payments").update({ status: "success" }).eq("id", paymentId);
     if (orderId) {
-      await supabase.from("orders").update({ status: "paid", payment_method: `mobile_money:${provider}` }).eq("id", orderId);
+      const { error } = await supabase.rpc("mark_order_paid", {
+        _order_id: orderId,
+        _payment_method: `mobile_money:${provider}`,
+        _amount_paid: amount,
+      });
+      if (error && !error.message.includes("déjà encaissée")) {
+        toast.error(error.message);
+        return;
+      }
     }
     setStatus("success");
     toast.success("Paiement marqué comme reçu");
