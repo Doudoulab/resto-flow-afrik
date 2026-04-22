@@ -23,6 +23,7 @@ import { ItemConfigurator, itemNeedsConfig, type ConfiguredSelection } from "@/c
 import { computeTotals } from "@/lib/orders/totals";
 import { AdjustOrderDialog } from "@/components/orders/AdjustOrderDialog";
 import { CancelOrderDialog } from "@/components/orders/CancelOrderDialog";
+import { playNewOrderAlert } from "@/lib/audio/beep";
 import { SplitBillDialog } from "@/components/orders/SplitBillDialog";
 import { InvoiceDialog } from "@/components/orders/InvoiceDialog";
 import { CourseFireDialog } from "@/components/orders/CourseFireDialog";
@@ -104,14 +105,6 @@ const Orders = () => {
   const [notesItemId, setNotesItemId] = useState<string | null>(null);
   const lastSeenIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    // Short notification beep (base64 wav, ~150ms)
-    audioRef.current = new Audio(
-      "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="
-    );
-  }, []);
 
   const load = async () => {
     if (!restaurant) return;
