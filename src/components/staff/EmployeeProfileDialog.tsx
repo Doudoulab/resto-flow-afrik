@@ -238,6 +238,20 @@ export function EmployeeProfileDialog({
   const adjustmentLabel = (t: string) => ADJ_TYPES.find((x) => x.v === t)?.l ?? t;
   const docLabel = (t: string) => DOC_TYPES.find((x) => x.v === t)?.l ?? t;
 
+  const savePin = async () => {
+    if (!/^[0-9]{4,6}$/.test(pin)) {
+      toast.error("PIN doit être 4 à 6 chiffres");
+      return;
+    }
+    setPinSaving(true);
+    const { error } = await supabase.rpc("set_clock_pin", { _user_id: employeeId, _pin: pin });
+    setPinSaving(false);
+    if (error) { toast.error(error.message); return; }
+    setHasPin(true);
+    setPin("");
+    toast.success("PIN enregistré");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -250,10 +264,11 @@ export function EmployeeProfileDialog({
           <div className="flex h-48 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
         ) : (
           <Tabs defaultValue="info" className="mt-2">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="info">Infos</TabsTrigger>
               <TabsTrigger value="docs">Documents</TabsTrigger>
               <TabsTrigger value="access">Accès</TabsTrigger>
+              <TabsTrigger value="pin">PIN</TabsTrigger>
               <TabsTrigger value="payroll">Paie</TabsTrigger>
             </TabsList>
 
