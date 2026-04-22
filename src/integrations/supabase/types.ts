@@ -3146,13 +3146,116 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      employee_details_safe: {
+        Row: {
+          annual_leave_days: number | null
+          contract_end_date: string | null
+          contract_type: string | null
+          created_at: string | null
+          hired_at: string | null
+          id: string | null
+          is_active: boolean | null
+          job_title: string | null
+          restaurant_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          annual_leave_days?: number | null
+          contract_end_date?: string | null
+          contract_type?: string | null
+          created_at?: string | null
+          hired_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          job_title?: string | null
+          restaurant_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          annual_leave_days?: number | null
+          contract_end_date?: string | null
+          contract_type?: string | null
+          created_at?: string | null
+          hired_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          job_title?: string | null
+          restaurant_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_details_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_safe: {
+        Row: {
+          created_at: string | null
+          first_name: string | null
+          hourly_rate: number | null
+          id: string | null
+          is_owner: boolean | null
+          last_name: string | null
+          restaurant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          first_name?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          is_owner?: boolean | null
+          last_name?: string | null
+          restaurant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          first_name?: string | null
+          hourly_rate?: number | null
+          id?: string | null
+          is_owner?: boolean | null
+          last_name?: string | null
+          restaurant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_invitation: { Args: { _token: string }; Returns: Json }
       current_user_restaurant_id: { Args: never; Returns: string }
       get_invitation_by_token: { Args: { _token: string }; Returns: Json }
+      get_public_menu_extras: {
+        Args: { _restaurant_id: string }
+        Returns: Json
+      }
       get_public_restaurant: { Args: { _slug: string }; Returns: Json }
+      get_public_tasting_menus: {
+        Args: { _restaurant_id: string }
+        Returns: Json
+      }
+      get_public_wine_list: { Args: { _restaurant_id: string }; Returns: Json }
+      get_restaurant_slug_by_id: {
+        Args: { _restaurant_id: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _restaurant_id: string

@@ -15,12 +15,8 @@ const PublicMenu = () => {
   useEffect(() => {
     const run = async () => {
       if (!restaurantId) return;
-      const { data } = await supabase
-        .from("restaurants")
-        .select("slug")
-        .eq("id", restaurantId)
-        .maybeSingle();
-      const slug = (data as { slug: string | null } | null)?.slug;
+      const { data } = await supabase.rpc("get_restaurant_slug_by_id", { _restaurant_id: restaurantId });
+      const slug = (data as string | null) ?? null;
       if (!slug) { setError("Restaurant introuvable."); return; }
       const qs = params.toString();
       navigate(`/r/${slug}${qs ? `?${qs}` : ""}`, { replace: true });
