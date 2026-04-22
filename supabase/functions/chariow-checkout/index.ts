@@ -8,7 +8,11 @@ Deno.serve(async (req) => {
 
   try {
     const key = Deno.env.get("CHARIOW_API_KEY");
-    if (!key) throw new Error("CHARIOW_API_KEY missing");
+    if (!key) {
+      return new Response(JSON.stringify({ ok: false, error: "CHARIOW_API_KEY missing in edge function secrets" }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -19,8 +23,8 @@ Deno.serve(async (req) => {
     const jwt = auth.replace("Bearer ", "");
     const { data: userData } = await supabase.auth.getUser(jwt);
     if (!userData.user) {
-      return new Response(JSON.stringify({ error: "unauthenticated" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ ok: false, error: "unauthenticated" }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const userId = userData.user.id;
@@ -30,8 +34,8 @@ Deno.serve(async (req) => {
     const planKey = String(body.plan_key ?? "");
     const cycle = String(body.cycle ?? "");
     if (!["pro_plan", "business_plan"].includes(planKey) || !["monthly", "yearly"].includes(cycle)) {
-      return new Response(JSON.stringify({ error: "invalid_plan" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ ok: false, error: "invalid_plan", details: { planKey, cycle } }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -43,8 +47,8 @@ Deno.serve(async (req) => {
       .eq("is_active", true)
       .maybeSingle();
     if (prodErr || !prod) {
-      return new Response(JSON.stringify({ error: "plan_not_configured", details: "Run chariow-bootstrap first" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ ok: false, error: "plan_not_configured", details: "Allez dans /admin/chariow et cliquez sur 'Créer les produits dans Chariow' avant de tester le paiement." }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -69,26 +73,26 @@ Deno.serve(async (req) => {
     });
     const checkoutText = await checkoutRes.text();
     if (!checkoutRes.ok) {
-      return new Response(JSON.stringify({ error: "chariow_error", status: checkoutRes.status, details: checkoutText }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ ok: false, error: "chariow_api_error", status: checkoutRes.status, details: checkoutText }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const checkoutJson = JSON.parse(checkoutText);
     const data = checkoutJson.data ?? checkoutJson;
     const url = data.checkout_url ?? data.url ?? data.payment_url;
     if (!url) {
-      return new Response(JSON.stringify({ error: "no_checkout_url", raw: checkoutJson }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ ok: false, error: "no_checkout_url", raw: checkoutJson }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(JSON.stringify({ url, raw: data }), {
+    return new Response(JSON.stringify({ ok: true, url, raw: data }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ ok: false, error: msg }), {
+      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
