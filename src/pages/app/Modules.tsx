@@ -87,6 +87,15 @@ export default function Modules() {
         <p className="text-muted-foreground mt-1">
           Activez seulement les fonctionnalités dont vous avez besoin. Les modules désactivés disparaissent du menu.
         </p>
+        <div className="mt-3 flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Votre plan actuel :</span>
+          <Badge variant={tier === "business" ? "default" : "secondary"}>{TIER_LABEL[tier]}</Badge>
+          {tier !== "business" && (
+            <Link to="/pricing" className="text-primary hover:underline ml-2">
+              Mettre à niveau →
+            </Link>
+          )}
+        </div>
       </div>
 
       {(Object.keys(grouped) as ModuleInfo["category"][]).map(cat => (
@@ -96,15 +105,39 @@ export default function Modules() {
             <CardDescription>{CATEGORY_DESC[cat]}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {grouped[cat].map(mod => (
-              <div key={mod.key} className="flex items-center justify-between rounded-md border border-border p-3">
-                <div className="flex-1 min-w-0 mr-4">
-                  <p className="font-medium">{mod.label}</p>
-                  <p className="text-sm text-muted-foreground">{mod.description}</p>
+            {grouped[cat].map(mod => {
+              const required = MODULE_PLAN_MAP[mod.key] ?? "free";
+              const locked = !hasTier(required);
+              return (
+                <div
+                  key={mod.key}
+                  className={`flex items-center justify-between rounded-md border border-border p-3 ${locked ? "opacity-60" : ""}`}
+                >
+                  <div className="flex-1 min-w-0 mr-4">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium">{mod.label}</p>
+                      {required !== "free" && (
+                        <Badge variant={locked ? "outline" : "secondary"} className="text-xs">
+                          {locked && <Lock className="h-3 w-3 mr-1" />}
+                          {TIER_LABEL[required]}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{mod.description}</p>
+                    {locked && (
+                      <Link to="/pricing" className="text-xs text-primary hover:underline">
+                        Passez au plan {TIER_LABEL[required]} pour débloquer
+                      </Link>
+                    )}
+                  </div>
+                  <Switch
+                    checked={enabled.has(mod.key) && !locked}
+                    disabled={locked}
+                    onCheckedChange={() => toggle(mod.key)}
+                  />
                 </div>
-                <Switch checked={enabled.has(mod.key)} onCheckedChange={() => toggle(mod.key)} />
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
       ))}
