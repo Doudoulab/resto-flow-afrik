@@ -335,13 +335,13 @@ export default function Landing() {
               Pas d'engagement. Annulez à tout moment.
             </p>
           </div>
-          <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-6xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {plans.map((plan) => (
               <div
                 key={plan.name}
                 className={`relative rounded-2xl border bg-card p-8 ${
                   plan.highlight
-                    ? "border-primary shadow-2xl ring-2 ring-primary/20 lg:scale-105"
+                    ? "border-primary shadow-2xl ring-2 ring-primary/20"
                     : "border-border"
                 }`}
               >
