@@ -427,6 +427,43 @@ export function EmployeeProfileDialog({
               </div>
             </TabsContent>
 
+            {/* PIN */}
+            <TabsContent value="pin" className="space-y-4 pt-4">
+              <div className="rounded-md border p-4">
+                <div className="flex items-center gap-3">
+                  <KeyRound className="h-5 w-5 text-primary" />
+                  <div className="flex-1">
+                    <p className="font-medium">Code PIN de pointage</p>
+                    <p className="text-xs text-muted-foreground">
+                      {hasPin ? "Un PIN est défini. Saisir un nouveau code pour le remplacer." : "Aucun PIN défini. Définir un code 4 à 6 chiffres."}
+                    </p>
+                  </div>
+                  {hasPin && <Badge variant="default">Actif</Badge>}
+                </div>
+                <div className="mt-4 flex items-end gap-2">
+                  <div className="flex-1">
+                    <Label className="text-xs">Nouveau PIN (4 à 6 chiffres)</Label>
+                    <Input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={pin}
+                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+                      placeholder="••••"
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  <Button onClick={savePin} disabled={pinSaving || pin.length < 4}>
+                    {pinSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Enregistrer
+                  </Button>
+                </div>
+              </div>
+              <div className="rounded-md border bg-muted/30 p-3 text-xs text-muted-foreground">
+                Le PIN permet à l'employé de pointer entrée/sortie depuis un poste partagé (mode kiosque) sans se connecter. Le code est stocké haché et n'est jamais visible.
+              </div>
+            </TabsContent>
+
             {/* PAYROLL */}
             <TabsContent value="payroll" className="space-y-4 pt-4">
               {isOwnerCurrentUser && (
