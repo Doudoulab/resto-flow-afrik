@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { usePlatformAdmin } from "@/hooks/usePlatformAdmin";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Shield, LayoutDashboard, Building2, CreditCard, BarChart3, Bug, Webhook, UserCog, ArrowLeft, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const NAV = [
   { to: "/admin", end: true, icon: LayoutDashboard, label: "Vue d'ensemble" },
@@ -16,9 +19,39 @@ const NAV = [
 ];
 
 export default function AdminLayout() {
-  const { isAdmin, loading } = usePlatformAdmin();
-  const { signOut } = useAuth();
+  const { isAdmin, loading, refreshAdminStatus } = usePlatformAdmin();
+  const { signOut, user } = useAuth();
   const navigate = useNavigate();
+  const [isClaiming, setIsClaiming] = useState(false);
+
+  const handleClaimFirstAdmin = async () => {
+    if (!user || isClaiming) return;
+
+    setIsClaiming(true);
+
+    const { data, error } = await supabase.rpc("claim_first_platform_admin");
+
+    if (error) {
+      toast.error(error.message);
+      setIsClaiming(false);
+      return;
+    }
+
+    if (data && typeof data === "object" && "success" in data && data.success) {
+      toast.success("Accès super-admin activé");
+      refreshAdminStatus();
+      setIsClaiming(false);
+      return;
+    }
+
+    const reason = data && typeof data === "object" && "error" in data ? String(data.error) : null;
+    toast.error(
+      reason === "already_initialized"
+        ? "Un super-admin existe déjà. Demande-lui de t'ajouter dans la liste."
+        : "Impossible d'activer l'accès super-admin."
+    );
+    setIsClaiming(false);
+  };
 
   if (loading) {
     return (
@@ -36,9 +69,18 @@ export default function AdminLayout() {
           <h1 className="text-2xl font-semibold">Accès refusé</h1>
           <p className="text-muted-foreground mt-2">Cette zone est réservée aux super-administrateurs de la plateforme.</p>
         </div>
-        <Button onClick={() => navigate("/app")} variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Retour à l'app
-        </Button>
+        <div className="flex flex-col items-center gap-3 sm:flex-row">
+          <Button onClick={() => navigate("/app")} variant="outline">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Retour à l'app
+          </Button>
+          <Button onClick={handleClaimFirstAdmin} disabled={isClaiming}>
+            {isClaiming ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Shield className="mr-2 h-4 w-4" />}
+            Activer le premier super-admin
+          </Button>
+        </div>
+        <p className="max-w-md text-sm text-muted-foreground">
+          Utilise ce bouton uniquement pour l'initialisation du tout premier compte super-admin. Ensuite, la gestion se fera depuis l'onglet Super-admins.
+        </p>
       </div>
     );
   }
