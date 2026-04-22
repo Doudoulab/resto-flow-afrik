@@ -6,7 +6,7 @@ import {
   ShieldCheck, Flame, Truck, PackagePlus, ClipboardCheck, BarChart3, BookOpen,
   Receipt, Banknote, Lock, HardDriveDownload, Activity, Printer, FileCheck2,
   FileSpreadsheet, Bug, Wine, Utensils, TrendingUp, LineChart, Hotel, Hand,
-  ChevronDown, ToggleRight,
+  ChevronDown, ToggleRight, CreditCard,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -102,6 +102,7 @@ const SECTIONS: { id: string; label: string; items: Item[] }[] = [
     label: "Configuration",
     items: [
       { to: "/app/modules", icon: ToggleRight, label: "Modules" },
+      { to: "/app/billing", icon: CreditCard, label: "Facturation" },
       { to: "/app/settings", icon: Settings, label: "Paramètres" },
     ],
   },
