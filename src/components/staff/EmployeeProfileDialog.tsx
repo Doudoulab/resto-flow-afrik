@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Upload, Trash2, FileText, Plus } from "lucide-react";
+import { Loader2, Upload, Trash2, FileText, Plus, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -90,6 +90,10 @@ export function EmployeeProfileDialog({
     reason: "",
   });
 
+  const [pin, setPin] = useState("");
+  const [pinSaving, setPinSaving] = useState(false);
+  const [hasPin, setHasPin] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     (async () => {
@@ -122,6 +126,13 @@ export function EmployeeProfileDialog({
       setRoles((r.data ?? []).map((x: any) => x.role));
       setDocuments(docs.data ?? []);
       setAdjustments(adj.data ?? []);
+      const { data: pinRow } = await supabase
+        .from("profiles")
+        .select("clock_pin_hash")
+        .eq("id", employeeId)
+        .maybeSingle();
+      setHasPin(!!(pinRow as any)?.clock_pin_hash);
+      setPin("");
       setLoading(false);
     })();
   }, [open, employeeId, restaurantId]);
