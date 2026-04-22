@@ -9,11 +9,14 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 // Eager: landing & auth (smallest, first paint critical)
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Pricing from "./pages/Pricing";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 
 // Lazy: app pages (each becomes its own chunk)
 const Dashboard = lazy(() => import("./pages/app/Dashboard"));
@@ -53,6 +56,7 @@ const PmsReconciliation = lazy(() => import("./pages/app/PmsReconciliation"));
 const Gueridon = lazy(() => import("./pages/app/Gueridon"));
 const Modules = lazy(() => import("./pages/app/Modules"));
 const Schedule = lazy(() => import("./pages/app/Schedule"));
+const Billing = lazy(() => import("./pages/app/Billing"));
 const PublicMenu = lazy(() => import("./pages/PublicMenu"));
 const PublicRestaurant = lazy(() => import("./pages/PublicRestaurant"));
 const AcceptInvitation = lazy(() => import("./pages/AcceptInvitation"));
@@ -73,10 +77,13 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ErrorBoundary>
+          <PaymentTestModeBanner />
           <Suspense fallback={<PageFallback />}>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/checkout/success" element={<CheckoutSuccess />} />
             <Route path="/invitation/:token" element={<AcceptInvitation />} />
             <Route path="/m/:restaurantId" element={<PublicMenu />} />
             <Route path="/r/:slug" element={<PublicRestaurant />} />
@@ -125,6 +132,7 @@ const App = () => (
               <Route path="gueridon" element={<Gueridon />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="modules" element={<Modules />} />
+              <Route path="billing" element={<Billing />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
