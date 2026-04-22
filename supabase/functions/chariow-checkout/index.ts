@@ -73,6 +73,13 @@ Deno.serve(async (req) => {
     });
     const checkoutText = await checkoutRes.text();
     if (!checkoutRes.ok) {
+      console.error("Chariow /checkout failed", {
+        status: checkoutRes.status,
+        body: checkoutText,
+        product_id: prod.chariow_product_id,
+        plan_key: planKey,
+        cycle,
+      });
       return new Response(JSON.stringify({ ok: false, error: "chariow_api_error", status: checkoutRes.status, details: checkoutText }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
