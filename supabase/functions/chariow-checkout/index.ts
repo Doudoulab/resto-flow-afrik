@@ -79,31 +79,43 @@ Deno.serve(async (req) => {
     const firstName = String(body.first_name || profile?.first_name || emailLocal || "Client").trim();
     const lastName = String(body.last_name || profile?.last_name || "RestoFlow").trim();
 
-    // Phone: accept body override, else restaurant phone. Strip non-digits, keep leading +.
-    const rawPhone = String(body.phone || restaurantPhone || "").trim();
-    const country = String(body.country_code || restaurantCountry || "CI").toUpperCase().slice(0, 2);
-    // Country dial codes for common WAEMU/CEMAC countries (fallback table)
-    const dialMap: Record<string, string> = {
-      CI: "225", SN: "221", BJ: "229", BF: "226", TG: "228", ML: "223", NE: "227",
-      GN: "224", CM: "237", GA: "241", CG: "242", CD: "243", TD: "235", CF: "236",
-      FR: "33", BE: "32", CH: "41", CA: "1", US: "1", MA: "212", DZ: "213", TN: "216",
-    };
-    let phoneNumber = rawPhone.replace(/[^\d+]/g, "");
-    let dialCode = dialMap[country] || "225";
-    if (phoneNumber.startsWith("+")) {
-      // Try to detect dial code from the +XXX prefix
-      const m = phoneNumber.match(/^\+(\d{1,4})/);
-      if (m) {
-        dialCode = m[1];
-        phoneNumber = phoneNumber.slice(m[0].length);
-      } else {
-        phoneNumber = phoneNumber.replace(/^\+/, "");
-      }
-    } else if (phoneNumber.startsWith(dialCode)) {
-      phoneNumber = phoneNumber.slice(dialCode.length);
-    }
-    // Fallback if still empty (Chariow rejects empty)
-    if (!phoneNumber) phoneNumber = "0000000000";
+     // Phone: accept body override, else restaurant phone.
+     const rawPhone = String(body.phone || restaurantPhone || "").trim();
+     // Chariow expects ISO 3166-1 alpha-2 country code (e.g. "CI"), NOT the dial code.
+     let countryIso = String(body.country_code || restaurantCountry || "CI").toUpperCase().slice(0, 2);
+     // Map dial code -> ISO if someone passes "225" instead of "CI"
+     const dialToIso: Record<string, string> = {
+       "225": "CI", "221": "SN", "229": "BJ", "226": "BF", "228": "TG",
+       "223": "ML", "227": "NE", "224": "GN", "237": "CM", "241": "GA",
+       "242": "CG", "243": "CD", "235": "TD", "236": "CF",
+       "33": "FR", "32": "BE", "41": "CH", "1": "US",
+       "212": "MA", "213": "DZ", "216": "TN",
+     };
+     // Strip phone to digits, detect leading dial code if present
+     let phoneNumber = rawPhone.replace(/[^\d+]/g, "");
+     if (phoneNumber.startsWith("+")) {
+       const m = phoneNumber.match(/^\+(\d{1,4})/);
+       if (m && dialToIso[m[1]]) {
+         countryIso = dialToIso[m[1]];
+         phoneNumber = phoneNumber.slice(m[0].length);
+       } else {
+         phoneNumber = phoneNumber.replace(/^\+/, "");
+       }
+     } else {
+       // If number starts with a known dial code, strip it
+       for (const dc of Object.keys(dialToIso).sort((a, b) => b.length - a.length)) {
+         if (phoneNumber.startsWith(dc)) {
+           if (!body.country_code && !restaurantCountry) countryIso = dialToIso[dc];
+           phoneNumber = phoneNumber.slice(dc.length);
+           break;
+         }
+       }
+     }
+     // If countryIso looks like a dial code (digits), convert it
+     if (/^\d+$/.test(countryIso)) {
+       countryIso = dialToIso[countryIso] || "CI";
+     }
+     if (!phoneNumber) phoneNumber = "0000000000";
 
     const checkoutRes = await fetch(`${CHARIOW_API}/checkout`, {
       method: "POST",
@@ -115,7 +127,7 @@ Deno.serve(async (req) => {
         last_name: lastName,
         phone: {
           number: phoneNumber,
-          country_code: dialCode,
+          country_code: countryIso,
         },
         redirect_url: successUrl,
         custom_metadata: {
