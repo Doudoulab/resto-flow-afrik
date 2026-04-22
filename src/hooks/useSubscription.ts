@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { getPaddleEnv } from "@/lib/paddle";
 
-export type PlanTier = "free" | "pro" | "business";
+export type PlanTier = "free" | "starter" | "pro" | "business";
 
 export interface Subscription {
   id: string;
@@ -17,12 +17,13 @@ export interface Subscription {
 }
 
 export function productToTier(productId?: string | null): PlanTier {
+  if (productId === "starter_plan") return "starter";
   if (productId === "pro_plan") return "pro";
   if (productId === "business_plan") return "business";
   return "free";
 }
 
-const TIER_RANK: Record<PlanTier, number> = { free: 0, pro: 1, business: 2 };
+const TIER_RANK: Record<PlanTier, number> = { free: 0, starter: 1, pro: 2, business: 3 };
 
 export function useSubscription() {
   const { user } = useAuth();
