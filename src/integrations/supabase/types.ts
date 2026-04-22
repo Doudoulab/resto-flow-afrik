@@ -1928,6 +1928,69 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_role_assignments: {
+        Row: {
+          created_at: string
+          email: string
+          granted_by: string | null
+          id: string
+          notes: string | null
+          role: Database["public"]["Enums"]["platform_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          role: Database["public"]["Enums"]["platform_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          granted_by?: string | null
+          id?: string
+          notes?: string | null
+          role?: Database["public"]["Enums"]["platform_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      platform_role_invites: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          notes: string | null
+          role: Database["public"]["Enums"]["platform_role"]
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          notes?: string | null
+          role: Database["public"]["Enums"]["platform_role"]
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          notes?: string | null
+          role?: Database["public"]["Enums"]["platform_role"]
+        }
+        Relationships: []
+      }
       pms_sync_log: {
         Row: {
           confirmed_at: string | null
@@ -3436,6 +3499,10 @@ export type Database = {
         Returns: undefined
       }
       claim_first_platform_admin: { Args: never; Returns: Json }
+      current_platform_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["platform_role"]
+      }
       current_user_restaurant_id: { Args: never; Returns: string }
       get_invitation_by_token: { Args: { _token: string }; Returns: Json }
       get_platform_stats: { Args: never; Returns: Json }
@@ -3457,6 +3524,10 @@ export type Database = {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      has_platform_role: {
+        Args: { _role: Database["public"]["Enums"]["platform_role"] }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _restaurant_id: string
@@ -3466,6 +3537,7 @@ export type Database = {
         Returns: boolean
       }
       is_platform_admin: { Args: never; Returns: boolean }
+      is_platform_super_admin: { Args: never; Returns: boolean }
       is_restaurant_owner: {
         Args: { _restaurant_id: string }
         Returns: boolean
@@ -3509,6 +3581,7 @@ export type Database = {
         | "cancelled"
       payment_provider: "paydunya" | "cinetpay" | "direct_link"
       payment_status: "pending" | "success" | "failed" | "cancelled"
+      platform_role: "super_admin" | "support" | "finance" | "viewer"
       reservation_status: "confirmed" | "cancelled" | "honored" | "no_show"
       table_status: "available" | "occupied" | "needs_cleaning" | "reserved"
     }
@@ -3650,6 +3723,7 @@ export const Constants = {
       ],
       payment_provider: ["paydunya", "cinetpay", "direct_link"],
       payment_status: ["pending", "success", "failed", "cancelled"],
+      platform_role: ["super_admin", "support", "finance", "viewer"],
       reservation_status: ["confirmed", "cancelled", "honored", "no_show"],
       table_status: ["available", "occupied", "needs_cleaning", "reserved"],
     },
