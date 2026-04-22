@@ -43,7 +43,7 @@ const IncomingOrders = () => {
         (payload) => {
           if (payload.eventType === "INSERT") {
             toast.success("🔔 Nouvelle commande client !");
-            try { new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=").play(); } catch { /* ignore */ }
+            playNewOrderAlert();
           }
           load();
         }
