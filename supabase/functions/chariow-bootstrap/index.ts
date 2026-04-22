@@ -21,7 +21,7 @@ const PLANS: PlanDef[] = [
 
 async function chariow(path: string, init: RequestInit = {}) {
   const key = Deno.env.get("CHARIOW_API_KEY");
-  if (!key) throw new Error("CHARIOW_API_KEY missing");
+  if (!key) throw new Error("CHARIOW_API_KEY missing in edge function secrets");
   const res = await fetch(`${CHARIOW_API}${path}`, {
     ...init,
     headers: {
@@ -34,7 +34,7 @@ async function chariow(path: string, init: RequestInit = {}) {
   let json: unknown = null;
   try { json = text ? JSON.parse(text) : null; } catch { /* ignore */ }
   if (!res.ok) {
-    throw new Error(`Chariow ${path} ${res.status}: ${text}`);
+    throw new Error(`Chariow API ${path} → HTTP ${res.status}: ${text.slice(0, 500)}`);
   }
   return json as Record<string, unknown>;
 }
@@ -53,15 +53,15 @@ Deno.serve(async (req) => {
     const jwt = auth.replace("Bearer ", "");
     const { data: userData } = await supabase.auth.getUser(jwt);
     if (!userData.user) {
-      return new Response(JSON.stringify({ error: "unauthenticated" }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ ok: false, error: "unauthenticated" }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const { data: admin } = await supabase
       .from("platform_admins").select("id").eq("user_id", userData.user.id).maybeSingle();
     if (!admin) {
-      return new Response(JSON.stringify({ error: "forbidden" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      return new Response(JSON.stringify({ ok: false, error: "forbidden — platform admin only" }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -115,8 +115,9 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    console.error("[chariow-bootstrap]", msg);
+    return new Response(JSON.stringify({ ok: false, error: msg }), {
+      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
