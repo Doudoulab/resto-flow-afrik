@@ -16,7 +16,7 @@ const NAV = [
   { to: "/admin/stats", icon: BarChart3, label: "Statistiques" },
   { to: "/admin/webhooks", icon: Webhook, label: "Webhooks" },
   { to: "/admin/errors", icon: Bug, label: "Erreurs globales" },
-  { to: "/admin/admins", icon: UserCog, label: "Super-admins" },
+  { to: "/admin/admins", icon: UserCog, label: "Équipe & rôles" },
 ];
 
 export default function AdminLayout() {
