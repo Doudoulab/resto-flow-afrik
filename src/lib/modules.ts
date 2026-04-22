@@ -82,3 +82,77 @@ export const isModuleEnabled = (enabled: string[] | null | undefined, key: Modul
   if (!enabled) return DEFAULT_ENABLED.includes(key);
   return enabled.includes(key);
 };
+
+// ============== Plan gating ==============
+// Map each module to the minimum subscription tier required to access it.
+// "free" = available during trial / free, "pro" = Pro tier+, "business" = Business only.
+
+import type { PlanTier } from "@/hooks/useSubscription";
+
+export const MODULE_PLAN_MAP: Record<ModuleKey, PlanTier> = {
+  // Pro tier (most operational features)
+  kitchen: "pro",
+  printers: "pro",
+  incoming: "pro",
+  reports: "pro",
+  customers: "pro",
+  suppliers: "pro",
+  receipts: "pro",
+  inventory: "pro",
+  timeclock: "pro",
+  wines: "pro",
+  tasting: "pro",
+  gueridon: "pro",
+  menu_engineering: "pro",
+  advisor: "pro",
+  fiscal: "pro",
+
+  // Business tier (advanced finance / multi-site / integrations)
+  accounting: "business",
+  payroll: "business",
+  pms: "business",
+  analytics: "business",
+  audit: "business",
+  security: "business",
+  backups: "business",
+  exports: "business",
+
+  // System utilities — available to anyone authenticated
+  health: "free",
+  errors: "free",
+};
+
+// Map app routes (under /app) to their gating module key.
+// Routes not listed here are considered free / always accessible.
+export const ROUTE_MODULE_MAP: Record<string, ModuleKey> = {
+  "/app/kitchen": "kitchen",
+  "/app/printers": "printers",
+  "/app/incoming": "incoming",
+  "/app/reports": "reports",
+  "/app/customers": "customers",
+  "/app/suppliers": "suppliers",
+  "/app/receipts": "receipts",
+  "/app/inventory": "inventory",
+  "/app/timeclock": "timeclock",
+  "/app/wines": "wines",
+  "/app/tasting": "tasting",
+  "/app/gueridon": "gueridon",
+  "/app/menu-engineering": "menu_engineering",
+  "/app/advisor": "advisor",
+  "/app/fiscal": "fiscal",
+  "/app/accounting": "accounting",
+  "/app/ledger": "accounting",
+  "/app/tax": "accounting",
+  "/app/payroll": "payroll",
+  "/app/pms": "pms",
+  "/app/analytics": "analytics",
+  "/app/audit": "audit",
+  "/app/security": "security",
+  "/app/backups": "backups",
+  "/app/exports": "exports",
+};
+
+export const getRequiredTier = (moduleKey: ModuleKey | undefined): PlanTier => {
+  if (!moduleKey) return "free";
+  return MODULE_PLAN_MAP[moduleKey] ?? "free";
+};
