@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,7 @@ const DAY_ORDER = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const PublicRestaurant = () => {
   const { slug } = useParams<{ slug: string }>();
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const tableNumber = params.get("table") ?? "";
 
   const [resto, setResto] = useState<PublicResto | null>(null);
@@ -134,7 +135,7 @@ const PublicRestaurant = () => {
       unit_price: l.unit_price,
       quantity: l.quantity,
     }));
-    const { error } = await supabase.from("public_orders").insert({
+    const { data: inserted, error } = await supabase.from("public_orders").insert({
       restaurant_id: resto.id,
       table_number: tableNumber || null,
       customer_name: name.trim() || null,
@@ -142,12 +143,16 @@ const PublicRestaurant = () => {
       items: orderItems,
       total,
       notes: notes.trim() || null,
-    });
+    }).select("id").maybeSingle();
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
-    setSubmitted(true);
     setCart([]);
     setCartOpen(false);
+    if (inserted?.id && slug) {
+      navigate(`/r/${slug}/order/${inserted.id}`);
+      return;
+    }
+    setSubmitted(true);
   };
 
   if (loading) {
