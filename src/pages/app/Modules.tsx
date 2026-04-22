@@ -45,7 +45,7 @@ export default function Modules() {
       });
   }, [restaurant?.id]);
 
-  const TIER_LABEL: Record<PlanTier, string> = { free: "Gratuit", pro: "Pro", business: "Business" };
+  const TIER_LABEL: Record<PlanTier, string> = { free: "Gratuit", starter: "Starter", pro: "Pro", business: "Business" };
 
   const toggle = (key: ModuleKey) => {
     const required = MODULE_PLAN_MAP[key] ?? "free";
