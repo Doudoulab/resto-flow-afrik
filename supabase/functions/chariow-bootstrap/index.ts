@@ -1,5 +1,5 @@
-import { corsHeaders } from "@supabase/supabase-js/cors";
-import { createClient } from "@supabase/supabase-js";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const CHARIOW_API = "https://api.chariow.com/v1";
 
