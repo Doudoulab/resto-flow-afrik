@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const planKey = String(body.plan_key ?? "");
     const cycle = String(body.cycle ?? "");
-    if (!["pro_plan", "business_plan"].includes(planKey) || !["monthly", "yearly"].includes(cycle)) {
+    if (!["starter_plan", "pro_plan", "business_plan"].includes(planKey) || !["monthly", "yearly", "lifetime"].includes(cycle)) {
       return new Response(JSON.stringify({ ok: false, error: "invalid_plan", details: { planKey, cycle } }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
