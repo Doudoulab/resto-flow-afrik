@@ -2855,6 +2855,59 @@ export type Database = {
           },
         ]
       }
+      stock_movements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          movement_type: string
+          quantity: number
+          reason: string | null
+          reference: string | null
+          restaurant_id: string
+          source_id: string | null
+          source_type: string | null
+          stock_item_id: string
+          unit_cost: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type: string
+          quantity: number
+          reason?: string | null
+          reference?: string | null
+          restaurant_id: string
+          source_id?: string | null
+          source_type?: string | null
+          stock_item_id: string
+          unit_cost?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          movement_type?: string
+          quantity?: number
+          reason?: string | null
+          reference?: string | null
+          restaurant_id?: string
+          source_id?: string | null
+          source_type?: string | null
+          stock_item_id?: string
+          unit_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stock_receipt_items: {
         Row: {
           created_at: string
