@@ -206,13 +206,13 @@ export default function Landing() {
       </section>
 
       {/* 3 PILIERS */}
-      <section className="border-t border-border/50 bg-secondary/30 py-20">
+      <section className="border-t border-border/50 bg-secondary/30 py-14 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="mx-auto mb-14 max-w-2xl text-center">
-            <h2 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+          <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Pourquoi RestoFlow change la donne
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Trois promesses, tenues sur chaque écran de l'application.
             </p>
           </div>
