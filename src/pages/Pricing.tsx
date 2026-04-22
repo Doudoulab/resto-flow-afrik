@@ -441,10 +441,10 @@ export default function Pricing() {
                 <CardDescription>Multi-restos, comptabilité, paie — paiement unique</CardDescription>
                  <div className="mt-4">
                    <div className="flex items-baseline gap-1">
-                     <span className="text-4xl font-bold">1 150 000 FCFA</span>
+                     <span className="text-4xl font-bold">1 800 000 FCFA</span>
                    </div>
                    <p className="text-sm text-muted-foreground mt-1">
-                     Équivaut à ~19 mois Business • Rentabilisé en moins de 2 ans
+                     Équivaut à 30 mois Business • Rentabilisé en 2,5 ans
                    </p>
                  </div>
               </CardHeader>
@@ -471,9 +471,15 @@ export default function Pricing() {
                     <span>Mises à jour à vie, aucun abonnement</span>
                   </li>
                 </ul>
-                <Button className="w-full" onClick={() => navigate(user ? "/app/billing" : "/auth")}>
-                  Nous contacter
-                </Button>
+                 <Button asChild className="w-full">
+                   <a
+                     href="https://wa.me/221770000000?text=Bonjour%2C%20je%20suis%20int%C3%A9ress%C3%A9%28e%29%20par%20la%20licence%20Business%20%C3%A0%20vie%20RestoFlow%20%281%20800%20000%20FCFA%29."
+                     target="_blank"
+                     rel="noopener noreferrer"
+                   >
+                     Contacter sur WhatsApp
+                   </a>
+                 </Button>
               </CardContent>
             </Card>
           </div>
