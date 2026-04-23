@@ -181,12 +181,58 @@ const AcceptInvitation = () => {
                 <p className="mt-2 text-muted-foreground">Email : {info.email}</p>
               </div>
               {!user ? (
-                <>
-                  <p className="text-sm text-muted-foreground">Créez un compte ou connectez-vous avec l'email <strong>{info.email}</strong> pour accepter.</p>
-                  <Button className="w-full" onClick={handleAccept}>
-                    Continuer
-                  </Button>
-                </>
+                <div className="space-y-3">
+                  <div className="flex gap-2 rounded-md border p-1 text-sm">
+                    <button
+                      type="button"
+                      onClick={() => setMode("signup")}
+                      className={`flex-1 rounded py-1.5 ${mode === "signup" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    >
+                      Créer mon compte
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMode("login")}
+                      className={`flex-1 rounded py-1.5 ${mode === "login" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+                    >
+                      J'ai déjà un compte
+                    </button>
+                  </div>
+
+                  {mode === "signup" ? (
+                    <>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <Label htmlFor="fn">Prénom</Label>
+                          <Input id="fn" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label htmlFor="ln">Nom</Label>
+                          <Input id="ln" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="pw">Mot de passe (6 caractères min.)</Label>
+                        <Input id="pw" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" />
+                      </div>
+                      <Button className="w-full" onClick={handleSignupAndAccept} disabled={signingUp || password.length < 6}>
+                        {signingUp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Créer mon compte et rejoindre
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <Label htmlFor="lpw">Mot de passe</Label>
+                        <Input id="lpw" type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
+                      </div>
+                      <Button className="w-full" onClick={handleLoginAndAccept} disabled={signingUp || !loginPassword}>
+                        {signingUp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Se connecter et rejoindre
+                      </Button>
+                    </>
+                  )}
+                </div>
               ) : user.email !== info.email ? (
                 <div className="space-y-2">
                   <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
