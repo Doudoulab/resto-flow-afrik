@@ -56,126 +56,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    const origin = req.headers.get("origin") ?? "";
-    const successUrl = body.success_url || `${origin}/checkout-success?provider=chariow`;
-    const cancelUrl = body.cancel_url || `${origin}/pricing`;
+    // Build the Chariow hosted checkout page URL.
+    // The customer fills in their information (name, phone, etc.) on Chariow's
+    // page before being redirected to the actual payment step. This avoids
+    // requiring (and failing on) pre-filled data for brand-new restaurants
+    // that haven't yet entered profile/phone information.
+    const metadata = encodeURIComponent(
+      JSON.stringify({ user_id: userId, plan_key: planKey, cycle, email: userEmail })
+    );
+    const url = `https://checkout.chariow.com/${prod.chariow_product_id}?metadata=${metadata}`;
 
-    // Chariow requires first_name, last_name and phone (number + country_code)
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("first_name, last_name, restaurant_id")
-      .eq("id", userId)
-      .maybeSingle();
-
-    let restaurantPhone: string | null = null;
-    let restaurantCountry: string | null = null;
-    if (profile?.restaurant_id) {
-      const { data: resto } = await supabase
-        .from("restaurants")
-        .select("phone, whatsapp, country_code, name")
-        .eq("id", profile.restaurant_id)
-        .maybeSingle();
-      restaurantPhone = resto?.phone || resto?.whatsapp || null;
-      restaurantCountry = resto?.country_code || null;
-    }
-
-    const emailLocal = userEmail.split("@")[0] || "Client";
-    const firstName = String(body.first_name || profile?.first_name || emailLocal || "Client").trim();
-    const lastName = String(body.last_name || profile?.last_name || "RestoFlow").trim();
-
-     // Phone: accept body override, else restaurant phone.
-     const rawPhone = String(body.phone || restaurantPhone || "").trim();
-     // Chariow expects ISO 3166-1 alpha-2 country code (e.g. "CI"), NOT the dial code.
-     let countryIso = String(body.country_code || restaurantCountry || "CI").toUpperCase().slice(0, 2);
-     // Map dial code -> ISO if someone passes "225" instead of "CI"
-     const dialToIso: Record<string, string> = {
-       "225": "CI", "221": "SN", "229": "BJ", "226": "BF", "228": "TG",
-       "223": "ML", "227": "NE", "224": "GN", "237": "CM", "241": "GA",
-       "242": "CG", "243": "CD", "235": "TD", "236": "CF",
-       "33": "FR", "32": "BE", "41": "CH", "1": "US",
-       "212": "MA", "213": "DZ", "216": "TN",
-     };
-     // Strip phone to digits, detect leading dial code if present
-     let phoneNumber = rawPhone.replace(/[^\d+]/g, "");
-     if (phoneNumber.startsWith("+")) {
-       const m = phoneNumber.match(/^\+(\d{1,4})/);
-       if (m && dialToIso[m[1]]) {
-         countryIso = dialToIso[m[1]];
-         phoneNumber = phoneNumber.slice(m[0].length);
-       } else {
-         phoneNumber = phoneNumber.replace(/^\+/, "");
-       }
-     } else {
-       // If number starts with a known dial code, strip it
-       for (const dc of Object.keys(dialToIso).sort((a, b) => b.length - a.length)) {
-         if (phoneNumber.startsWith(dc)) {
-           if (!body.country_code && !restaurantCountry) countryIso = dialToIso[dc];
-           phoneNumber = phoneNumber.slice(dc.length);
-           break;
-         }
-       }
-     }
-     // If countryIso looks like a dial code (digits), convert it
-     if (/^\d+$/.test(countryIso)) {
-       countryIso = dialToIso[countryIso] || "CI";
-     }
-     if (!phoneNumber) phoneNumber = "0000000000";
-
-    const checkoutRes = await fetch(`${CHARIOW_API}/checkout`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        product_id: prod.chariow_product_id,
-        email: userEmail,
-        first_name: firstName,
-        last_name: lastName,
-        phone: {
-          number: phoneNumber,
-          country_code: countryIso,
-        },
-        redirect_url: successUrl,
-        custom_metadata: {
-          user_id: userId,
-          plan_key: planKey,
-          cycle,
-          cancel_url: cancelUrl,
-        },
-      }),
-    });
-    const checkoutText = await checkoutRes.text();
-    if (!checkoutRes.ok) {
-      console.error("Chariow /checkout failed", {
-        status: checkoutRes.status,
-        body: checkoutText,
-        product_id: prod.chariow_product_id,
-        plan_key: planKey,
-        cycle,
-      });
-      return new Response(JSON.stringify({ ok: false, error: "chariow_api_error", status: checkoutRes.status, details: checkoutText }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const checkoutJson = JSON.parse(checkoutText);
-    const data = checkoutJson.data ?? checkoutJson;
-    // Per Chariow docs: data.payment.checkout_url
-    const url =
-      data?.payment?.checkout_url ??
-      data?.checkout_url ??
-      data?.url ??
-      null;
-    // Free products complete immediately (step === "completed") — treat as success
-    if (!url && data?.step === "completed") {
-      return new Response(JSON.stringify({ ok: true, url: successUrl, completed: true, raw: data }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (!url) {
-      return new Response(JSON.stringify({ ok: false, error: "no_checkout_url", raw: checkoutJson }), {
-        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    return new Response(JSON.stringify({ ok: true, url, raw: data }), {
+    return new Response(JSON.stringify({ ok: true, url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
