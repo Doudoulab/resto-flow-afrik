@@ -101,7 +101,13 @@ export function AddEmployeeDialog({ open, onOpenChange, restaurantId, invitedBy,
     });
     setDBusy(false);
     if (error || (data as any)?.error) {
-      toast.error((data as any)?.error || error?.message || "Erreur de création");
+      // Try to extract the real server error from the response body
+      let detail = (data as any)?.error || error?.message || "Erreur de création";
+      const ctx: any = (error as any)?.context;
+      if (ctx && typeof ctx.json === "function") {
+        try { const body = await ctx.json(); detail = body?.error || detail; } catch { /* ignore */ }
+      }
+      toast.error(detail);
       return;
     }
     toast.success("Employé créé — il peut se connecter avec son email et mot de passe");
