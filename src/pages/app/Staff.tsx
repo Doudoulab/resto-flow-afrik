@@ -92,18 +92,20 @@ const Staff = () => {
       </div>
 
       <Tabs defaultValue="list" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="list"><BadgeCheck className="mr-2 h-4 w-4" />Liste des employés</TabsTrigger>
-          <TabsTrigger value="payroll"><Wallet className="mr-2 h-4 w-4" />Gestion des salaires</TabsTrigger>
-          <TabsTrigger value="leaves"><CalendarDays className="mr-2 h-4 w-4" />Congés &amp; absences</TabsTrigger>
-          <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />Historique</TabsTrigger>
+        <TabsList className="flex w-full overflow-x-auto h-auto justify-start sm:grid sm:grid-cols-4">
+          <TabsTrigger value="list" className="text-xs sm:text-sm whitespace-nowrap"><BadgeCheck className="mr-1.5 h-4 w-4" />Liste</TabsTrigger>
+          <TabsTrigger value="payroll" className="text-xs sm:text-sm whitespace-nowrap"><Wallet className="mr-1.5 h-4 w-4" />Salaires</TabsTrigger>
+          <TabsTrigger value="leaves" className="text-xs sm:text-sm whitespace-nowrap"><CalendarDays className="mr-1.5 h-4 w-4" />Congés</TabsTrigger>
+          <TabsTrigger value="history" className="text-xs sm:text-sm whitespace-nowrap"><History className="mr-1.5 h-4 w-4" />Historique</TabsTrigger>
         </TabsList>
 
         {/* LIST */}
         <TabsContent value="list" className="space-y-4">
           {profile?.is_owner && (
             <div className="flex justify-end">
-              <Button onClick={() => setAddOpen(true)}><UserPlus className="mr-2 h-4 w-4" /> Ajouter un employé</Button>
+              <Button onClick={() => setAddOpen(true)} className="w-full sm:w-auto">
+                <UserPlus className="mr-2 h-4 w-4" /> Ajouter un employé
+              </Button>
             </div>
           )}
 
@@ -137,6 +139,7 @@ const Staff = () => {
           ) : (
             <Card>
               <CardContent className="p-0">
+                <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -202,6 +205,7 @@ const Staff = () => {
                     })}
                   </TableBody>
                 </Table>
+                </div>
               </CardContent>
             </Card>
           )}
