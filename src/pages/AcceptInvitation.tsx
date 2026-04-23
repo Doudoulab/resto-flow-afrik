@@ -5,6 +5,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, CheckCircle2, XCircle, ChefHat } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 interface InvitationInfo {
@@ -30,6 +32,12 @@ const AcceptInvitation = () => {
   const [info, setInfo] = useState<InvitationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [signingUp, setSigningUp] = useState(false);
+  const [mode, setMode] = useState<"signup" | "login">("signup");
+  const [loginPassword, setLoginPassword] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -44,16 +52,82 @@ const AcceptInvitation = () => {
 
   const handleAccept = async () => {
     if (!token) return;
-    if (!user) {
-      // Redirect to auth, then come back
-      sessionStorage.setItem("pending_invitation", token);
-      navigate(`/auth?redirect=/invitation/${token}&email=${encodeURIComponent(info?.email ?? "")}`);
-      return;
-    }
+    if (!user) return;
     setAccepting(true);
     const { data, error } = await supabase.rpc("accept_invitation", { _token: token });
     setAccepting(false);
     if (error) { toast.error(error.message); return; }
+    const result = data as { success: boolean; error?: string };
+    if (!result.success) {
+      toast.error(result.error === "invalid_or_expired" ? "Invitation invalide ou expirée" : result.error ?? "Erreur");
+      return;
+    }
+    toast.success("Bienvenue dans l'équipe !");
+    await refresh();
+    navigate("/app");
+  };
+
+  const handleSignupAndAccept = async () => {
+    if (!info?.email || !token) return;
+    if (password.length < 6) { toast.error("Mot de passe : 6 caractères minimum"); return; }
+    setSigningUp(true);
+    const { error: signErr } = await supabase.auth.signUp({
+      email: info.email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/invitation/${token}`,
+        data: { first_name: firstName, last_name: lastName },
+      },
+    });
+    if (signErr) {
+      setSigningUp(false);
+      // If user already exists, switch to login
+      if (/already|registered|exists/i.test(signErr.message)) {
+        setMode("login");
+        toast.info("Ce compte existe déjà — connectez-vous avec votre mot de passe.");
+        return;
+      }
+      toast.error(signErr.message);
+      return;
+    }
+    // Try to sign in immediately (works when email auto-confirm is on)
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
+      email: info.email,
+      password,
+    });
+    setSigningUp(false);
+    if (signInErr) {
+      toast.success("Compte créé ! Vérifiez votre email pour confirmer, puis revenez sur ce lien.");
+      return;
+    }
+    // Accept the invitation
+    const { data, error } = await supabase.rpc("accept_invitation", { _token: token });
+    if (error) { toast.error(error.message); return; }
+    const result = data as { success: boolean; error?: string };
+    if (!result.success) {
+      toast.error(result.error === "invalid_or_expired" ? "Invitation invalide ou expirée" : result.error ?? "Erreur");
+      return;
+    }
+    toast.success("Bienvenue dans l'équipe !");
+    await refresh();
+    navigate("/app");
+  };
+
+  const handleLoginAndAccept = async () => {
+    if (!info?.email || !token) return;
+    setSigningUp(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: info.email,
+      password: loginPassword,
+    });
+    if (error) {
+      setSigningUp(false);
+      toast.error("Email ou mot de passe incorrect");
+      return;
+    }
+    const { data, error: accErr } = await supabase.rpc("accept_invitation", { _token: token });
+    setSigningUp(false);
+    if (accErr) { toast.error(accErr.message); return; }
     const result = data as { success: boolean; error?: string };
     if (!result.success) {
       toast.error(result.error === "invalid_or_expired" ? "Invitation invalide ou expirée" : result.error ?? "Erreur");
