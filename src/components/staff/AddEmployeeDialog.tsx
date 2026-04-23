@@ -112,16 +112,16 @@ export function AddEmployeeDialog({ open, onOpenChange, restaurantId, invitedBy,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Ajouter un employé</DialogTitle>
           <DialogDescription>Choisissez la méthode d'ajout.</DialogDescription>
         </DialogHeader>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="invite"><Mail className="mr-2 h-4 w-4" />Par invitation</TabsTrigger>
-            <TabsTrigger value="direct"><UserPlus2 className="mr-2 h-4 w-4" />Création directe</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 h-auto">
+            <TabsTrigger value="invite" className="text-xs sm:text-sm py-2"><Mail className="mr-1.5 h-4 w-4" />Invitation</TabsTrigger>
+            <TabsTrigger value="direct" className="text-xs sm:text-sm py-2"><UserPlus2 className="mr-1.5 h-4 w-4" />Création directe</TabsTrigger>
           </TabsList>
 
           <TabsContent value="invite" className="space-y-3 pt-4">
@@ -141,9 +141,9 @@ export function AddEmployeeDialog({ open, onOpenChange, restaurantId, invitedBy,
                 </SelectContent>
               </Select>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-              <Button onClick={sendInvite} disabled={invBusy}>
+            <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+              <Button variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>Annuler</Button>
+              <Button className="w-full sm:w-auto" onClick={sendInvite} disabled={invBusy}>
                 {invBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Créer le lien
               </Button>
@@ -206,9 +206,9 @@ export function AddEmployeeDialog({ open, onOpenChange, restaurantId, invitedBy,
                 <Input type="text" inputMode="numeric" maxLength={6} value={d.pin} onChange={(e) => setD({ ...d, pin: e.target.value.replace(/\D/g, "") })} placeholder="optionnel" />
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-              <Button onClick={createDirect} disabled={dBusy}>
+            <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
+              <Button variant="outline" className="w-full sm:w-auto" onClick={() => onOpenChange(false)}>Annuler</Button>
+              <Button className="w-full sm:w-auto" onClick={createDirect} disabled={dBusy}>
                 {dBusy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Créer le compte
               </Button>
