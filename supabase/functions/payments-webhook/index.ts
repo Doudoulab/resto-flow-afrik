@@ -58,8 +58,15 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
   }
 
   const item = items[0];
-  const priceId = item.price.importMeta?.externalId || item.price.id;
-  const productId = item.product?.importMeta?.externalId || item.price.productId;
+  const priceId = item.price.importMeta?.externalId;
+  const productId = item.product?.importMeta?.externalId;
+  if (!priceId || !productId) {
+    console.warn('Skipping subscription: missing importMeta.externalId', {
+      rawPriceId: item.price.id,
+      rawProductId: item.product?.id,
+    });
+    return;
+  }
 
   await supabase.from('subscriptions').upsert({
     user_id: userId,
@@ -74,7 +81,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
     environment: env,
     updated_at: new Date().toISOString(),
   }, {
-    onConflict: 'user_id,environment',
+    onConflict: 'paddle_subscription_id',
   });
 }
 

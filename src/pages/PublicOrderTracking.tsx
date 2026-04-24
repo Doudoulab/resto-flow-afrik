@@ -46,11 +46,10 @@ const PublicOrderTracking = () => {
     let active = true;
 
     const fetchOrder = async () => {
-      const { data } = await supabase
-        .from("public_orders")
-        .select("id,restaurant_id,status,total,table_number,customer_name,items,created_at,updated_at")
-        .eq("id", orderId)
-        .maybeSingle();
+      // Anonymous reads go through a SECURITY DEFINER RPC that requires
+      // the exact order UUID (no enumeration possible).
+      const { data: rows } = await supabase.rpc("get_public_order_status", { _order_id: orderId });
+      const data = Array.isArray(rows) ? rows[0] : rows;
       if (!active) return;
       if (!data) { setNotFound(true); setLoading(false); return; }
       setOrder(data as unknown as OrderRow);
