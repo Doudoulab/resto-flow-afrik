@@ -3815,6 +3815,20 @@ export type Database = {
         Args: { _restaurant_id: string }
         Returns: Json
       }
+      get_public_order_status: {
+        Args: { _order_id: string }
+        Returns: {
+          created_at: string
+          customer_name: string
+          id: string
+          items: Json
+          restaurant_id: string
+          status: string
+          table_number: string
+          total: number
+          updated_at: string
+        }[]
+      }
       get_public_restaurant: { Args: { _slug: string }; Returns: Json }
       get_public_tasting_menus: {
         Args: { _restaurant_id: string }
