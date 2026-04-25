@@ -146,6 +146,7 @@ export default function Landing() {
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Fonctionnalités</a>
+            <a href="#demo" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Démo</a>
             <a href="#pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Tarifs</a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">FAQ</a>
           </nav>
@@ -183,7 +184,7 @@ export default function Landing() {
                   Démarrer gratuitement <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <a href="#features">
+              <a href="#demo">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">Voir la démo</Button>
               </a>
             </div>
