@@ -10,6 +10,13 @@ import {
 import logo from "@/assets/restoflow-logo.png";
 import heroImg from "@/assets/landing-hero.jpg";
 
+const demoAccounts = [
+  { role: "Gérant", email: "demo@restoflow.africa", password: "DemoResto2026!", access: "Plan Business · tous les modules" },
+  { role: "Serveur", email: "serveur@restoflow.africa", password: "DemoResto2026!", access: "Commandes, salle, clients" },
+  { role: "Cuisine", email: "cuisine@restoflow.africa", password: "DemoResto2026!", access: "Écran cuisine, tickets, statuts" },
+  { role: "Caisse", email: "caisse@restoflow.africa", password: "DemoResto2026!", access: "Encaissement, factures, paiements" },
+];
+
 const stats = [
   { value: "+30%", label: "Encaissements plus rapides" },
   { value: "−12h", label: "Économisées par semaine" },
@@ -139,6 +146,7 @@ export default function Landing() {
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Fonctionnalités</a>
+            <a href="#demo" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Démo</a>
             <a href="#pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Tarifs</a>
             <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">FAQ</a>
           </nav>
@@ -176,7 +184,7 @@ export default function Landing() {
                   Démarrer gratuitement <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <a href="#features">
+              <a href="#demo">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">Voir la démo</Button>
               </a>
             </div>
@@ -199,6 +207,36 @@ export default function Landing() {
               <div key={s.label} className="bg-card p-6 text-center">
                 <div className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">{s.value}</div>
                 <div className="mt-1 text-xs uppercase tracking-wide text-muted-foreground md:text-sm">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DEMO ACCOUNTS */}
+      <section id="demo" className="border-t border-border/50 py-14 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto mb-10 max-w-2xl text-center">
+            <Badge variant="secondary" className="mb-4">Démo Business</Badge>
+            <h2 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Testez RestoFlow avec chaque rôle
+            </h2>
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
+              Connectez-vous au restaurant de démonstration avec un accès gérant ou personnel.
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {demoAccounts.map((account) => (
+              <div key={account.email} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <Badge className="mb-4">{account.role}</Badge>
+                <p className="text-sm font-medium">{account.email}</p>
+                <p className="mt-1 font-mono text-sm text-muted-foreground">{account.password}</p>
+                <p className="mt-3 min-h-10 text-xs text-muted-foreground">{account.access}</p>
+                <Link to={`/auth?demo=${account.role.toLowerCase()}`} className="mt-4 block">
+                  <Button className="w-full" variant={account.role === "Gérant" ? "default" : "outline"}>
+                    Utiliser ce compte
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>

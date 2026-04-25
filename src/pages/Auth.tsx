@@ -6,8 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ChefHat, Loader2 } from "lucide-react";
+import { ChefHat, Loader2, UserRoundCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+
+const demoCredentials: Record<string, { label: string; email: string; password: string }> = {
+  "gérant": { label: "Gérant", email: "demo@restoflow.africa", password: "DemoResto2026!" },
+  gerant: { label: "Gérant", email: "demo@restoflow.africa", password: "DemoResto2026!" },
+  serveur: { label: "Serveur", email: "serveur@restoflow.africa", password: "DemoResto2026!" },
+  cuisine: { label: "Cuisine", email: "cuisine@restoflow.africa", password: "DemoResto2026!" },
+  caisse: { label: "Caisse", email: "caisse@restoflow.africa", password: "DemoResto2026!" },
+};
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -31,6 +39,15 @@ const Auth = () => {
     password: "",
     restaurantName: "",
   });
+
+  useEffect(() => {
+    const demo = params.get("demo")?.toLowerCase();
+    const credentials = demo ? demoCredentials[demo] : null;
+    if (!credentials) return;
+    setTab("signin");
+    setSignInData({ email: credentials.email, password: credentials.password });
+    toast.info(`Compte démo ${credentials.label} prêt à utiliser`);
+  }, [params]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +122,24 @@ const Auth = () => {
               <p className="mb-6 text-sm text-muted-foreground">
                 Connectez-vous à votre espace RestoFlow.
               </p>
+              <div className="mb-5 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+                <div className="mb-2 flex items-center gap-2 font-medium text-primary">
+                  <UserRoundCheck className="h-4 w-4" /> Accès démo rapide
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {Object.entries(demoCredentials).filter(([key]) => key !== "gerant").map(([key, demo]) => (
+                    <Button
+                      key={key}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSignInData({ email: demo.email, password: demo.password })}
+                    >
+                      {demo.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
