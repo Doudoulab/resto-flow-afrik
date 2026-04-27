@@ -25,14 +25,15 @@ export const useLiveBadges = () => {
 
       const [incoming, reservations, stock, kitchen] = await Promise.all([
         supabase.from("public_orders").select("id", { count: "exact", head: true })
-          .eq("restaurant_id", rid).eq("status", "pending"),
+          .eq("restaurant_id", rid).eq("status", "new"),
         supabase.from("reservations").select("id", { count: "exact", head: true })
           .eq("restaurant_id", rid).gte("reserved_at", today).lt("reserved_at", tomorrow)
           .in("status", ["confirmed"]),
         supabase.from("stock_items").select("id, quantity, alert_threshold")
           .eq("restaurant_id", rid),
-        supabase.from("order_items").select("id, status, orders!inner(restaurant_id, status)", { count: "exact", head: true })
+        supabase.from("order_items").select("id, status, fired_at, orders!inner(restaurant_id, status)", { count: "exact", head: true })
           .eq("orders.restaurant_id", rid).in("status", ["pending", "preparing"])
+          .not("fired_at", "is", null)
           .neq("orders.status", "cancelled").neq("orders.status", "paid"),
       ]);
 
