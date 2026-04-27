@@ -55,8 +55,20 @@ const IncomingOrders = () => {
     return () => { supabase.removeChannel(channel); };
   }, [restaurant?.id]);
 
-  const accept = async (o: PublicOrder) => {
+  const accept = async (o: PublicOrder, sendToKitchen = false) => {
     if (!restaurant) return;
+    const { data: resto } = await supabase.from("restaurants")
+      .select("default_vat_rate, vat_mode, default_service_pct")
+      .eq("id", restaurant.id).maybeSingle();
+    const vatRate = Number(resto?.default_vat_rate ?? 18);
+    const totals = computeTotals({
+      lines: o.items.map((it) => ({ quantity: it.quantity, unit_price: it.unit_price, vat_rate: vatRate })),
+      vatMode: (resto?.vat_mode as "inclusive" | "exclusive") ?? "exclusive",
+      defaultVatRate: vatRate,
+      servicePct: Number(resto?.default_service_pct ?? 0),
+      orderDiscountAmount: 0,
+      tipAmount: 0,
+    });
     // Create real order
     const { data: newOrder, error: orderErr } = await supabase
       .from("orders")
@@ -65,25 +77,39 @@ const IncomingOrders = () => {
         table_number: o.table_number,
         notes: [o.customer_name && `Client: ${o.customer_name}`, o.customer_phone && `Tél: ${o.customer_phone}`, o.notes]
           .filter(Boolean).join(" | ") || null,
-        total: o.total,
-        status: "pending",
+        subtotal: totals.subtotal,
+        tax_amount: totals.taxAmount,
+        service_amount: totals.serviceAmount,
+        tip_amount: 0,
+        discount_amount: 0,
+        total: totals.total,
+        status: sendToKitchen ? "preparing" : "pending",
       })
       .select()
       .single();
     if (orderErr || !newOrder) { toast.error(orderErr?.message ?? "Erreur"); return; }
 
-    const orderItems = o.items.map((it) => ({
-      order_id: newOrder.id,
-      menu_item_id: it.menu_item_id,
-      name_snapshot: it.name,
-      unit_price: it.unit_price,
-      quantity: it.quantity,
+    const orderItems = await Promise.all(o.items.map(async (it) => {
+      const { data: mi } = await supabase.from("menu_items")
+        .select("station_id, category_id, menu_categories(station_id)")
+        .eq("id", it.menu_item_id).maybeSingle();
+      const stationId = (mi?.station_id as string | null) ?? ((mi?.menu_categories as { station_id?: string } | null)?.station_id ?? null);
+      return {
+        order_id: newOrder.id,
+        menu_item_id: it.menu_item_id,
+        name_snapshot: it.name,
+        unit_price: it.unit_price,
+        quantity: it.quantity,
+        vat_rate: vatRate,
+        station_id: stationId,
+        fired_at: sendToKitchen ? new Date().toISOString() : null,
+      };
     }));
     const { error: itemsErr } = await supabase.from("order_items").insert(orderItems);
     if (itemsErr) { toast.error(itemsErr.message); return; }
 
-    await supabase.from("public_orders").update({ status: "accepted" }).eq("id", o.id);
-    toast.success(`Commande acceptée — n° ${newOrder.order_number}`);
+    await supabase.from("public_orders").update({ status: sendToKitchen ? "preparing" : "accepted", converted_order_id: newOrder.id }).eq("id", o.id);
+    toast.success(sendToKitchen ? `Commande #${newOrder.order_number} envoyée en cuisine` : `Commande acceptée — n° ${newOrder.order_number}`);
     load();
   };
 
