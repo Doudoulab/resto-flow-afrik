@@ -20,11 +20,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { ReadOnlyBanner } from "@/components/billing/ReadOnlyBanner";
+import { useStaffNotifications } from "@/hooks/useStaffNotifications";
 
 const InnerLayout = () => {
   const { restaurant } = useAuth();
   const { open: openPalette } = useCommandPalette();
   const navigate = useNavigate();
+  useStaffNotifications(restaurant?.id);
   useKeyboardShortcuts(() => navigate("/app/orders?new=1"));
   useSwipeNav();
 
