@@ -2374,6 +2374,7 @@ export type Database = {
       }
       public_orders: {
         Row: {
+          converted_order_id: string | null
           created_at: string
           customer_name: string | null
           customer_phone: string | null
@@ -2387,6 +2388,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          converted_order_id?: string | null
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
@@ -2400,6 +2402,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          converted_order_id?: string | null
           created_at?: string
           customer_name?: string | null
           customer_phone?: string | null
@@ -2412,7 +2415,15 @@ export type Database = {
           total?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_orders_converted_order_id_fkey"
+            columns: ["converted_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reservations: {
         Row: {
