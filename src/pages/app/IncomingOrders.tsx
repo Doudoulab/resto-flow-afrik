@@ -227,7 +227,7 @@ const IncomingOrders = () => {
                     </Button>
                   )}
                   {o.converted_order_id && (
-                    <Button className="w-full" variant="outline" onClick={() => navigate("/app/orders")}>
+                    <Button className="w-full" variant="outline" onClick={() => navigate(`/app/orders?order=${o.converted_order_id}`)}>
                       <CreditCard className="mr-2 h-4 w-4" /> Ouvrir pour encaisser
                     </Button>
                   )}
