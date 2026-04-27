@@ -51,6 +51,9 @@ export const CourseFireDialog = ({ open, onOpenChange, orderId, onFired }: Props
     const { error } = await supabase.from("order_items")
       .update({ fired_at: new Date().toISOString() })
       .in("id", Array.from(selected));
+    if (!error && orderId) {
+      await supabase.from("orders").update({ status: "preparing" }).eq("id", orderId).neq("status", "preparing");
+    }
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success(`${selected.size} plat${selected.size > 1 ? "s" : ""} envoyé${selected.size > 1 ? "s" : ""} en cuisine`);

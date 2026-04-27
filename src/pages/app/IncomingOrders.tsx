@@ -4,20 +4,24 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Bell, PackageCheck, Utensils } from "lucide-react";
+import { Check, X, Bell, PackageCheck, Utensils, Flame, CreditCard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
 import { playNewOrderAlert } from "@/lib/audio/beep";
+import { computeTotals } from "@/lib/orders/totals";
 
 interface PublicOrderItem { menu_item_id: string; name: string; unit_price: number; quantity: number; }
 interface PublicOrder {
   id: string; restaurant_id: string; table_number: string | null;
   customer_name: string | null; customer_phone: string | null;
   items: PublicOrderItem[]; total: number; notes: string | null; status: string; created_at: string;
+  converted_order_id?: string | null;
 }
 
 const IncomingOrders = () => {
   const { restaurant } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<PublicOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,8 +57,20 @@ const IncomingOrders = () => {
     return () => { supabase.removeChannel(channel); };
   }, [restaurant?.id]);
 
-  const accept = async (o: PublicOrder) => {
+  const accept = async (o: PublicOrder, sendToKitchen = false) => {
     if (!restaurant) return;
+    const { data: resto } = await supabase.from("restaurants")
+      .select("default_vat_rate, vat_mode, default_service_pct")
+      .eq("id", restaurant.id).maybeSingle();
+    const vatRate = Number(resto?.default_vat_rate ?? 18);
+    const totals = computeTotals({
+      lines: o.items.map((it) => ({ quantity: it.quantity, unit_price: it.unit_price, vat_rate: vatRate })),
+      vatMode: (resto?.vat_mode as "inclusive" | "exclusive") ?? "exclusive",
+      defaultVatRate: vatRate,
+      servicePct: Number(resto?.default_service_pct ?? 0),
+      orderDiscountAmount: 0,
+      tipAmount: 0,
+    });
     // Create real order
     const { data: newOrder, error: orderErr } = await supabase
       .from("orders")
@@ -63,25 +79,39 @@ const IncomingOrders = () => {
         table_number: o.table_number,
         notes: [o.customer_name && `Client: ${o.customer_name}`, o.customer_phone && `Tél: ${o.customer_phone}`, o.notes]
           .filter(Boolean).join(" | ") || null,
-        total: o.total,
-        status: "pending",
+        subtotal: totals.subtotal,
+        tax_amount: totals.taxAmount,
+        service_amount: totals.serviceAmount,
+        tip_amount: 0,
+        discount_amount: 0,
+        total: totals.total,
+        status: sendToKitchen ? "preparing" : "pending",
       })
       .select()
       .single();
     if (orderErr || !newOrder) { toast.error(orderErr?.message ?? "Erreur"); return; }
 
-    const orderItems = o.items.map((it) => ({
-      order_id: newOrder.id,
-      menu_item_id: it.menu_item_id,
-      name_snapshot: it.name,
-      unit_price: it.unit_price,
-      quantity: it.quantity,
+    const orderItems = await Promise.all(o.items.map(async (it) => {
+      const { data: mi } = await supabase.from("menu_items")
+        .select("station_id, category_id, menu_categories(station_id)")
+        .eq("id", it.menu_item_id).maybeSingle();
+      const stationId = (mi?.station_id as string | null) ?? ((mi?.menu_categories as { station_id?: string } | null)?.station_id ?? null);
+      return {
+        order_id: newOrder.id,
+        menu_item_id: it.menu_item_id,
+        name_snapshot: it.name,
+        unit_price: it.unit_price,
+        quantity: it.quantity,
+        vat_rate: vatRate,
+        station_id: stationId,
+        fired_at: sendToKitchen ? new Date().toISOString() : null,
+      };
     }));
     const { error: itemsErr } = await supabase.from("order_items").insert(orderItems);
     if (itemsErr) { toast.error(itemsErr.message); return; }
 
-    await supabase.from("public_orders").update({ status: "accepted" }).eq("id", o.id);
-    toast.success(`Commande acceptée — n° ${newOrder.order_number}`);
+    await supabase.from("public_orders").update({ status: sendToKitchen ? "preparing" : "accepted", converted_order_id: newOrder.id } as never).eq("id", o.id);
+    toast.success(sendToKitchen ? `Commande #${newOrder.order_number} envoyée en cuisine` : `Commande acceptée — n° ${newOrder.order_number}`);
     load();
   };
 
@@ -97,6 +127,33 @@ const IncomingOrders = () => {
     if (error) { toast.error(error.message); return; }
     toast.success(`Statut: ${label}`);
     load();
+  };
+
+  const sendExistingToKitchen = async (o: PublicOrder) => {
+    if (!o.converted_order_id) return accept(o, true);
+    const firedAt = new Date().toISOString();
+    const { error: itemsErr } = await supabase.from("order_items")
+      .update({ fired_at: firedAt })
+      .eq("order_id", o.converted_order_id)
+      .is("fired_at", null);
+    if (itemsErr) { toast.error(itemsErr.message); return; }
+    await supabase.from("orders").update({ status: "preparing" }).eq("id", o.converted_order_id);
+    await supabase.from("public_orders").update({ status: "preparing" }).eq("id", o.id);
+    toast.success("Commande envoyée en cuisine");
+    load();
+  };
+
+  const markReady = async (o: PublicOrder) => {
+    if (o.converted_order_id) {
+      await supabase.from("order_items").update({ status: "ready" }).eq("order_id", o.converted_order_id).neq("status", "cancelled");
+      await supabase.from("orders").update({ status: "ready" }).eq("id", o.converted_order_id);
+    }
+    await advance(o, "ready", "Prête");
+  };
+
+  const markServed = async (o: PublicOrder) => {
+    if (o.converted_order_id) await supabase.from("orders").update({ status: "served" }).eq("id", o.converted_order_id);
+    await advance(o, "delivered", "Servie");
   };
 
   const STATUS_LABEL: Record<string, string> = {
@@ -149,24 +206,29 @@ const IncomingOrders = () => {
                     <span>Total</span><span>{formatFCFA(o.total)}</span>
                   </div>
                   {o.status === "new" && (
-                    <div className="flex gap-2">
-                      <Button className="flex-1" onClick={() => accept(o)}><Check className="mr-1 h-4 w-4" />Accepter</Button>
+                    <div className="grid grid-cols-[1fr_auto] gap-2">
+                      <Button className="min-w-0" onClick={() => accept(o, true)}><Flame className="mr-1 h-4 w-4" />Accepter + cuisine</Button>
                       <Button variant="outline" onClick={() => reject(o)}><X className="h-4 w-4" /></Button>
                     </div>
                   )}
                   {o.status === "accepted" && (
-                    <Button className="w-full" variant="secondary" onClick={() => advance(o, "preparing", "En préparation")}>
-                      <Utensils className="mr-2 h-4 w-4" /> Démarrer la préparation
+                    <Button className="w-full" variant="secondary" onClick={() => sendExistingToKitchen(o)}>
+                      <Utensils className="mr-2 h-4 w-4" /> Envoyer en cuisine
                     </Button>
                   )}
                   {o.status === "preparing" && (
-                    <Button className="w-full" variant="secondary" onClick={() => advance(o, "ready", "Prête")}>
+                    <Button className="w-full" variant="secondary" onClick={() => markReady(o)}>
                       <PackageCheck className="mr-2 h-4 w-4" /> Marquer prête
                     </Button>
                   )}
                   {o.status === "ready" && (
-                    <Button className="w-full" onClick={() => advance(o, "delivered", "Servie")}>
+                    <Button className="w-full" onClick={() => markServed(o)}>
                       <Check className="mr-2 h-4 w-4" /> Marquer servie
+                    </Button>
+                  )}
+                  {o.converted_order_id && (
+                    <Button className="w-full" variant="outline" onClick={() => navigate(`/app/orders?order=${o.converted_order_id}`)}>
+                      <CreditCard className="mr-2 h-4 w-4" /> Ouvrir pour encaisser
                     </Button>
                   )}
                 </CardContent>
