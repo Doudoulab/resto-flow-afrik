@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,7 @@ const STATUS_VARIANT: Record<OrderStatus, "default" | "secondary" | "destructive
 
 const Orders = () => {
   const { restaurant, user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,6 +129,9 @@ const Orders = () => {
     lastSeenIdsRef.current = new Set(incoming.map((o) => o.id));
     initializedRef.current = true;
     setOrders(incoming);
+    const focusOrderId = searchParams.get("order");
+    const focusedOrder = focusOrderId ? incoming.find((o) => o.id === focusOrderId) : null;
+    if (focusedOrder && detailOrder?.id !== focusedOrder.id) openDetail(focusedOrder);
     setMenu((mRes.data ?? []) as MenuItem[]);
     setStations((sRes.data ?? []) as { id: string; name: string; color: string }[]);
     setLoading(false);
