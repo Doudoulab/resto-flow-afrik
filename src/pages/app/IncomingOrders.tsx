@@ -108,7 +108,7 @@ const IncomingOrders = () => {
     const { error: itemsErr } = await supabase.from("order_items").insert(orderItems);
     if (itemsErr) { toast.error(itemsErr.message); return; }
 
-    await supabase.from("public_orders").update({ status: sendToKitchen ? "preparing" : "accepted", converted_order_id: newOrder.id }).eq("id", o.id);
+    await supabase.from("public_orders").update({ status: sendToKitchen ? "preparing" : "accepted", converted_order_id: newOrder.id } as never).eq("id", o.id);
     toast.success(sendToKitchen ? `Commande #${newOrder.order_number} envoyée en cuisine` : `Commande acceptée — n° ${newOrder.order_number}`);
     load();
   };
