@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Bell, PackageCheck, Utensils, Flame, CreditCard } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
 import { playNewOrderAlert } from "@/lib/audio/beep";
@@ -20,6 +21,7 @@ interface PublicOrder {
 
 const IncomingOrders = () => {
   const { restaurant } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<PublicOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -125,6 +127,33 @@ const IncomingOrders = () => {
     if (error) { toast.error(error.message); return; }
     toast.success(`Statut: ${label}`);
     load();
+  };
+
+  const sendExistingToKitchen = async (o: PublicOrder) => {
+    if (!o.converted_order_id) return accept(o, true);
+    const firedAt = new Date().toISOString();
+    const { error: itemsErr } = await supabase.from("order_items")
+      .update({ fired_at: firedAt })
+      .eq("order_id", o.converted_order_id)
+      .is("fired_at", null);
+    if (itemsErr) { toast.error(itemsErr.message); return; }
+    await supabase.from("orders").update({ status: "preparing" }).eq("id", o.converted_order_id);
+    await supabase.from("public_orders").update({ status: "preparing" }).eq("id", o.id);
+    toast.success("Commande envoyée en cuisine");
+    load();
+  };
+
+  const markReady = async (o: PublicOrder) => {
+    if (o.converted_order_id) {
+      await supabase.from("order_items").update({ status: "ready" }).eq("order_id", o.converted_order_id).neq("status", "cancelled");
+      await supabase.from("orders").update({ status: "ready" }).eq("id", o.converted_order_id);
+    }
+    await advance(o, "ready", "Prête");
+  };
+
+  const markServed = async (o: PublicOrder) => {
+    if (o.converted_order_id) await supabase.from("orders").update({ status: "served" }).eq("id", o.converted_order_id);
+    await advance(o, "delivered", "Servie");
   };
 
   const STATUS_LABEL: Record<string, string> = {
