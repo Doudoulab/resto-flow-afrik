@@ -4,16 +4,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Bell, PackageCheck, Utensils } from "lucide-react";
+import { Check, X, Bell, PackageCheck, Utensils, Flame, CreditCard } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
 import { playNewOrderAlert } from "@/lib/audio/beep";
+import { computeTotals } from "@/lib/orders/totals";
 
 interface PublicOrderItem { menu_item_id: string; name: string; unit_price: number; quantity: number; }
 interface PublicOrder {
   id: string; restaurant_id: string; table_number: string | null;
   customer_name: string | null; customer_phone: string | null;
   items: PublicOrderItem[]; total: number; notes: string | null; status: string; created_at: string;
+  converted_order_id?: string | null;
 }
 
 const IncomingOrders = () => {
