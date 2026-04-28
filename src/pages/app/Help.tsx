@@ -141,6 +141,66 @@ export default function Help() {
         </p>
       </div>
 
+      <section className="mb-8 rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-6">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
+              <ShieldCheck className="h-4 w-4" />
+              Formation express pour restaurant 5 étoiles
+            </div>
+            <h2 className="text-2xl font-bold">Guide pas-à-pas : gérant, cuisine et caisse</h2>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Utilisez ces scénarios courts pour enregistrer vos vidéos et former l’équipe sans jargon technique.
+            </p>
+          </div>
+          <Button asChild variant="outline" className="shrink-0">
+            <a href="/formation-restoflow-gerant-cuisine-caisse.pdf" download>
+              Télécharger PDF
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          </Button>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          {TRAINING_GUIDES.map((guide) => {
+            const Icon = guide.icon;
+            return (
+              <Card key={guide.role} className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    Module {guide.role}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">{guide.goal}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <TrainingCapture labels={guide.capture} />
+                  <div className="rounded-md bg-muted/60 p-3 text-xs font-medium text-muted-foreground">
+                    Parcours : {guide.route}
+                  </div>
+                  <ol className="space-y-2 text-sm">
+                    {guide.steps.map((step, index) => (
+                      <li key={step} className="flex gap-2">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                          {index + 1}
+                        </span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                    Vidéo conseillée : 3 à 5 minutes
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
       <div className="relative mb-6">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
