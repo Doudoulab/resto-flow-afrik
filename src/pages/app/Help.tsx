@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, PlayCircle, MessageCircle, ExternalLink } from "lucide-react";
+import { Search, BookOpen, MessageCircle, ExternalLink, ClipboardCheck, ChefHat, Receipt, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   HELP_ARTICLES,
@@ -45,6 +45,72 @@ const ArticleBlock = ({ article }: { article: HelpArticle }) => (
   </AccordionItem>
 );
 
+const TRAINING_GUIDES = [
+  {
+    role: "Gérant",
+    icon: ClipboardCheck,
+    goal: "Piloter le restaurant, contrôler les chiffres et corriger les erreurs sans toucher au code.",
+    route: "Dashboard → Commandes → Stock → Rapports",
+    steps: [
+      "Se connecter avec le compte gérant et vérifier que le restaurant démo Business Burkina est actif.",
+      "Ouvrir Dashboard : lire chiffre d’affaires, commandes en cours, stock bas et réservations du jour.",
+      "Aller dans Menu : montrer catégories, prix, stations cuisine et disponibilité des plats.",
+      "Aller dans Stock puis Recettes : vérifier qu’un plat consomme bien ses ingrédients.",
+      "Finir par Rapports / Comptabilité : ventes, TVA Burkina, écritures SYSCOHADA et export comptable.",
+    ],
+    capture: ["CA jour", "Commandes", "Stock bas", "TVA 18%"],
+  },
+  {
+    role: "Cuisine",
+    icon: ChefHat,
+    goal: "Recevoir les commandes, préparer par station et signaler quand les plats sont prêts.",
+    route: "Commandes QR → Cuisine",
+    steps: [
+      "Montrer l’alerte d’une nouvelle commande QR dans la sidebar ou le centre de notifications.",
+      "Ouvrir Commandes QR puis cliquer Accepter + cuisine pour éviter les va-et-vient.",
+      "Ouvrir Cuisine : filtrer par station chaud, froid, bar ou dessert.",
+      "Passer une commande de Nouveau à En préparation, puis Prêt.",
+      "Expliquer que le serveur ou la caisse peut maintenant ouvrir la commande pour encaisser.",
+    ],
+    capture: ["QR reçu", "Accepté", "En préparation", "Prêt"],
+  },
+  {
+    role: "Caisse",
+    icon: Receipt,
+    goal: "Retrouver une commande, encaisser, générer la facture et clôturer proprement.",
+    route: "Commandes → Détail → Encaissement",
+    steps: [
+      "Ouvrir Commandes et sélectionner la commande servie ou prête à payer.",
+      "Vérifier table, articles, remises, service et total TTC en XOF.",
+      "Choisir le mode de paiement : espèces, carte ou Mobile Money.",
+      "Valider l’encaissement puis ouvrir la facture générée.",
+      "Contrôler que la commande passe en Payée et que la caisse du jour est à jour.",
+    ],
+    capture: ["Total TTC", "Paiement", "Facture", "Payée"],
+  },
+];
+
+const TrainingCapture = ({ labels }: { labels: string[] }) => (
+  <div className="rounded-lg border border-border bg-background p-3 shadow-sm">
+    <div className="mb-3 flex items-center gap-1.5">
+      <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
+      <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+      <span className="h-2.5 w-2.5 rounded-full bg-success" />
+      <span className="ml-2 h-2 flex-1 rounded-full bg-muted" />
+    </div>
+    <div className="grid grid-cols-2 gap-2">
+      {labels.map((label, index) => (
+        <div key={label} className="rounded-md border border-border bg-muted/50 p-3">
+          <div className="mb-2 h-2 w-12 rounded-full bg-primary/30" />
+          <div className="text-sm font-semibold">{label}</div>
+          <div className="mt-2 h-1.5 rounded-full bg-primary/20" />
+          <div className="mt-1.5 h-1.5 rounded-full bg-muted-foreground/20" style={{ width: `${index % 2 ? 70 : 88}%` }} />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default function Help() {
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -74,6 +140,66 @@ export default function Help() {
           Guides, FAQ et vidéos pour tirer le meilleur de RestoFlow.
         </p>
       </div>
+
+      <section className="mb-8 rounded-xl border border-primary/20 bg-primary/5 p-4 sm:p-6">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-primary">
+              <ShieldCheck className="h-4 w-4" />
+              Formation express pour restaurant 5 étoiles
+            </div>
+            <h2 className="text-2xl font-bold">Guide pas-à-pas : gérant, cuisine et caisse</h2>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Utilisez ces scénarios courts pour enregistrer vos vidéos et former l’équipe sans jargon technique.
+            </p>
+          </div>
+          <Button asChild variant="outline" className="shrink-0">
+            <a href="/formation-restoflow-gerant-cuisine-caisse.pdf" download>
+              Télécharger PDF
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          </Button>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          {TRAINING_GUIDES.map((guide) => {
+            const Icon = guide.icon;
+            return (
+              <Card key={guide.role} className="overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    Module {guide.role}
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">{guide.goal}</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <TrainingCapture labels={guide.capture} />
+                  <div className="rounded-md bg-muted/60 p-3 text-xs font-medium text-muted-foreground">
+                    Parcours : {guide.route}
+                  </div>
+                  <ol className="space-y-2 text-sm">
+                    {guide.steps.map((step, index) => (
+                      <li key={step} className="flex gap-2">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                          {index + 1}
+                        </span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                    Vidéo conseillée : 3 à 5 minutes
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
 
       <div className="relative mb-6">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
