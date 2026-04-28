@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Search, BookOpen, PlayCircle, MessageCircle, ExternalLink } from "lucide-react";
+import { Search, BookOpen, MessageCircle, ExternalLink, ClipboardCheck, ChefHat, Receipt, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   HELP_ARTICLES,
@@ -43,6 +43,72 @@ const ArticleBlock = ({ article }: { article: HelpArticle }) => (
       </p>
     </AccordionContent>
   </AccordionItem>
+);
+
+const TRAINING_GUIDES = [
+  {
+    role: "Gérant",
+    icon: ClipboardCheck,
+    goal: "Piloter le restaurant, contrôler les chiffres et corriger les erreurs sans toucher au code.",
+    route: "Dashboard → Commandes → Stock → Rapports",
+    steps: [
+      "Se connecter avec le compte gérant et vérifier que le restaurant démo Business Burkina est actif.",
+      "Ouvrir Dashboard : lire chiffre d’affaires, commandes en cours, stock bas et réservations du jour.",
+      "Aller dans Menu : montrer catégories, prix, stations cuisine et disponibilité des plats.",
+      "Aller dans Stock puis Recettes : vérifier qu’un plat consomme bien ses ingrédients.",
+      "Finir par Rapports / Comptabilité : ventes, TVA Burkina, écritures SYSCOHADA et export comptable.",
+    ],
+    capture: ["CA jour", "Commandes", "Stock bas", "TVA 18%"],
+  },
+  {
+    role: "Cuisine",
+    icon: ChefHat,
+    goal: "Recevoir les commandes, préparer par station et signaler quand les plats sont prêts.",
+    route: "Commandes QR → Cuisine",
+    steps: [
+      "Montrer l’alerte d’une nouvelle commande QR dans la sidebar ou le centre de notifications.",
+      "Ouvrir Commandes QR puis cliquer Accepter + cuisine pour éviter les va-et-vient.",
+      "Ouvrir Cuisine : filtrer par station chaud, froid, bar ou dessert.",
+      "Passer une commande de Nouveau à En préparation, puis Prêt.",
+      "Expliquer que le serveur ou la caisse peut maintenant ouvrir la commande pour encaisser.",
+    ],
+    capture: ["QR reçu", "Accepté", "En préparation", "Prêt"],
+  },
+  {
+    role: "Caisse",
+    icon: Receipt,
+    goal: "Retrouver une commande, encaisser, générer la facture et clôturer proprement.",
+    route: "Commandes → Détail → Encaissement",
+    steps: [
+      "Ouvrir Commandes et sélectionner la commande servie ou prête à payer.",
+      "Vérifier table, articles, remises, service et total TTC en XOF.",
+      "Choisir le mode de paiement : espèces, carte ou Mobile Money.",
+      "Valider l’encaissement puis ouvrir la facture générée.",
+      "Contrôler que la commande passe en Payée et que la caisse du jour est à jour.",
+    ],
+    capture: ["Total TTC", "Paiement", "Facture", "Payée"],
+  },
+];
+
+const TrainingCapture = ({ labels }: { labels: string[] }) => (
+  <div className="rounded-lg border border-border bg-background p-3 shadow-sm">
+    <div className="mb-3 flex items-center gap-1.5">
+      <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
+      <span className="h-2.5 w-2.5 rounded-full bg-warning" />
+      <span className="h-2.5 w-2.5 rounded-full bg-success" />
+      <span className="ml-2 h-2 flex-1 rounded-full bg-muted" />
+    </div>
+    <div className="grid grid-cols-2 gap-2">
+      {labels.map((label, index) => (
+        <div key={label} className="rounded-md border border-border bg-muted/50 p-3">
+          <div className="mb-2 h-2 w-12 rounded-full bg-primary/30" />
+          <div className="text-sm font-semibold">{label}</div>
+          <div className="mt-2 h-1.5 rounded-full bg-primary/20" />
+          <div className="mt-1.5 h-1.5 rounded-full bg-muted-foreground/20" style={{ width: `${index % 2 ? 70 : 88}%` }} />
+        </div>
+      ))}
+    </div>
+  </div>
 );
 
 export default function Help() {
