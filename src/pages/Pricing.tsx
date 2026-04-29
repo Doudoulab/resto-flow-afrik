@@ -265,8 +265,8 @@ export default function Pricing() {
   };
 
   return (
-    <div className="rf-neon-landing min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/60 bg-background/78 backdrop-blur-xl">
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/" className="font-bold text-xl">RestoFlow</Link>
           <div className="flex items-center gap-2">
@@ -290,7 +290,7 @@ export default function Pricing() {
             Démarrez gratuitement. Passez Pro ou Business quand vous êtes prêt.
           </p>
 
-          <div className="rf-neon-card mt-8 inline-flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2">
+          <div className="mt-8 inline-flex items-center gap-3 rounded-full border border-border bg-card px-4 py-2">
             <span className={cycle === "monthly" ? "font-semibold" : "text-muted-foreground"}>Mensuel</span>
             <Switch checked={cycle === "yearly"} onCheckedChange={(c) => setCycle(c ? "yearly" : "monthly")} />
             <span className={cycle === "yearly" ? "font-semibold" : "text-muted-foreground"}>Annuel</span>
@@ -307,7 +307,7 @@ export default function Pricing() {
               : null;
 
             return (
-              <Card key={plan.id} className={plan.highlight ? "rf-neon-card border-primary shadow-glow relative overflow-hidden" : "rf-neon-card relative overflow-hidden"}>
+              <Card key={plan.id} className={plan.highlight ? "border-primary shadow-lg relative overflow-hidden" : "relative overflow-hidden"}>
                 {plan.highlight && (
                   <div className="bg-primary px-4 py-1 text-center text-xs font-semibold text-primary-foreground">
                     POPULAIRE
@@ -388,7 +388,7 @@ export default function Pricing() {
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
-            <Card className="rf-neon-card relative overflow-hidden">
+            <Card className="relative overflow-hidden">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Pro à vie</CardTitle>
@@ -436,7 +436,7 @@ export default function Pricing() {
               </CardContent>
             </Card>
 
-            <Card className="rf-neon-card border-primary shadow-glow relative overflow-hidden">
+            <Card className="border-primary shadow-lg relative overflow-hidden">
               <div className="bg-primary px-4 py-1 text-center text-xs font-semibold text-primary-foreground">
                 MEILLEURE VALEUR
               </div>
