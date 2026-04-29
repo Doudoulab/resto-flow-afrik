@@ -138,6 +138,7 @@
     --primary: 232 98% 68%;
     --primary-hover: 232 86% 62%;
     --primary-glow: 202 100% 66%;
+    --shadow-glow: 0 0 64px hsl(var(--primary) / 0.42);
     background:
       radial-gradient(circle at 50% 4%, hsl(var(--primary) / 0.32), transparent 28rem),
       radial-gradient(circle at 8% 34%, hsl(var(--primary-glow) / 0.20), transparent 22rem),
@@ -183,6 +184,20 @@
   .rf-marquee { animation: rf-marquee 28s linear infinite; }
   .rf-wave { animation: rf-wave 10s ease-in-out infinite alternate; transform-origin: center; }
   .rf-glow-text { text-shadow: 0 0 34px hsl(var(--primary) / 0.55); }
+  .story-link { position: relative; display: inline-block; }
+  .story-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    height: 2px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: right;
+    background: hsl(var(--primary));
+    transition: transform 0.3s ease;
+  }
+  .story-link:hover::after { transform: scaleX(1); transform-origin: left; }
 
   @keyframes rf-float {
     0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
