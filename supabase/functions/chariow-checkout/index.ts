@@ -33,6 +33,8 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
     const userEmail = userData.user.email ?? "";
+    const firstName = String(userData.user.user_metadata?.first_name ?? "Client").slice(0, 50);
+    const lastName = String(userData.user.user_metadata?.last_name ?? "RestoFlow").slice(0, 50);
 
     const body = await req.json().catch(() => ({}));
     const planKey = String(body.plan_key ?? "");
@@ -56,15 +58,51 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Build the Chariow hosted checkout page URL.
-    // The customer fills in their information (name, phone, etc.) on Chariow's
-    // page before being redirected to the actual payment step. This avoids
-    // requiring (and failing on) pre-filled data for brand-new restaurants
-    // that haven't yet entered profile/phone information.
-    const metadata = encodeURIComponent(
-      JSON.stringify({ user_id: userId, plan_key: planKey, cycle, email: userEmail })
-    );
-    const url = `https://checkout.chariow.com/${prod.chariow_product_id}?metadata=${metadata}`;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("restaurant_id")
+      .eq("id", userId)
+      .maybeSingle();
+    const { data: restaurant } = profile?.restaurant_id
+      ? await supabase.from("restaurants").select("phone, whatsapp").eq("id", profile.restaurant_id).maybeSingle()
+      : { data: null };
+
+    const rawPhone = String(restaurant?.phone ?? restaurant?.whatsapp ?? "58444818").replace(/\D/g, "");
+    const phoneNumber = rawPhone.startsWith("226") ? rawPhone.slice(3) : rawPhone;
+    const origin = req.headers.get("Origin") ?? "https://resto-flow-afrik.lovable.app";
+
+    const checkoutRes = await fetch(`${CHARIOW_API}/checkout`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        product_id: prod.chariow_product_id,
+        email: userEmail,
+        first_name: firstName || "Client",
+        last_name: lastName || "RestoFlow",
+        phone: { number: phoneNumber || "58444818", country_code: "BF" },
+        payment_currency: prod.currency || "XOF",
+        redirect_url: `${origin}/checkout-success`,
+        custom_metadata: { user_id: userId, plan_key: planKey, cycle, email: userEmail },
+      }),
+    });
+    const checkoutText = await checkoutRes.text();
+    let checkout: any = null;
+    try { checkout = checkoutText ? JSON.parse(checkoutText) : null; } catch { /* ignore */ }
+    if (!checkoutRes.ok) {
+      return new Response(JSON.stringify({ ok: false, error: "chariow_checkout_failed", status: checkoutRes.status, details: checkout ?? checkoutText }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const url = checkout?.data?.payment?.checkout_url;
+    if (!url) {
+      return new Response(JSON.stringify({ ok: false, error: "no_checkout_url", details: checkout }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify({ ok: true, url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

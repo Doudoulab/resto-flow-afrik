@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export type ChariowPlan = {
-  plan_key: "pro_plan" | "business_plan";
+  plan_key: "starter_plan" | "pro_plan" | "business_plan";
   cycle: "monthly" | "yearly" | "lifetime";
 };
 
