@@ -24,6 +24,8 @@ const stats = [
   { value: "100%", label: "Conforme SYSCOHADA" },
 ];
 
+const motionBadges = ["Commandes live", "Cuisine alertée", "Stock à jour", "Caisse rapide", "SYSCOHADA prêt", "QR menu"];
+
 const pillars = [
   {
     icon: TrendingUp,
@@ -164,10 +166,15 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.18),transparent_60%)]" />
+        <div className="absolute left-6 top-28 hidden h-16 w-16 rounded-full border border-primary/25 bg-card/70 backdrop-blur rf-float-slow lg:block" />
+        <div className="absolute right-10 top-36 hidden h-10 w-10 rounded-full border border-primary-glow/30 bg-accent/80 backdrop-blur rf-float-fast lg:block" />
+        <svg className="absolute inset-x-0 bottom-0 h-28 w-full text-secondary/70 rf-wave" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
+          <path fill="currentColor" d="M0,96L80,85.3C160,75,320,53,480,58.7C640,64,800,96,960,101.3C1120,107,1280,85,1360,74.7L1440,64L1440,160L1360,160C1280,160,1120,160,960,160C800,160,640,160,480,160C320,160,160,160,80,160L0,160Z" />
+        </svg>
         <div className="container relative mx-auto grid gap-10 px-4 py-12 sm:py-16 lg:grid-cols-2 lg:gap-16 lg:py-28">
-          <div className="flex flex-col justify-center">
-            <Badge variant="secondary" className="mb-6 w-fit gap-1.5 px-3 py-1 text-xs font-medium">
+          <div className="flex flex-col justify-center animate-fade-in">
+            <Badge variant="secondary" className="mb-6 w-fit gap-1.5 px-3 py-1 text-xs font-medium rf-pulse-glow">
               <Sparkles className="h-3 w-3 text-primary" />
               <span className="truncate">Le POS nouvelle génération pour l'Afrique</span>
             </Badge>
@@ -192,11 +199,23 @@ export default function Landing() {
               ✓ Sans carte bancaire &nbsp;·&nbsp; ✓ Configuration en 10 min &nbsp;·&nbsp; ✓ Support en français
             </p>
           </div>
-          <div className="relative">
-            <div className="absolute inset-0 -m-4 rounded-3xl bg-gradient-to-tr from-primary/20 via-primary-glow/10 to-transparent blur-2xl" />
-            <div className="relative overflow-hidden rounded-3xl border border-border/60 shadow-2xl">
+          <div className="relative animate-fade-in">
+            <div className="absolute inset-0 -m-4 rounded-3xl bg-gradient-to-tr from-primary/20 via-primary-glow/10 to-transparent blur-2xl rf-pulse-glow" />
+            <div className="relative overflow-hidden rounded-3xl border border-border/60 shadow-2xl transition-transform duration-500 hover:-translate-y-1">
               <img src={heroImg} alt="Restaurant moderne avec RestoFlow" className="h-full w-full object-cover" width={1920} height={1080} />
+              <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-primary-foreground/20 bg-background/90 p-3 shadow-lg backdrop-blur">
+                <div className="flex items-center justify-between gap-3 text-sm font-semibold"><span>Commande #042 envoyée cuisine</span><span className="text-primary">+18 500 FCFA</span></div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full w-3/4 rounded-full bg-primary" /></div>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden border-y border-border/50 bg-card/80 py-3 backdrop-blur">
+          <div className="rf-marquee flex w-[200%] gap-3 whitespace-nowrap">
+            {[...motionBadges, ...motionBadges, ...motionBadges, ...motionBadges].map((item, index) => (
+              <span key={`${item}-${index}`} className="rounded-full border border-border bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground">{item}</span>
+            ))}
           </div>
         </div>
 
