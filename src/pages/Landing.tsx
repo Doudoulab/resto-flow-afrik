@@ -246,7 +246,7 @@ export default function Landing() {
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {demoAccounts.map((account) => (
-              <div key={account.email} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <div key={account.email} className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
                 <Badge className="mb-4">{account.role}</Badge>
                 <p className="text-sm font-medium">{account.email}</p>
                 <p className="mt-1 font-mono text-sm text-muted-foreground">{account.password}</p>
@@ -275,7 +275,8 @@ export default function Landing() {
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {pillars.map((p) => (
-              <div key={p.title} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/40 hover:shadow-xl">
+              <div key={p.title} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
+                <div className="absolute -right-12 -top-12 h-28 w-28 rounded-full bg-primary/10 transition-transform duration-500 group-hover:scale-150" />
                 <div className="mb-5 inline-flex items-center gap-2">
                   <div className="rounded-xl bg-primary/10 p-2.5 text-primary">
                     <p.icon className="h-5 w-5" />
@@ -311,7 +312,7 @@ export default function Landing() {
           </div>
           <div className="mx-auto max-w-4xl space-y-3">
             {problems.map((p, i) => (
-              <div key={i} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-2">
+              <div key={i} className="grid gap-4 rounded-xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md md:grid-cols-2">
                 <div className="flex items-start gap-3">
                   <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">✕</span>
                   <span className="text-sm text-muted-foreground line-through decoration-destructive/40">{p.before}</span>
@@ -340,7 +341,7 @@ export default function Landing() {
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
-              <div key={f.title} className="group rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg">
+              <div key={f.title} className="group rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg">
                 <div className="mb-4 inline-flex rounded-xl bg-gradient-to-br from-primary/10 to-primary-glow/10 p-2.5 text-primary">
                   <f.icon className="h-5 w-5" />
                 </div>
@@ -372,7 +373,7 @@ export default function Landing() {
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {testimonials.map((t) => (
-              <figure key={t.name} className="rounded-2xl border border-border bg-card p-7">
+              <figure key={t.name} className="rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <Quote className="h-6 w-6 text-primary/40" />
                 <blockquote className="mt-4 text-base leading-relaxed">"{t.quote}"</blockquote>
                 <figcaption className="mt-5 border-t border-border pt-4">
@@ -401,7 +402,7 @@ export default function Landing() {
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative rounded-2xl border bg-card p-6 sm:p-8 ${
+                  className={`relative rounded-2xl border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-8 ${
                   plan.highlight
                     ? "border-primary shadow-2xl ring-2 ring-primary/20"
                     : "border-border"
