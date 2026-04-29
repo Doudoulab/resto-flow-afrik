@@ -121,3 +121,31 @@
     @apply tracking-tight;
   }
 }
+
+@layer utilities {
+  .rf-float-slow { animation: rf-float 7s ease-in-out infinite; }
+  .rf-float-fast { animation: rf-float 4.5s ease-in-out infinite; }
+  .rf-pulse-glow { animation: rf-pulse-glow 2.4s ease-in-out infinite; }
+  .rf-marquee { animation: rf-marquee 28s linear infinite; }
+  .rf-wave { animation: rf-wave 10s ease-in-out infinite alternate; transform-origin: center; }
+
+  @keyframes rf-float {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+    50% { transform: translate3d(0, -14px, 0) rotate(1deg); }
+  }
+
+  @keyframes rf-pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.25); }
+    50% { box-shadow: 0 0 34px 8px hsl(var(--primary-glow) / 0.22); }
+  }
+
+  @keyframes rf-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes rf-wave {
+    from { transform: translateX(-1.5%) scaleY(1); }
+    to { transform: translateX(1.5%) scaleY(1.08); }
+  }
+}
