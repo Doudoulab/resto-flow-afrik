@@ -248,7 +248,7 @@ export default function Pricing() {
   const { openCheckout, loading } = useChariowCheckout();
   const navigate = useNavigate();
 
-  const handleSelect = (planKey: "pro_plan" | "business_plan" | null, planId: string) => {
+  const handleSelect = (planKey: "starter_plan" | "pro_plan" | "business_plan" | null, planId: string) => {
     if (!planKey) {
       navigate(user ? "/app" : "/auth");
       return;
