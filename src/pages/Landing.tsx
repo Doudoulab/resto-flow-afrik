@@ -139,18 +139,18 @@ const faqs = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="rf-neon-landing min-h-screen bg-background text-foreground">
       {/* NAV */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/78 backdrop-blur-xl">
         <div className="container mx-auto flex h-14 items-center justify-between gap-2 px-3 sm:h-16 sm:px-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img src={logo} alt="RestoFlow" className="h-7 w-auto sm:h-9" width={160} height={36} />
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
-            <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Fonctionnalités</a>
-            <a href="#demo" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Démo</a>
-            <a href="#pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Tarifs</a>
-            <a href="#faq" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">FAQ</a>
+            <a href="#features" className="story-link text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Fonctionnalités</a>
+            <a href="#demo" className="story-link text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Démo</a>
+            <a href="#pricing" className="story-link text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Tarifs</a>
+            <a href="#faq" className="story-link text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">FAQ</a>
           </nav>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Link to="/auth" className="hidden sm:block"><Button variant="ghost" size="sm">Connexion</Button></Link>
@@ -166,10 +166,11 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.18),transparent_60%)]" />
-        <div className="absolute left-6 top-28 hidden h-16 w-16 rounded-full border border-primary/25 bg-card/70 backdrop-blur rf-float-slow lg:block" />
-        <div className="absolute right-10 top-36 hidden h-10 w-10 rounded-full border border-primary-glow/30 bg-accent/80 backdrop-blur rf-float-fast lg:block" />
-        <svg className="absolute inset-x-0 bottom-0 h-28 w-full text-secondary/70 rf-wave" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
+        <div className="rf-grid-glow absolute inset-0 opacity-70" />
+        <div className="absolute left-6 top-28 hidden h-16 w-16 rounded-2xl border border-primary/30 bg-card/70 backdrop-blur rf-float-slow lg:block" />
+        <div className="absolute right-10 top-36 hidden h-10 w-10 rounded-full border border-primary-glow/40 bg-accent/80 backdrop-blur rf-float-fast lg:block" />
+        <div className="absolute right-[20%] top-24 hidden rounded-xl border border-primary/30 bg-card/75 px-4 py-2 text-sm font-semibold shadow-glow backdrop-blur rf-float-medium lg:block">Bang! commande live</div>
+        <svg className="absolute inset-x-0 bottom-0 h-28 w-full text-secondary/60 rf-wave" viewBox="0 0 1440 160" preserveAspectRatio="none" aria-hidden="true">
           <path fill="currentColor" d="M0,96L80,85.3C160,75,320,53,480,58.7C640,64,800,96,960,101.3C1120,107,1280,85,1360,74.7L1440,64L1440,160L1360,160C1280,160,1120,160,960,160C800,160,640,160,480,160C320,160,160,160,80,160L0,160Z" />
         </svg>
         <div className="container relative mx-auto grid gap-10 px-4 py-12 sm:py-16 lg:grid-cols-2 lg:gap-16 lg:py-28">
@@ -178,7 +179,7 @@ export default function Landing() {
               <Sparkles className="h-3 w-3 text-primary" />
               <span className="truncate">Le POS nouvelle génération pour l'Afrique</span>
             </Badge>
-            <h1 className="text-balance text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-6xl lg:text-7xl">
+            <h1 className="rf-glow-text text-balance text-3xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-4xl md:text-6xl lg:text-7xl">
               Pilotez votre restaurant en{" "}
               <span className="bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">un seul écran</span>
             </h1>
@@ -201,7 +202,7 @@ export default function Landing() {
           </div>
           <div className="relative animate-fade-in">
             <div className="absolute inset-0 -m-4 rounded-3xl bg-gradient-to-tr from-primary/20 via-primary-glow/10 to-transparent blur-2xl rf-pulse-glow" />
-            <div className="relative overflow-hidden rounded-3xl border border-border/60 shadow-2xl transition-transform duration-500 hover:-translate-y-1">
+            <div className="rf-neon-card relative overflow-hidden rounded-3xl border shadow-2xl transition-transform duration-500 hover:-translate-y-1">
               <img src={heroImg} alt="Restaurant moderne avec RestoFlow" className="h-full w-full object-cover" width={1920} height={1080} />
               <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-primary-foreground/20 bg-background/90 p-3 shadow-lg backdrop-blur">
                 <div className="flex items-center justify-between gap-3 text-sm font-semibold"><span>Commande #042 envoyée cuisine</span><span className="text-primary">+18 500 FCFA</span></div>
@@ -211,10 +212,10 @@ export default function Landing() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden border-y border-border/50 bg-card/80 py-3 backdrop-blur">
+        <div className="relative overflow-hidden border-y border-border/60 bg-card/75 py-3 backdrop-blur">
           <div className="rf-marquee flex w-[200%] gap-3 whitespace-nowrap">
             {[...motionBadges, ...motionBadges, ...motionBadges, ...motionBadges].map((item, index) => (
-              <span key={`${item}-${index}`} className="rounded-full border border-border bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground">{item}</span>
+              <span key={`${item}-${index}`} className="rounded-full border border-primary/25 bg-secondary/85 px-4 py-2 text-sm font-medium text-secondary-foreground shadow-glow">{item}</span>
             ))}
           </div>
         </div>
