@@ -8,6 +8,7 @@ import {
   TrendingUp, Clock, Shield, Globe, Zap, Building2,
 } from "lucide-react";
 import logo from "@/assets/restoflow-logo.png";
+import oryntaLogo from "@/assets/orynta-labs-logo.png";
 import heroImg from "@/assets/landing-hero.jpg";
 
 const demoAccounts = [
