@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet";
-import { ShoppingCart, Plus, Minus, CheckCircle2, MapPin, Phone, Instagram, Facebook, Clock, ChefHat, MessageCircle, ChevronRight } from "lucide-react";
+import { ShoppingCart, Plus, Minus, CheckCircle2, MapPin, Phone, Instagram, Facebook, Clock, ChefHat, MessageCircle, Mail, Search, CalendarCheck } from "lucide-react";
 import { formatFCFA } from "@/lib/currency";
 import { toast } from "sonner";
 import { ItemConfigurator, type ConfiguredSelection } from "@/components/menu/ItemConfigurator";
@@ -38,6 +38,9 @@ interface CartLine { key: string; menu_item_id: string; name: string; unit_price
 const DAY_LABELS: Record<string, string> = {
   mon: "Lun", tue: "Mar", wed: "Mer", thu: "Jeu", fri: "Ven", sat: "Sam", sun: "Dim",
 };
+const DAY_LABELS_LONG: Record<string, string> = {
+  mon: "Lundi", tue: "Mardi", wed: "Mercredi", thu: "Jeudi", fri: "Vendredi", sat: "Samedi", sun: "Dimanche",
+};
 const DAY_ORDER = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
 const PublicRestaurant = () => {
@@ -62,6 +65,7 @@ const PublicRestaurant = () => {
 
   const [configItem, setConfigItem] = useState<MenuItem | null>(null);
   const [configOpen, setConfigOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -83,13 +87,16 @@ const PublicRestaurant = () => {
 
   const itemsByCategory = useMemo(() => {
     const map = new Map<string, MenuItem[]>();
-    items.forEach((i) => {
+    const filtered = search.trim()
+      ? items.filter((i) => i.name.toLowerCase().includes(search.toLowerCase()) || (i.description ?? "").toLowerCase().includes(search.toLowerCase()))
+      : items;
+    filtered.forEach((i) => {
       const k = i.category_id ?? "_none";
       if (!map.has(k)) map.set(k, []);
       map.get(k)!.push(i);
     });
     return map;
-  }, [items]);
+  }, [items, search]);
 
   const orderedCategories = useMemo(() => [
     ...categories,
@@ -183,161 +190,147 @@ const PublicRestaurant = () => {
 
   const themeColor = resto.theme_color || "#16a34a";
   const styleVars = { "--brand": themeColor } as React.CSSProperties;
+  const todayKey = DAY_ORDER[(new Date().getDay() + 6) % 7];
+  const todayHours = resto.opening_hours?.[todayKey];
 
   return (
-    <div className="min-h-screen bg-background pb-28" style={styleVars}>
-      {/* Cover */}
-      <div className="relative h-48 w-full overflow-hidden bg-muted sm:h-64">
-        {resto.cover_url ? (
-          <img src={resto.cover_url} alt={resto.name} className="h-full w-full object-cover" />
-        ) : (
-          <div className="h-full w-full" style={{ background: `linear-gradient(135deg, ${themeColor}, ${themeColor}99)` }} />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      </div>
-
-      {/* Header info */}
-      <div className="mx-auto -mt-12 max-w-3xl px-4">
-        <div className="flex items-end gap-4">
-          <div className="h-20 w-20 overflow-hidden rounded-2xl border-4 border-background bg-card shadow-lg sm:h-24 sm:w-24">
-            {resto.logo_url ? (
-              <img src={resto.logo_url} alt={`Logo ${resto.name}`} className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center" style={{ background: themeColor }}>
-                <ChefHat className="h-10 w-10 text-white" />
-              </div>
+    <div className="min-h-screen bg-[#fdfcf8] pb-28 text-neutral-900" style={styleVars}>
+      {/* Top contact bar */}
+      <div className="hidden bg-neutral-900 text-neutral-200 md:block">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 text-xs">
+          <div className="flex items-center gap-5">
+            {resto.phone && (
+              <a href={`tel:${resto.phone}`} className="inline-flex items-center gap-1.5 hover:text-white"><Phone className="h-3.5 w-3.5" />{resto.phone}</a>
+            )}
+            {todayHours && (
+              <span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />Aujourd'hui : {todayHours.closed ? "Fermé" : `${todayHours.open} – ${todayHours.close}`}</span>
             )}
           </div>
-          <div className="min-w-0 flex-1 pb-2">
-            <h1 className="truncate text-2xl font-bold sm:text-3xl">{resto.name}</h1>
-            {tableNumber && <Badge variant="secondary" className="mt-1">Table {tableNumber}</Badge>}
+          <div className="flex items-center gap-3">
+            {resto.facebook_url && <a href={resto.facebook_url} target="_blank" rel="noreferrer" className="hover:text-white"><Facebook className="h-3.5 w-3.5" /></a>}
+            {resto.instagram_url && <a href={resto.instagram_url} target="_blank" rel="noreferrer" className="hover:text-white"><Instagram className="h-3.5 w-3.5" /></a>}
+            {resto.whatsapp && <a href={`https://wa.me/${resto.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer" className="hover:text-white"><MessageCircle className="h-3.5 w-3.5" /></a>}
+            <a href="#reserve" className="ml-2 inline-flex items-center gap-1.5 rounded-sm px-3 py-1 text-xs font-medium text-white" style={{ background: themeColor }}>
+              <CalendarCheck className="h-3.5 w-3.5" /> Réserver une table
+            </a>
           </div>
         </div>
-
-        {resto.description && (
-          <p className="mt-4 text-sm text-muted-foreground">{resto.description}</p>
-        )}
-
-        {/* Contacts */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {resto.address && (
-            <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(resto.address)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1.5 text-xs hover:bg-accent">
-              <MapPin className="h-3.5 w-3.5" /> {resto.address}
-            </a>
-          )}
-          {resto.phone && (
-            <a href={`tel:${resto.phone}`} className="inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1.5 text-xs hover:bg-accent">
-              <Phone className="h-3.5 w-3.5" /> {resto.phone}
-            </a>
-          )}
-          {resto.whatsapp && (
-            <a href={`https://wa.me/${resto.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1.5 text-xs hover:bg-accent">
-              <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
-            </a>
-          )}
-          {resto.instagram_url && (
-            <a href={resto.instagram_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1.5 text-xs hover:bg-accent">
-              <Instagram className="h-3.5 w-3.5" /> Instagram
-            </a>
-          )}
-          {resto.facebook_url && (
-            <a href={resto.facebook_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1.5 text-xs hover:bg-accent">
-              <Facebook className="h-3.5 w-3.5" /> Facebook
-            </a>
-          )}
-        </div>
-
-        {/* Hours */}
-        {resto.opening_hours && Object.keys(resto.opening_hours).length > 0 && (
-          <details className="mt-4 rounded-lg border bg-card p-3 text-sm">
-            <summary className="flex cursor-pointer items-center gap-2 font-medium">
-              <Clock className="h-4 w-4" /> Horaires d'ouverture
-            </summary>
-            <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
-              {DAY_ORDER.map((k) => {
-                const h = resto.opening_hours?.[k];
-                if (!h) return null;
-                return (
-                  <div key={k} className="flex justify-between">
-                    <span className="font-medium">{DAY_LABELS[k]}</span>
-                    <span className="text-muted-foreground">{h.closed ? "Fermé" : `${h.open} – ${h.close}`}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </details>
-        )}
       </div>
 
-      {/* Category nav */}
-      {orderedCategories.length > 1 && (
-        <div className="sticky top-0 z-30 mt-6 border-y bg-background/95 backdrop-blur">
-          <div className="mx-auto max-w-3xl overflow-x-auto px-4 py-2">
-            <div className="flex gap-2">
-              {orderedCategories.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => {
-                    setActiveCat(c.id);
-                    document.getElementById(`cat-${c.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                  className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-colors ${activeCat === c.id ? "text-white" : "bg-card hover:bg-accent"}`}
-                  style={activeCat === c.id ? { background: themeColor, borderColor: themeColor } : undefined}
-                >
-                  {c.name}
-                </button>
-              ))}
-            </div>
+      {/* Sticky brand + nav */}
+      <header className="sticky top-0 z-40 border-b border-neutral-200 bg-[#fdfcf8]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+          <div className="flex items-center gap-3">
+            {resto.logo_url ? (
+              <img src={resto.logo_url} alt={`Logo ${resto.name}`} className="h-10 w-10 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{ background: themeColor }}>
+                <ChefHat className="h-5 w-5 text-white" />
+              </div>
+            )}
+            <span className="font-serif text-2xl tracking-wide" style={{ color: themeColor }}>{resto.name}</span>
           </div>
+          <nav className="hidden items-center gap-6 text-sm font-medium text-neutral-700 md:flex">
+            <a href="#menu" className="hover:text-neutral-900">Menu</a>
+            <a href="#about" className="hover:text-neutral-900">À propos</a>
+            <a href="#hours" className="hover:text-neutral-900">Horaires</a>
+            <a href="#contact" className="hover:text-neutral-900">Contact</a>
+          </nav>
+          {tableNumber && <Badge variant="secondary">Table {tableNumber}</Badge>}
         </div>
+      </header>
+
+      {/* Hero */}
+      <section className="relative h-[280px] w-full overflow-hidden bg-neutral-900 sm:h-[360px]">
+        {resto.cover_url ? (
+          <img src={resto.cover_url} alt={resto.name} className="h-full w-full object-cover opacity-60" />
+        ) : (
+          <div className="h-full w-full opacity-70" style={{ background: `linear-gradient(135deg, #1a1a1a, ${themeColor}55)` }} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white">
+          <h1 className="font-serif text-4xl font-light tracking-wide sm:text-6xl">Notre Menu</h1>
+          <p className="mt-2 text-sm opacity-90">Accueil <span className="mx-1 opacity-60">›</span> Menu</p>
+        </div>
+      </section>
+
+      {/* Intro / about */}
+      {resto.description && (
+        <section id="about" className="mx-auto max-w-3xl px-4 py-10 text-center">
+          <p className="text-base leading-relaxed text-neutral-600">{resto.description}</p>
+        </section>
       )}
 
-      {/* Menu */}
-      <main className="mx-auto max-w-3xl space-y-8 px-4 py-6">
+      {/* Category nav + search */}
+      <div className="sticky top-[64px] z-30 border-y border-neutral-200 bg-[#fdfcf8]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="-mx-1 flex flex-1 gap-2 overflow-x-auto px-1">
+            {orderedCategories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => {
+                  setActiveCat(c.id);
+                  document.getElementById(`cat-${c.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className={`whitespace-nowrap rounded-full border px-4 py-1.5 text-xs font-medium uppercase tracking-wider transition-colors ${activeCat === c.id ? "border-transparent text-white" : "border-neutral-300 bg-transparent text-neutral-700 hover:bg-neutral-100"}`}
+                style={activeCat === c.id ? { background: themeColor } : undefined}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+          <div className="relative w-full sm:w-64">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un plat…" className="h-9 border-neutral-300 bg-white pl-9 text-sm" />
+          </div>
+        </div>
+      </div>
+
+      {/* Menu grid */}
+      <main id="menu" className="mx-auto max-w-6xl space-y-14 px-4 py-12">
         {orderedCategories.map((cat) => {
           const list = itemsByCategory.get(cat.id) ?? [];
           return (
-            <section key={cat.id} id={`cat-${cat.id}`} className="scroll-mt-16">
-              <h2 className="mb-3 text-xl font-bold">{cat.name}</h2>
-              <div className="grid gap-3 sm:grid-cols-2">
+            <section key={cat.id} id={`cat-${cat.id}`} className="scroll-mt-32">
+              <div className="mb-8 text-center">
+                <p className="text-xs uppercase tracking-[0.3em]" style={{ color: themeColor }}>Spécialités</p>
+                <h2 className="mt-1 font-serif text-3xl font-light tracking-wide">{cat.name}</h2>
+                <div className="mx-auto mt-3 h-px w-16" style={{ background: themeColor }} />
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {list.map((it) => {
                   const qty = qtyForItem(it.id);
                   return (
-                    <Card
+                    <div
                       key={it.id}
-                      className="cursor-pointer overflow-hidden transition-shadow hover:shadow-md"
+                      className="group cursor-pointer rounded-sm bg-white p-6 text-center shadow-sm transition-all hover:shadow-lg"
                       onClick={() => resto.accepts_online_orders ? openItem(it) : undefined}
                     >
-                      <div className="flex">
-                        <div className="flex-1 p-3">
-                          <div className="flex items-start justify-between gap-1">
-                            <p className="font-semibold">{it.name}</p>
-                            <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                          </div>
-                          {it.description && <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{it.description}</p>}
-                          <p className="mt-2 font-bold" style={{ color: themeColor }}>{formatFCFA(it.price)}</p>
-                          <div className="mt-2">
-                            {qty === 0 ? (
-                              <Button
-                                size="sm"
-                                onClick={(e) => { e.stopPropagation(); openItem(it); }}
-                                disabled={!resto.accepts_online_orders}
-                                style={{ background: themeColor }}
-                              >
-                                <Plus className="mr-1 h-3 w-3" /> Ajouter
-                              </Button>
-                            ) : (
-                              <Badge variant="secondary" className="text-xs">{qty} dans le panier</Badge>
-                            )}
-                          </div>
-                        </div>
-                        {it.image_url && (
-                          <div className="h-28 w-28 flex-shrink-0 bg-muted">
-                            <img src={it.image_url} alt={it.name} className="h-full w-full object-cover" />
-                          </div>
+                      <div className="mx-auto h-32 w-32 overflow-hidden rounded-full bg-neutral-100">
+                        {it.image_url ? (
+                          <img src={it.image_url} alt={it.name} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center"><ChefHat className="h-10 w-10 text-neutral-300" /></div>
                         )}
                       </div>
-                    </Card>
+                      <h3 className="mt-4 font-serif text-lg">{it.name}</h3>
+                      <div className="mx-auto my-2 h-px w-10 bg-neutral-200" />
+                      {it.description && (
+                        <p className="line-clamp-2 text-xs text-neutral-500">{it.description}</p>
+                      )}
+                      <p className="mt-3 font-semibold" style={{ color: themeColor }}>{formatFCFA(it.price)}</p>
+                      {resto.accepts_online_orders && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => { e.stopPropagation(); openItem(it); }}
+                          className="mt-3 rounded-full border-neutral-300 text-xs uppercase tracking-wider hover:text-white"
+                          style={qty > 0 ? { background: themeColor, borderColor: themeColor, color: "#fff" } : undefined}
+                        >
+                          {qty > 0 ? `${qty} ajouté${qty > 1 ? "s" : ""}` : (<><Plus className="mr-1 h-3 w-3" /> Ajouter</>)}
+                        </Button>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -345,14 +338,94 @@ const PublicRestaurant = () => {
           );
         })}
         {items.length === 0 && (
-          <p className="py-12 text-center text-muted-foreground">Aucun plat disponible pour le moment.</p>
+          <p className="py-12 text-center text-neutral-500">Aucun plat disponible pour le moment.</p>
         )}
         {!resto.accepts_online_orders && (
-          <p className="rounded-md border bg-muted p-3 text-center text-sm text-muted-foreground">
+          <p className="rounded-sm border border-neutral-200 bg-white p-4 text-center text-sm text-neutral-600">
             Les commandes en ligne sont actuellement désactivées. Contactez le restaurant pour commander.
           </p>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="bg-neutral-900 text-neutral-300">
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-14 md:grid-cols-3">
+          {/* Hours */}
+          <div id="hours" className="text-center md:text-left">
+            <h3 className="font-serif text-xl text-white">Horaires d'ouverture</h3>
+            <div className="mx-auto mt-3 h-px w-12 md:mx-0" style={{ background: themeColor }} />
+            <ul className="mt-4 space-y-1.5 text-sm">
+              {DAY_ORDER.map((k) => {
+                const h = resto.opening_hours?.[k];
+                if (!h) return null;
+                return (
+                  <li key={k} className="flex justify-between gap-4">
+                    <span>{DAY_LABELS_LONG[k]}</span>
+                    <span className={h.closed ? "" : "text-neutral-400"} style={h.closed ? { color: themeColor } : undefined}>
+                      {h.closed ? "Fermé" : `${h.open} – ${h.close}`}
+                    </span>
+                  </li>
+                );
+              })}
+              {(!resto.opening_hours || Object.keys(resto.opening_hours).length === 0) && (
+                <li className="text-neutral-500">Horaires non communiqués</li>
+              )}
+            </ul>
+          </div>
+
+          {/* Brand */}
+          <div className="flex flex-col items-center text-center">
+            {resto.logo_url ? (
+              <img src={resto.logo_url} alt={resto.name} className="h-16 w-16 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ background: themeColor }}>
+                <ChefHat className="h-8 w-8 text-white" />
+              </div>
+            )}
+            <h3 className="mt-3 font-serif text-2xl text-white">{resto.name}</h3>
+            {resto.description && <p className="mt-3 max-w-xs text-sm text-neutral-400">{resto.description}</p>}
+            <div className="mt-4 flex gap-3">
+              {resto.facebook_url && <a href={resto.facebook_url} target="_blank" rel="noreferrer" className="rounded-full border border-neutral-700 p-2 hover:border-white hover:text-white"><Facebook className="h-4 w-4" /></a>}
+              {resto.instagram_url && <a href={resto.instagram_url} target="_blank" rel="noreferrer" className="rounded-full border border-neutral-700 p-2 hover:border-white hover:text-white"><Instagram className="h-4 w-4" /></a>}
+              {resto.whatsapp && <a href={`https://wa.me/${resto.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer" className="rounded-full border border-neutral-700 p-2 hover:border-white hover:text-white"><MessageCircle className="h-4 w-4" /></a>}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div id="contact" className="text-center md:text-right">
+            <h3 className="font-serif text-xl text-white">Contact</h3>
+            <div className="mx-auto mt-3 h-px w-12 md:ml-auto md:mr-0" style={{ background: themeColor }} />
+            <ul className="mt-4 space-y-2 text-sm">
+              {resto.address && (
+                <li className="flex items-start justify-center gap-2 md:justify-end">
+                  <span>{resto.address}</span>
+                  <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color: themeColor }} />
+                </li>
+              )}
+              {resto.phone && (
+                <li className="flex items-center justify-center gap-2 md:justify-end">
+                  <a href={`tel:${resto.phone}`} className="hover:text-white">{resto.phone}</a>
+                  <Phone className="h-4 w-4" style={{ color: themeColor }} />
+                </li>
+              )}
+              {resto.whatsapp && (
+                <li className="flex items-center justify-center gap-2 md:justify-end">
+                  <a href={`https://wa.me/${resto.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer" className="hover:text-white">WhatsApp : {resto.whatsapp}</a>
+                  <MessageCircle className="h-4 w-4" style={{ color: themeColor }} />
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-neutral-800">
+          <div className="mx-auto max-w-6xl px-6 py-4 text-center text-xs text-neutral-500">
+            © {new Date().getFullYear()} {resto.name}. Tous droits réservés.
+            {!resto?.hide_powered_by && (
+              <> · Propulsé par <a href="https://resto-flow-afrik.lovable.app" target="_blank" rel="noreferrer" className="hover:text-white">RestoFlow by Orynta</a></>
+            )}
+          </div>
+        </div>
+      </footer>
 
       {/* Cart bar */}
       {cartCount > 0 && resto.accepts_online_orders && (
@@ -417,12 +490,6 @@ const PublicRestaurant = () => {
         onOpenChange={(o) => { setConfigOpen(o); if (!o) setConfigItem(null); }}
         onConfirm={onConfigured}
       />
-
-      {!resto?.hide_powered_by && (
-        <footer className="mt-8 border-t border-border py-4 text-center text-xs text-muted-foreground">
-          Propulsé par <a href="https://resto-flow-afrik.lovable.app" target="_blank" rel="noreferrer" className="font-medium hover:text-foreground">RestoFlow</a>
-        </footer>
-      )}
     </div>
   );
 };
