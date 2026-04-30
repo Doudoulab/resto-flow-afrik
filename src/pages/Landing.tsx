@@ -143,6 +143,9 @@ export default function Landing() {
         <div className="container mx-auto flex h-14 items-center justify-between gap-2 px-3 sm:h-16 sm:px-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img src={logo} alt="RestoFlow" className="h-7 w-auto sm:h-9" width={160} height={36} />
+            <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
+              by <span className="font-semibold text-foreground">Orynta Labs</span>
+            </span>
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Fonctionnalités</a>
