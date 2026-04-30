@@ -3929,6 +3929,10 @@ export type Database = {
           entry_id: string
         }[]
       }
+      restaurant_accepts_orders: {
+        Args: { _restaurant_id: string }
+        Returns: boolean
+      }
       restaurant_has_write_access: {
         Args: { _restaurant_id: string }
         Returns: boolean
