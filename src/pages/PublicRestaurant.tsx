@@ -135,21 +135,27 @@ const PublicRestaurant = () => {
       unit_price: l.unit_price,
       quantity: l.quantity,
     }));
-    const { data: inserted, error } = await supabase.from("public_orders").insert({
-      restaurant_id: resto.id,
-      table_number: tableNumber || null,
-      customer_name: name.trim() || null,
-      customer_phone: phone.trim() || null,
-      items: orderItems,
-      total,
-      notes: notes.trim() || null,
-    }).select("id").maybeSingle();
+    const { data: inserted, error } = await supabase.functions.invoke("public-order", {
+      body: {
+        restaurant_id: resto.id,
+        table_number: tableNumber || null,
+        customer_name: name.trim() || null,
+        customer_phone: phone.trim() || null,
+        items: orderItems,
+        total,
+        notes: notes.trim() || null,
+      },
+    });
     setSubmitting(false);
-    if (error) { toast.error(error.message); return; }
+    if (error || (inserted && (inserted as { error?: string }).error)) {
+      toast.error(error?.message || (inserted as { error?: string })?.error || "Erreur d'envoi");
+      return;
+    }
     setCart([]);
     setCartOpen(false);
-    if (inserted?.id && slug) {
-      navigate(`/r/${slug}/order/${inserted.id}`);
+    const newId = (inserted as { id?: string })?.id;
+    if (newId && slug) {
+      navigate(`/r/${slug}/order/${newId}`);
       return;
     }
     setSubmitted(true);

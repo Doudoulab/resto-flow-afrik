@@ -288,6 +288,11 @@ export const AppSidebar = () => {
           <LogOut className="h-4 w-4" />
           {!collapsed && <span className="ml-2">Déconnexion</span>}
         </Button>
+        {!collapsed && (
+          <p className="px-3 pb-2 pt-1 text-[10px] text-sidebar-foreground/50">
+            RestoFlow <span className="font-semibold text-sidebar-foreground/70">by Orynta Labs</span>
+          </p>
+        )}
       </SidebarFooter>
     </Sidebar>
   );

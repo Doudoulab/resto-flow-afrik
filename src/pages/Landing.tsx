@@ -8,6 +8,7 @@ import {
   TrendingUp, Clock, Shield, Globe, Zap, Building2,
 } from "lucide-react";
 import logo from "@/assets/restoflow-logo.png";
+import oryntaLogo from "@/assets/orynta-labs-logo.png";
 import heroImg from "@/assets/landing-hero.jpg";
 
 const demoAccounts = [
@@ -143,6 +144,9 @@ export default function Landing() {
         <div className="container mx-auto flex h-14 items-center justify-between gap-2 px-3 sm:h-16 sm:px-4">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img src={logo} alt="RestoFlow" className="h-7 w-auto sm:h-9" width={160} height={36} />
+            <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
+              by <span className="font-semibold text-foreground">Orynta Labs</span>
+            </span>
           </Link>
           <nav className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Fonctionnalités</a>
@@ -464,6 +468,13 @@ export default function Landing() {
           <div>
             <img src={logo} alt="RestoFlow" className="mb-3 h-8 w-auto" width={150} height={32} />
             <p className="text-sm text-muted-foreground">Le POS tout-en-un pour les restaurants africains modernes.</p>
+            <div className="mt-4 flex items-center gap-2">
+              <img src={oryntaLogo} alt="Orynta Labs" className="h-8 w-8 object-contain" />
+              <div className="text-xs leading-tight">
+                <p className="font-semibold text-foreground">Un produit Orynta Labs</p>
+                <p className="text-muted-foreground">Construire. Gérer. Grandir.</p>
+              </div>
+            </div>
           </div>
           <div>
             <h4 className="mb-3 text-sm font-semibold">Produit</h4>
@@ -487,7 +498,7 @@ export default function Landing() {
         </div>
         <div className="border-t border-border">
           <div className="container mx-auto px-4 py-5 text-center text-xs text-muted-foreground">
-            © {new Date().getFullYear()} RestoFlow. Conçu en Afrique, pour l'Afrique.
+            © {new Date().getFullYear()} RestoFlow — un produit <span className="font-semibold text-foreground">Orynta Labs</span>. Conçu en Afrique, pour l'Afrique.
           </div>
         </div>
       </footer>
