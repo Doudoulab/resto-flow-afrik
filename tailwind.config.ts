@@ -91,12 +91,53 @@ export default {
         "accordion-up": { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
         "fade-in": { from: { opacity: "0", transform: "translateY(8px)" }, to: { opacity: "1", transform: "translateY(0)" } },
         "fade-in-fast": { from: { opacity: "0" }, to: { opacity: "1" } },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(200%)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "0.6", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
+        },
+        "gradient-shift": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(30px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "ticket-in": {
+          from: { opacity: "0", transform: "translateY(8px) scale(0.96)" },
+          to: { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         "fade-in-fast": "fade-in-fast 0.2s ease-out",
+        marquee: "marquee 30s linear infinite",
+        "marquee-fast": "marquee 18s linear infinite",
+        shimmer: "shimmer 2.2s ease-in-out infinite",
+        float: "float 4s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
+        "gradient-shift": "gradient-shift 6s ease infinite",
+        "slide-up": "slide-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "ticket-in": "ticket-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "spin-slow": "spin-slow 18s linear infinite",
       },
     },
   },
