@@ -254,13 +254,13 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: auth } },
     });
-    const { data: claims } = await supabase.auth.getClaims(auth.replace("Bearer ", ""));
-    if (!claims?.claims) return json({ error: "Unauthorized" }, 401);
+    const { data: userData, error: userErr } = await supabase.auth.getUser(auth.replace("Bearer ", ""));
+    if (userErr || !userData?.user) return json({ error: "Unauthorized" }, 401);
 
     const { data: profile } = await supabase
       .from("profiles")
       .select("restaurant_id")
-      .eq("id", claims.claims.sub)
+      .eq("id", userData.user.id)
       .maybeSingle();
     const restaurantId = profile?.restaurant_id;
     if (!restaurantId) return json({ error: "no_restaurant" }, 400);
