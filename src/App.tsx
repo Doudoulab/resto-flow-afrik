@@ -48,6 +48,7 @@ const Accounting = lazy(() => import("./pages/app/Accounting"));
 const Floor = lazy(() => import("./pages/app/Floor"));
 const TimeClock = lazy(() => import("./pages/app/TimeClock"));
 const Advisor = lazy(() => import("./pages/app/Advisor"));
+const SetupAssistant = lazy(() => import("./pages/app/SetupAssistant"));
 const Customers = lazy(() => import("./pages/app/Customers"));
 const IncomingOrders = lazy(() => import("./pages/app/IncomingOrders"));
 const AuditLog = lazy(() => import("./pages/app/AuditLog"));
@@ -156,6 +157,7 @@ const App = () => (
               <Route path="customers" element={gate("/app/customers", featureLabel("/app/customers"), <Customers />)} />
               <Route path="incoming" element={gate("/app/incoming", featureLabel("/app/incoming"), <IncomingOrders />)} />
               <Route path="advisor" element={gate("/app/advisor", featureLabel("/app/advisor"), <Advisor />)} />
+              <Route path="setup-ai" element={<SetupAssistant />} />
               <Route path="audit" element={gate("/app/audit", featureLabel("/app/audit"), <AuditLog />)} />
               <Route path="kitchen" element={gate("/app/kitchen", featureLabel("/app/kitchen"), <KitchenDisplay />)} />
               <Route path="security" element={gate("/app/security", featureLabel("/app/security"), <Security />)} />
