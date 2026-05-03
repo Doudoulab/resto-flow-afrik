@@ -7,7 +7,7 @@ import {
   Receipt, Banknote, Lock, HardDriveDownload, Activity, Printer, FileCheck2,
   FileSpreadsheet, Bug, Wine, Utensils, TrendingUp, LineChart, Hotel, Hand,
   ChevronDown, ToggleRight, CreditCard,
-  HelpCircle, Layers, KeyRound, Palette,
+  HelpCircle, Layers, KeyRound, Palette, Wand2,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -106,6 +106,7 @@ const SECTIONS: { id: string; label: string; items: Item[] }[] = [
     label: "Configuration",
     items: [
       { to: "/app/modules", icon: ToggleRight, label: "Modules" },
+      { to: "/app/setup-ai", icon: Wand2, label: "Configurateur IA" },
       { to: "/app/api-keys", icon: KeyRound, label: "API & Webhooks", module: "api_webhooks" },
       { to: "/app/white-label", icon: Palette, label: "Marque blanche", module: "white_label" },
       { to: "/app/billing", icon: CreditCard, label: "Facturation" },
