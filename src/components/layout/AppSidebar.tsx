@@ -7,7 +7,7 @@ import {
   Receipt, Banknote, Lock, HardDriveDownload, Activity, Printer, FileCheck2,
   FileSpreadsheet, Bug, Wine, Utensils, TrendingUp, LineChart, Hotel, Hand,
   ChevronDown, ToggleRight, CreditCard,
-  HelpCircle, Layers, KeyRound, Palette,
+  HelpCircle, Layers, KeyRound, Palette, Wand2,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
