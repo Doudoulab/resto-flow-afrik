@@ -329,6 +329,15 @@ function buildSuggestPrompt(step: string, ctx: { country: string; cuisine?: stri
 
 async function execTool(supabase: any, restaurantId: string, name: string, args: any): Promise<string> {
   switch (name) {
+    case "country": {
+      const patch: any = {};
+      if (args.country_code) patch.country_code = args.country_code;
+      if (args.currency) patch.currency = args.currency;
+      const { error } = await supabase.from("restaurants").update(patch).eq("id", restaurantId);
+      if (error) throw error;
+      return `Pays défini (${patch.country_code?.toUpperCase()} · ${patch.currency})`;
+    }
+    case "info":
     case "update_restaurant_info": {
       const patch: any = {};
       const fields = ["name", "address", "phone", "description", "whatsapp", "instagram_url", "facebook_url", "theme_color", "slug", "accepts_online_orders", "opening_hours"];
@@ -340,6 +349,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       if (error) throw error;
       return `Restaurant mis à jour (${Object.keys(patch).join(", ")})`;
     }
+    case "payroll":
     case "configure_payroll": {
       const payload = { restaurant_id: restaurantId, ...args };
       const { data: existing } = await supabase.from("payroll_settings").select("id").eq("restaurant_id", restaurantId).maybeSingle();
@@ -352,11 +362,13 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       }
       return "Paramètres de paie enregistrés";
     }
+    case "fiscal":
     case "configure_fiscal": {
       const { error } = await supabase.from("restaurants").update(args).eq("id", restaurantId);
       if (error) throw error;
       return "Paramètres fiscaux mis à jour";
     }
+    case "mobile_money":
     case "configure_mobile_money": {
       const ops = (args.operators || []).map((o: any, i: number) => ({
         restaurant_id: restaurantId,
@@ -376,6 +388,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       }
       return `${ops.length} opérateur(s) mobile money configuré(s)`;
     }
+    case "modules":
     case "enable_modules": {
       const { data: r } = await supabase.from("restaurants").select("enabled_modules").eq("id", restaurantId).maybeSingle();
       const set = new Set<string>([...(r?.enabled_modules || []), ...((args.modules || []) as string[])]);
@@ -383,6 +396,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       if (error) throw error;
       return `Modules activés: ${(args.modules || []).join(", ")}`;
     }
+    case "stations":
     case "create_kitchen_stations": {
       const rows = (args.stations || []).map((s: any, i: number) => ({
         restaurant_id: restaurantId,
@@ -395,6 +409,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       if (error) throw error;
       return `${rows.length} station(s) cuisine créée(s)`;
     }
+    case "menu":
     case "create_menu": {
       let totalCats = 0, totalItems = 0;
       const cats = args.categories || [];
@@ -423,6 +438,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       }
       return `${totalCats} catégorie(s) et ${totalItems} plat(s) créés`;
     }
+    case "suppliers":
     case "create_suppliers": {
       const rows = (args.suppliers || []).map((s: any) => ({ restaurant_id: restaurantId, ...s }));
       if (!rows.length) return "Aucun fournisseur";
@@ -430,6 +446,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       if (error) throw error;
       return `${rows.length} fournisseur(s) créé(s)`;
     }
+    case "stock":
     case "create_stock_items": {
       const rows = (args.items || []).map((s: any) => ({
         restaurant_id: restaurantId,
