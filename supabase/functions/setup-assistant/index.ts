@@ -5,8 +5,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Tool definitions — the AI will call these to apply config to the DB.
-const tools = [
+// =====================================================================
+// Wizard de configuration RestoFlow
+// Deux modes :
+//   action="suggest"  → l'IA renvoie des suggestions JSON (menu, stock, fournisseurs…)
+//                        adaptées au pays OHADA et à la cuisine du resto.
+//   action="apply"    → on enregistre directement le formulaire validé par le gérant.
+// =====================================================================
+
+const _legacy_tools_unused = [
   {
     type: "function",
     function: {
@@ -223,20 +230,7 @@ const tools = [
   },
 ];
 
-const SYSTEM_PROMPT = `Tu es le "Configurateur RestoFlow", un assistant IA qui aide les gérants de restaurant en Afrique de l'Ouest (FCFA, SYSCOHADA) à configurer automatiquement leur logiciel.
-
-Ton rôle :
-1. Pose des questions courtes et ciblées en français (1-3 questions à la fois max).
-2. Quand tu as assez d'infos sur un sujet, APPELLE LES OUTILS pour appliquer la config (ne demande pas confirmation, agis).
-3. Avance module par module dans cet ordre logique : Infos restaurant → Personnalisation publique → Modules à activer → Stations cuisine → Catégories + Menu → Fournisseurs → Stock → Mobile money → Fiscal/TVA → Paie.
-4. Propose toujours des valeurs par défaut intelligentes (ex: SYSCOHADA Sénégal: TVA 18%, CNSS 7%, IPRES 6%).
-5. Tu peux appeler plusieurs outils en parallèle si tu as les infos.
-6. Après chaque outil exécuté, confirme brièvement et passe au sujet suivant.
-7. Ne JAMAIS inventer de plats spécifiques sans demander : propose des suggestions et laisse choisir.
-8. Réponses courtes, concrètes, en français, jamais de blabla.
-
-Contexte SYSCOHADA Sénégal par défaut : TVA 18%, CNSS employé 7%/employeur 8.4%, IPRES 6%/8.4%, IRPP variable.
-Mobile money courants : Wave, Orange Money, Free Money (Sénégal) ; MTN MoMo, Moov (Côte d'Ivoire).`;
+const SUGGEST_PROMPT = `Tu es un expert restauration en zone OHADA (Afrique francophone). On te donne un pays, un type de cuisine et une étape du wizard de config (menu, stock, fournisseurs, stations, modules). Tu réponds UNIQUEMENT en JSON valide selon le schéma demandé, en français, avec des valeurs réalistes (prix en devise locale du pays). Aucun texte hors JSON.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -249,7 +243,6 @@ Deno.serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return json({ error: "LOVABLE_API_KEY missing" }, 500);
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: auth } },
@@ -265,66 +258,74 @@ Deno.serve(async (req) => {
     const restaurantId = profile?.restaurant_id;
     if (!restaurantId) return json({ error: "no_restaurant" }, 400);
 
-    // Verify owner/manager rights via RLS — load restaurant
-    const { data: restaurant, error: rErr } = await supabase
-      .from("restaurants")
-      .select("id, name, country_code, currency, enabled_modules")
-      .eq("id", restaurantId)
-      .maybeSingle();
-    if (rErr || !restaurant) return json({ error: "restaurant_not_found" }, 404);
+    const body = await req.json().catch(() => ({}));
+    const action = body.action as string;
 
-    const { messages = [] } = await req.json().catch(() => ({ messages: [] }));
-
-    const ctxMsg = `Contexte actuel:\n- Restaurant: ${restaurant.name}\n- Pays: ${restaurant.country_code}\n- Devise: ${restaurant.currency}\n- Modules actifs: ${(restaurant.enabled_modules || []).join(", ")}`;
-
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "system", content: ctxMsg },
-          ...messages,
-        ],
-        tools,
-        tool_choice: "auto",
-      }),
-    });
-
-    if (aiRes.status === 429) return json({ error: "Trop de requêtes, réessayez." }, 429);
-    if (aiRes.status === 402) return json({ error: "Crédits IA épuisés." }, 402);
-    if (!aiRes.ok) {
-      const t = await aiRes.text();
-      console.error("AI gateway", aiRes.status, t);
-      return json({ error: "Erreur IA" }, 500);
-    }
-
-    const data = await aiRes.json();
-    const choice = data?.choices?.[0]?.message;
-    const reply: string = choice?.content ?? "";
-    const toolCalls = choice?.tool_calls ?? [];
-
-    const results: { name: string; ok: boolean; message: string }[] = [];
-
-    for (const call of toolCalls) {
-      const name = call.function?.name;
-      let args: any = {};
-      try { args = JSON.parse(call.function?.arguments || "{}"); } catch {}
+    if (action === "apply") {
+      const step = body.step as string;
+      const payload = body.payload ?? {};
       try {
-        const msg = await execTool(supabase, restaurantId, name, args);
-        results.push({ name, ok: true, message: msg });
+        const msg = await execTool(supabase, restaurantId, step, payload);
+        return json({ ok: true, message: msg });
       } catch (e: any) {
-        results.push({ name, ok: false, message: e.message ?? String(e) });
+        return json({ ok: false, error: e.message ?? String(e) }, 400);
       }
     }
 
-    return json({ reply, toolCalls: results });
+    if (action === "suggest") {
+      if (!LOVABLE_API_KEY) return json({ error: "LOVABLE_API_KEY missing" }, 500);
+      const { country, cuisine, step, currency, prompt } = body;
+      const userPrompt = buildSuggestPrompt(step, { country, cuisine, currency, prompt });
+      const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "system", content: SUGGEST_PROMPT },
+            { role: "user", content: userPrompt },
+          ],
+          response_format: { type: "json_object" },
+        }),
+      });
+      if (aiRes.status === 429) return json({ error: "Trop de requêtes, réessayez." }, 429);
+      if (aiRes.status === 402) return json({ error: "Crédits IA épuisés." }, 402);
+      if (!aiRes.ok) {
+        const t = await aiRes.text();
+        console.error("AI gateway", aiRes.status, t);
+        return json({ error: "Erreur IA" }, 500);
+      }
+      const data = await aiRes.json();
+      const content = data?.choices?.[0]?.message?.content ?? "{}";
+      let parsed: any = {};
+      try { parsed = JSON.parse(content); } catch { parsed = { raw: content }; }
+      return json({ ok: true, suggestion: parsed });
+    }
+
+    return json({ error: "unknown_action" }, 400);
   } catch (e) {
     console.error("setup-assistant error", e);
     return json({ error: e instanceof Error ? e.message : "Erreur" }, 500);
   }
 });
+
+function buildSuggestPrompt(step: string, ctx: { country: string; cuisine?: string; currency: string; prompt?: string }): string {
+  const base = `Pays: ${ctx.country}. Cuisine: ${ctx.cuisine || "généraliste"}. Devise: ${ctx.currency}. ${ctx.prompt ? "Demande: " + ctx.prompt : ""}`;
+  switch (step) {
+    case "menu":
+      return `${base}\nPropose un menu typique adapté au pays et à la cuisine, organisé en catégories.\nSchéma JSON: { "categories": [ { "name": string, "items": [ { "name": string, "price": number, "description": string } ] } ] }\nPrix réalistes en ${ctx.currency}. 4-6 catégories, 4-8 plats par catégorie.`;
+    case "stations":
+      return `${base}\nPropose 3 à 5 stations cuisine adaptées.\nSchéma JSON: { "stations": [ { "name": string, "color": string } ] } (color en hex)`;
+    case "stock":
+      return `${base}\nPropose 15 à 25 articles de stock essentiels pour ce type de resto.\nSchéma JSON: { "items": [ { "name": string, "unit": string, "quantity": number, "alert_threshold": number, "cost_per_unit": number } ] }`;
+    case "suppliers":
+      return `${base}\nPropose 4 à 8 fournisseurs typiques (catégories) pour ce pays.\nSchéma JSON: { "suppliers": [ { "name": string, "contact_name": string, "phone": string, "notes": string } ] }`;
+    case "modules":
+      return `${base}\nQuels modules RestoFlow recommandes-tu d'activer pour ce type de resto ? Disponibles: kitchen, printers, incoming, reports, accounting, customers, suppliers, receipts, inventory, timeclock, payroll, wines, tasting, gueridon, pms, menu_engineering, analytics, advisor, audit, security, backups, fiscal, exports.\nSchéma JSON: { "modules": [string], "rationale": string }`;
+    default:
+      return `${base}\nRetourne un JSON pertinent pour l'étape "${step}".`;
+  }
+}
 
 async function execTool(supabase: any, restaurantId: string, name: string, args: any): Promise<string> {
   switch (name) {
