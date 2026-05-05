@@ -302,6 +302,43 @@ Deno.serve(async (req) => {
       return json({ ok: true, suggestion: parsed });
     }
 
+    if (action === "generate_image") {
+      if (!LOVABLE_API_KEY) return json({ error: "LOVABLE_API_KEY missing" }, 500);
+      const { dish, description, cuisine, country } = body;
+      if (!dish) return json({ error: "dish requis" }, 400);
+      const imgPrompt = `Photo professionnelle, vue du dessus, lumière naturelle, fond neutre, d'un plat appelé "${dish}"${description ? `, ${description}` : ""}${cuisine ? `, cuisine ${cuisine}` : ""}${country ? `, ${country}` : ""}. Style menu de restaurant, appétissant, haute qualité.`;
+      const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [{ role: "user", content: imgPrompt }],
+          modalities: ["image", "text"],
+        }),
+      });
+      if (aiRes.status === 429) return json({ error: "Trop de requêtes" }, 429);
+      if (aiRes.status === 402) return json({ error: "Crédits IA épuisés." }, 402);
+      if (!aiRes.ok) {
+        const t = await aiRes.text();
+        console.error("AI image", aiRes.status, t);
+        return json({ error: "Erreur génération image" }, 500);
+      }
+      const data = await aiRes.json();
+      const dataUrl: string | undefined = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (!dataUrl) return json({ error: "Pas d'image générée" }, 500);
+      // Upload vers menu-images
+      const m = dataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (!m) return json({ error: "Format image invalide" }, 500);
+      const mime = m[1]; const b64 = m[2];
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const ext = mime.split("/")[1] || "png";
+      const path = `${restaurantId}/ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("menu-images").upload(path, bytes, { contentType: mime, upsert: false });
+      if (upErr) return json({ error: upErr.message }, 500);
+      const { data: pub } = supabase.storage.from("menu-images").getPublicUrl(path);
+      return json({ ok: true, url: pub.publicUrl });
+    }
+
     return json({ error: "unknown_action" }, 400);
   } catch (e) {
     console.error("setup-assistant error", e);
