@@ -350,9 +350,13 @@ function buildSuggestPrompt(step: string, ctx: { country: string; cuisine?: stri
   const base = `Pays: ${ctx.country}. Cuisine: ${ctx.cuisine || "généraliste"}. Devise: ${ctx.currency}. ${ctx.prompt ? "Demande: " + ctx.prompt : ""}`;
   switch (step) {
     case "menu":
-      return `${base}\nPropose un menu typique adapté au pays et à la cuisine, organisé en catégories.\nSchéma JSON: { "categories": [ { "name": string, "items": [ { "name": string, "price": number, "description": string } ] } ] }\nPrix réalistes en ${ctx.currency}. 4-6 catégories, 4-8 plats par catégorie.`;
+      return `${base}\nPropose un menu typique adapté au pays et à la cuisine, organisé en catégories. Pour chaque plat, ajoute des variantes pertinentes si applicable (ex: tailles S/M/L pour pizza, quantités pour boissons).\nSchéma JSON: { "categories": [ { "name": string, "items": [ { "name": string, "price": number, "description": string, "variants": [ { "name": string, "price_delta": number } ] } ] } ] }\nPrix réalistes en ${ctx.currency}. 4-6 catégories, 4-8 plats par catégorie. variants peut être [].`;
     case "stations":
       return `${base}\nPropose 3 à 5 stations cuisine adaptées.\nSchéma JSON: { "stations": [ { "name": string, "color": string } ] } (color en hex)`;
+    case "tables":
+      return `${base}\nPropose un plan de salle réaliste : ~12 tables avec libellés (T1, T2…), nombre de couverts (2/4/6/8) et formes.\nSchéma JSON: { "tables": [ { "label": string, "seats": number, "shape": "square"|"round"|"rect" } ] }`;
+    case "printers":
+      return `${base}\nPropose une configuration imprimantes type pour ce resto : 1 caisse, 1 cuisine, éventuellement 1 bar.\nSchéma JSON: { "printers": [ { "name": string, "printer_type": "receipt"|"kitchen"|"bar", "connection_mode": "agent"|"network"|"bluetooth", "address": string, "paper_width": number } ] }`;
     case "stock":
       return `${base}\nPropose 15 à 25 articles de stock essentiels pour ce type de resto.\nSchéma JSON: { "items": [ { "name": string, "unit": string, "quantity": number, "alert_threshold": number, "cost_per_unit": number } ] }`;
     case "suppliers":
