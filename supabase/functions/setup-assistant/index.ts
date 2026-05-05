@@ -452,7 +452,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
     }
     case "menu":
     case "create_menu": {
-      let totalCats = 0, totalItems = 0;
+      let totalCats = 0, totalItems = 0, totalVariants = 0;
       const cats = args.categories || [];
       for (let i = 0; i < cats.length; i++) {
         const c = cats[i];
@@ -463,21 +463,36 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
           .single();
         if (cErr) throw cErr;
         totalCats++;
-        const items = (c.items || []).map((it: any, j: number) => ({
-          restaurant_id: restaurantId,
-          category_id: cat.id,
-          name: it.name,
-          price: it.price,
-          description: it.description ?? null,
-          sort_order: j,
-        }));
-        if (items.length) {
-          const { error: iErr } = await supabase.from("menu_items").insert(items);
+        const itemsSrc = c.items || [];
+        for (let j = 0; j < itemsSrc.length; j++) {
+          const it = itemsSrc[j];
+          const { data: inserted, error: iErr } = await supabase.from("menu_items").insert({
+            restaurant_id: restaurantId,
+            category_id: cat.id,
+            name: it.name,
+            price: it.price,
+            description: it.description ?? null,
+            image_url: it.image_url ?? null,
+            sort_order: j,
+          }).select("id").single();
           if (iErr) throw iErr;
-          totalItems += items.length;
+          totalItems++;
+          const variants = (it.variants || []).filter((v: any) => v.name);
+          if (variants.length) {
+            const vrows = variants.map((v: any, k: number) => ({
+              restaurant_id: restaurantId,
+              menu_item_id: inserted.id,
+              name: v.name,
+              price_delta: Number(v.price_delta) || 0,
+              sort_order: k,
+            }));
+            const { error: vErr } = await supabase.from("menu_item_variants").insert(vrows);
+            if (vErr) throw vErr;
+            totalVariants += vrows.length;
+          }
         }
       }
-      return `${totalCats} catégorie(s) et ${totalItems} plat(s) créés`;
+      return `${totalCats} catégorie(s), ${totalItems} plat(s), ${totalVariants} variante(s) créés`;
     }
     case "suppliers":
     case "create_suppliers": {
@@ -501,6 +516,38 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       const { error } = await supabase.from("stock_items").insert(rows);
       if (error) throw error;
       return `${rows.length} article(s) de stock créés`;
+    }
+    case "hours": {
+      const { error } = await supabase.from("restaurants").update({ opening_hours: args.opening_hours || {} }).eq("id", restaurantId);
+      if (error) throw error;
+      return "Horaires d'ouverture enregistrés";
+    }
+    case "tables": {
+      const rows = (args.tables || []).filter((t: any) => t.label).map((t: any, i: number) => ({
+        restaurant_id: restaurantId,
+        label: t.label,
+        seats: Number(t.seats) || 4,
+        shape: t.shape || "square",
+        sort_order: i,
+      }));
+      if (!rows.length) return "Aucune table";
+      const { error } = await supabase.from("restaurant_tables").insert(rows);
+      if (error) throw error;
+      return `${rows.length} table(s) créée(s)`;
+    }
+    case "printers": {
+      const rows = (args.printers || []).filter((p: any) => p.name).map((p: any) => ({
+        restaurant_id: restaurantId,
+        name: p.name,
+        printer_type: p.printer_type || "kitchen",
+        connection_mode: p.connection_mode || "agent",
+        address: p.address || null,
+        paper_width: Number(p.paper_width) || 48,
+      }));
+      if (!rows.length) return "Aucune imprimante";
+      const { error } = await supabase.from("printers").insert(rows);
+      if (error) throw error;
+      return `${rows.length} imprimante(s) configurée(s)`;
     }
     default:
       throw new Error(`Outil inconnu: ${name}`);
