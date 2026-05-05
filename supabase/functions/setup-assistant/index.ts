@@ -302,6 +302,43 @@ Deno.serve(async (req) => {
       return json({ ok: true, suggestion: parsed });
     }
 
+    if (action === "generate_image") {
+      if (!LOVABLE_API_KEY) return json({ error: "LOVABLE_API_KEY missing" }, 500);
+      const { dish, description, cuisine, country } = body;
+      if (!dish) return json({ error: "dish requis" }, 400);
+      const imgPrompt = `Photo professionnelle, vue du dessus, lumière naturelle, fond neutre, d'un plat appelé "${dish}"${description ? `, ${description}` : ""}${cuisine ? `, cuisine ${cuisine}` : ""}${country ? `, ${country}` : ""}. Style menu de restaurant, appétissant, haute qualité.`;
+      const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [{ role: "user", content: imgPrompt }],
+          modalities: ["image", "text"],
+        }),
+      });
+      if (aiRes.status === 429) return json({ error: "Trop de requêtes" }, 429);
+      if (aiRes.status === 402) return json({ error: "Crédits IA épuisés." }, 402);
+      if (!aiRes.ok) {
+        const t = await aiRes.text();
+        console.error("AI image", aiRes.status, t);
+        return json({ error: "Erreur génération image" }, 500);
+      }
+      const data = await aiRes.json();
+      const dataUrl: string | undefined = data?.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (!dataUrl) return json({ error: "Pas d'image générée" }, 500);
+      // Upload vers menu-images
+      const m = dataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (!m) return json({ error: "Format image invalide" }, 500);
+      const mime = m[1]; const b64 = m[2];
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const ext = mime.split("/")[1] || "png";
+      const path = `${restaurantId}/ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("menu-images").upload(path, bytes, { contentType: mime, upsert: false });
+      if (upErr) return json({ error: upErr.message }, 500);
+      const { data: pub } = supabase.storage.from("menu-images").getPublicUrl(path);
+      return json({ ok: true, url: pub.publicUrl });
+    }
+
     return json({ error: "unknown_action" }, 400);
   } catch (e) {
     console.error("setup-assistant error", e);
@@ -313,9 +350,13 @@ function buildSuggestPrompt(step: string, ctx: { country: string; cuisine?: stri
   const base = `Pays: ${ctx.country}. Cuisine: ${ctx.cuisine || "généraliste"}. Devise: ${ctx.currency}. ${ctx.prompt ? "Demande: " + ctx.prompt : ""}`;
   switch (step) {
     case "menu":
-      return `${base}\nPropose un menu typique adapté au pays et à la cuisine, organisé en catégories.\nSchéma JSON: { "categories": [ { "name": string, "items": [ { "name": string, "price": number, "description": string } ] } ] }\nPrix réalistes en ${ctx.currency}. 4-6 catégories, 4-8 plats par catégorie.`;
+      return `${base}\nPropose un menu typique adapté au pays et à la cuisine, organisé en catégories. Pour chaque plat, ajoute des variantes pertinentes si applicable (ex: tailles S/M/L pour pizza, quantités pour boissons).\nSchéma JSON: { "categories": [ { "name": string, "items": [ { "name": string, "price": number, "description": string, "variants": [ { "name": string, "price_delta": number } ] } ] } ] }\nPrix réalistes en ${ctx.currency}. 4-6 catégories, 4-8 plats par catégorie. variants peut être [].`;
     case "stations":
       return `${base}\nPropose 3 à 5 stations cuisine adaptées.\nSchéma JSON: { "stations": [ { "name": string, "color": string } ] } (color en hex)`;
+    case "tables":
+      return `${base}\nPropose un plan de salle réaliste : ~12 tables avec libellés (T1, T2…), nombre de couverts (2/4/6/8) et formes.\nSchéma JSON: { "tables": [ { "label": string, "seats": number, "shape": "square"|"round"|"rect" } ] }`;
+    case "printers":
+      return `${base}\nPropose une configuration imprimantes type pour ce resto : 1 caisse, 1 cuisine, éventuellement 1 bar.\nSchéma JSON: { "printers": [ { "name": string, "printer_type": "receipt"|"kitchen"|"bar", "connection_mode": "agent"|"network"|"bluetooth", "address": string, "paper_width": number } ] }`;
     case "stock":
       return `${base}\nPropose 15 à 25 articles de stock essentiels pour ce type de resto.\nSchéma JSON: { "items": [ { "name": string, "unit": string, "quantity": number, "alert_threshold": number, "cost_per_unit": number } ] }`;
     case "suppliers":
@@ -411,7 +452,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
     }
     case "menu":
     case "create_menu": {
-      let totalCats = 0, totalItems = 0;
+      let totalCats = 0, totalItems = 0, totalVariants = 0;
       const cats = args.categories || [];
       for (let i = 0; i < cats.length; i++) {
         const c = cats[i];
@@ -422,21 +463,36 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
           .single();
         if (cErr) throw cErr;
         totalCats++;
-        const items = (c.items || []).map((it: any, j: number) => ({
-          restaurant_id: restaurantId,
-          category_id: cat.id,
-          name: it.name,
-          price: it.price,
-          description: it.description ?? null,
-          sort_order: j,
-        }));
-        if (items.length) {
-          const { error: iErr } = await supabase.from("menu_items").insert(items);
+        const itemsSrc = c.items || [];
+        for (let j = 0; j < itemsSrc.length; j++) {
+          const it = itemsSrc[j];
+          const { data: inserted, error: iErr } = await supabase.from("menu_items").insert({
+            restaurant_id: restaurantId,
+            category_id: cat.id,
+            name: it.name,
+            price: it.price,
+            description: it.description ?? null,
+            image_url: it.image_url ?? null,
+            sort_order: j,
+          }).select("id").single();
           if (iErr) throw iErr;
-          totalItems += items.length;
+          totalItems++;
+          const variants = (it.variants || []).filter((v: any) => v.name);
+          if (variants.length) {
+            const vrows = variants.map((v: any, k: number) => ({
+              restaurant_id: restaurantId,
+              menu_item_id: inserted.id,
+              name: v.name,
+              price_delta: Number(v.price_delta) || 0,
+              sort_order: k,
+            }));
+            const { error: vErr } = await supabase.from("menu_item_variants").insert(vrows);
+            if (vErr) throw vErr;
+            totalVariants += vrows.length;
+          }
         }
       }
-      return `${totalCats} catégorie(s) et ${totalItems} plat(s) créés`;
+      return `${totalCats} catégorie(s), ${totalItems} plat(s), ${totalVariants} variante(s) créés`;
     }
     case "suppliers":
     case "create_suppliers": {
@@ -460,6 +516,38 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
       const { error } = await supabase.from("stock_items").insert(rows);
       if (error) throw error;
       return `${rows.length} article(s) de stock créés`;
+    }
+    case "hours": {
+      const { error } = await supabase.from("restaurants").update({ opening_hours: args.opening_hours || {} }).eq("id", restaurantId);
+      if (error) throw error;
+      return "Horaires d'ouverture enregistrés";
+    }
+    case "tables": {
+      const rows = (args.tables || []).filter((t: any) => t.label).map((t: any, i: number) => ({
+        restaurant_id: restaurantId,
+        label: t.label,
+        seats: Number(t.seats) || 4,
+        shape: t.shape || "square",
+        sort_order: i,
+      }));
+      if (!rows.length) return "Aucune table";
+      const { error } = await supabase.from("restaurant_tables").insert(rows);
+      if (error) throw error;
+      return `${rows.length} table(s) créée(s)`;
+    }
+    case "printers": {
+      const rows = (args.printers || []).filter((p: any) => p.name).map((p: any) => ({
+        restaurant_id: restaurantId,
+        name: p.name,
+        printer_type: p.printer_type || "kitchen",
+        connection_mode: p.connection_mode || "agent",
+        address: p.address || null,
+        paper_width: Number(p.paper_width) || 48,
+      }));
+      if (!rows.length) return "Aucune imprimante";
+      const { error } = await supabase.from("printers").insert(rows);
+      if (error) throw error;
+      return `${rows.length} imprimante(s) configurée(s)`;
     }
     default:
       throw new Error(`Outil inconnu: ${name}`);
