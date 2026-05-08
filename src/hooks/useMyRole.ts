@@ -43,6 +43,7 @@ export const useMyRole = () => {
 export const ROLE_ROUTE_ALLOWLIST: Record<Exclude<EmployeeRole, "manager">, string[]> = {
   waiter: [
     "/app/orders",
+    "/app/incoming",
     "/app/floor",
     "/app/reservations",
     "/app/menu",
