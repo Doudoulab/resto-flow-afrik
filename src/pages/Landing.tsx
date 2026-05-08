@@ -127,9 +127,9 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
-/* Bouton "bombé" : gradient + glow + shimmer */
+/* Bouton "bombé" : pill mint façon ZeBeyond */
 const glowBtn =
-  "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-b from-emerald-400 to-teal-600 px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_-10px_rgba(52,211,153,0.8)] ring-1 ring-emerald-300/40 transition-all hover:scale-[1.04] hover:shadow-[0_20px_60px_-10px_rgba(52,211,153,1)] active:scale-[0.98]";
+  "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-b from-[#7CF5C4] to-[#3FE0A8] px-7 py-3.5 text-sm font-semibold text-[#0a1612] shadow-[0_10px_40px_-10px_rgba(124,245,196,0.7)] ring-1 ring-[#7CF5C4]/50 transition-all hover:scale-[1.04] hover:shadow-[0_20px_60px_-10px_rgba(124,245,196,0.9)] active:scale-[0.98]";
 
 const ghostBtn =
   "inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10 hover:border-white/30";
