@@ -128,7 +128,7 @@ export const AppSidebar = () => {
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
   const isOwner = profile?.is_owner ?? false;
   const liveBadges = useLiveBadges();
-  const { hasTier, isTrialing, trialDaysLeft } = useSubscription();
+  const { hasTier, isTrialing, trialDaysLeft, isDemo } = useSubscription();
   const planBadgeFor = (mod?: ModuleKey): "PRO" | "BIZ" | null => {
     if (!mod) return null;
     const required = getRequiredTier(mod);
@@ -267,6 +267,14 @@ export const AppSidebar = () => {
             <p className="font-semibold text-primary">Essai Pro — {trialDaysLeft}j restants</p>
             <NavLink to="/pricing" className="text-primary/80 hover:underline">
               Choisir un plan →
+            </NavLink>
+          </div>
+        )}
+        {!collapsed && isDemo && (
+          <div className="mx-2 mb-2 rounded-md border border-yellow-500/30 bg-yellow-500/10 px-3 py-2 text-xs">
+            <p className="font-semibold text-yellow-600 dark:text-yellow-400">Compte Démo — accès complet</p>
+            <NavLink to="/pricing" className="text-yellow-600/80 dark:text-yellow-400/80 hover:underline">
+              Passer en production →
             </NavLink>
           </div>
         )}
