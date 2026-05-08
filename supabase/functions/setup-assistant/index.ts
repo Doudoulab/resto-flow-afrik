@@ -484,6 +484,7 @@ async function execTool(supabase: any, restaurantId: string, name: string, args:
               menu_item_id: inserted.id,
               name: v.name,
               price_delta: Number(v.price_delta) || 0,
+              image_url: v.image_url ?? null,
               sort_order: k,
             }));
             const { error: vErr } = await supabase.from("menu_item_variants").insert(vrows);
