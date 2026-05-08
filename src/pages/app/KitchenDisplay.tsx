@@ -54,7 +54,7 @@ const KitchenDisplay = () => {
 
   useEffect(() => {
     if (!restaurant) return;
-    const ch = supabase.channel(`kds-${restaurant.id}`)
+    const ch = supabase.channel(`kds-${restaurant.id}`, { config: { private: true } })
       .on("postgres_changes", { event: "*", schema: "public", table: "order_items" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `restaurant_id=eq.${restaurant.id}` }, () => load())
       .subscribe();

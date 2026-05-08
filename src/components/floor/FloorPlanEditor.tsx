@@ -48,7 +48,7 @@ export const FloorPlanEditor = ({ restaurantId, editable = false, onTableClick }
   useEffect(() => { load(); }, [restaurantId]);
 
   useEffect(() => {
-    const ch = supabase.channel(`floor-${restaurantId}`)
+    const ch = supabase.channel(`floor-${restaurantId}`, { config: { private: true } })
       .on("postgres_changes", { event: "*", schema: "public", table: "restaurant_tables", filter: `restaurant_id=eq.${restaurantId}` }, () => { if (!dirty) load(); })
       .subscribe();
     return () => { supabase.removeChannel(ch); };

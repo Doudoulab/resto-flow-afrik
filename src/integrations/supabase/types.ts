@@ -3929,6 +3929,10 @@ export type Database = {
           entry_id: string
         }[]
       }
+      realtime_topic_restaurant_id: {
+        Args: { _topic: string }
+        Returns: string
+      }
       restaurant_accepts_orders: {
         Args: { _restaurant_id: string }
         Returns: boolean

@@ -142,7 +142,7 @@ const Orders = () => {
   // realtime
   useEffect(() => {
     if (!restaurant) return;
-    const channel = supabase.channel(`orders-${restaurant.id}`)
+    const channel = supabase.channel(`orders-${restaurant.id}`, { config: { private: true } })
       .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `restaurant_id=eq.${restaurant.id}` }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
