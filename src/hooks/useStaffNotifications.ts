@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Crown, AlertTriangle, ChefHat, Bell } from "lucide-react";
 import { createElement } from "react";
+import { notifyNewOrder, initNativeNotifications } from "@/lib/native/notifications";
 
 /**
  * Subscribe to realtime events for the current restaurant and surface
@@ -14,6 +15,11 @@ export const useStaffNotifications = (restaurantId: string | undefined) => {
 
   useEffect(() => {
     if (!restaurantId) return;
+    // Native: ask permission + register push token (no-op on web)
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      initNativeNotifications({ userId: data.user?.id, restaurantId });
+    })();
 
     const playBeep = () => {
       try {
@@ -79,6 +85,10 @@ export const useStaffNotifications = (restaurantId: string | undefined) => {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "public_orders", filter: `restaurant_id=eq.${restaurantId}` }, (payload) => {
         const row = payload.new as { customer_name?: string | null; table_number?: string | null };
         playBeep();
+        notifyNewOrder(
+          "Nouvelle commande QR",
+          `${row.customer_name ?? "Client"}${row.table_number ? ` — table ${row.table_number}` : ""}`,
+        );
         toast(`🛎️ Nouvelle commande QR`, {
           description: `${row.customer_name ?? "Client"}${row.table_number ? ` — table ${row.table_number}` : ""}`,
           duration: 8000,
