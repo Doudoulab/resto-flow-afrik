@@ -127,9 +127,9 @@ function Reveal({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
-/* Bouton "bombé" : gradient + glow + shimmer */
+/* Bouton "bombé" : pill mint façon ZeBeyond */
 const glowBtn =
-  "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-b from-blue-500 to-blue-700 px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_-10px_rgba(59,130,246,0.8)] ring-1 ring-blue-400/40 transition-all hover:scale-[1.04] hover:shadow-[0_20px_60px_-10px_rgba(59,130,246,1)] active:scale-[0.98]";
+  "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-b from-[#7CF5C4] to-[#3FE0A8] px-7 py-3.5 text-sm font-semibold text-[#0a1612] shadow-[0_10px_40px_-10px_rgba(124,245,196,0.7)] ring-1 ring-[#7CF5C4]/50 transition-all hover:scale-[1.04] hover:shadow-[0_20px_60px_-10px_rgba(124,245,196,0.9)] active:scale-[0.98]";
 
 const ghostBtn =
   "inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10 hover:border-white/30";
@@ -145,12 +145,12 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="dark min-h-screen overflow-x-hidden bg-[#050816] text-slate-100 antialiased">
+    <div className="dark min-h-screen overflow-x-hidden bg-[#0a1612] text-slate-100 antialiased">
       {/* Background ambient */}
       <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-blue-600/20 blur-[120px]" />
-        <div className="absolute top-[40%] -left-40 h-[500px] w-[500px] rounded-full bg-indigo-600/15 blur-[120px] animate-pulse-glow" />
-        <div className="absolute top-[70%] -right-40 h-[500px] w-[500px] rounded-full bg-cyan-500/15 blur-[120px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-500/20 blur-[120px]" />
+        <div className="absolute top-[40%] -left-40 h-[500px] w-[500px] rounded-full bg-teal-700/15 blur-[120px] animate-pulse-glow" />
+        <div className="absolute top-[70%] -right-40 h-[500px] w-[500px] rounded-full bg-teal-500/15 blur-[120px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -163,7 +163,7 @@ export default function Landing() {
 
       <div className="relative z-10">
         {/* NAV */}
-        <header className="sticky top-0 z-50 border-b border-white/5 bg-[#050816]/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a1612]/80 backdrop-blur-xl">
           <div className="container mx-auto flex h-16 items-center justify-between gap-2 px-4">
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <img src={logo} alt="RestoFlow" className="h-8 w-auto" />
@@ -203,8 +203,8 @@ export default function Landing() {
             <div className="flex flex-col justify-center">
               <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 backdrop-blur">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-500" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
                 Nouvelle génération · Conçu pour l'Afrique
               </div>
@@ -214,13 +214,13 @@ export default function Landing() {
                 <span className="relative inline-block">
                   <span
                     key={wordIdx}
-                    className="inline-block animate-slide-up bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent"
+                    className="inline-block animate-slide-up bg-gradient-to-r from-emerald-300 via-teal-300 to-emerald-400 bg-clip-text text-transparent"
                   >
                     {heroWords[wordIdx]}
                   </span>
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-shift">
+                <span className="bg-gradient-to-r from-white via-emerald-50 to-white bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-shift">
                   en un seul écran.
                 </span>
               </h1>
@@ -252,8 +252,8 @@ export default function Landing() {
 
               <div className="mt-8 flex items-center gap-3">
                 <div className="flex -space-x-2">
-                  {["bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500"].map((c, i) => (
-                    <div key={i} className={`h-8 w-8 rounded-full border-2 border-[#050816] ${c}`} />
+                  {["bg-emerald-400", "bg-emerald-500", "bg-amber-500", "bg-rose-500"].map((c, i) => (
+                    <div key={i} className={`h-8 w-8 rounded-full border-2 border-[#0a1612] ${c}`} />
                   ))}
                 </div>
                 <div className="text-sm">
@@ -267,7 +267,7 @@ export default function Landing() {
 
             {/* Hero mockup */}
             <div className="relative animate-float">
-              <div className="absolute -inset-8 rounded-3xl bg-gradient-to-tr from-blue-600/30 via-cyan-500/20 to-transparent blur-3xl" />
+              <div className="absolute -inset-8 rounded-3xl bg-gradient-to-tr from-emerald-500/30 via-teal-500/20 to-transparent blur-3xl" />
               <HeroMockup />
             </div>
           </div>
@@ -278,7 +278,7 @@ export default function Landing() {
               <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur md:grid-cols-4">
                 {stats.map((s) => (
                   <div key={s.label} className="bg-white/[0.02] p-6 text-center">
-                    <div className="bg-gradient-to-r from-blue-300 to-cyan-200 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl">{s.value}</div>
+                    <div className="bg-gradient-to-r from-emerald-200 to-teal-200 bg-clip-text text-3xl font-bold tracking-tight text-transparent md:text-4xl">{s.value}</div>
                     <div className="mt-1 text-xs uppercase tracking-wide text-slate-400 md:text-sm">{s.label}</div>
                   </div>
                 ))}
@@ -293,7 +293,7 @@ export default function Landing() {
             <div className="flex w-max animate-marquee gap-12">
               {[...marqueeItems, ...marqueeItems].map((item, i) => (
                 <div key={i} className="flex shrink-0 items-center gap-3 text-sm font-medium text-slate-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
                   {item}
                 </div>
               ))}
@@ -308,7 +308,7 @@ export default function Landing() {
               <div className="mx-auto mb-14 max-w-2xl text-center">
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
                   Pourquoi choisir{" "}
-                  <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">RestoFlow</span> ?
+                  <span className="bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">RestoFlow</span> ?
                 </h2>
                 <p className="mt-4 text-base text-slate-400 md:text-lg">
                   Des fonctionnalités pensées pour le terrain africain, pas adaptées à la va-vite.
@@ -367,9 +367,9 @@ export default function Landing() {
           <div className="container mx-auto px-4">
             <Reveal>
               <div className="mx-auto mb-12 max-w-2xl text-center">
-                <Badge className="mb-4 border-blue-400/30 bg-blue-500/10 text-blue-300">Aperçu en direct</Badge>
+                <Badge className="mb-4 border-emerald-300/30 bg-emerald-400/10 text-emerald-200">Aperçu en direct</Badge>
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
-                  Conçu pour <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">chaque rôle</span>
+                  Conçu pour <span className="bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">chaque rôle</span>
                 </h2>
                 <p className="mt-4 text-base text-slate-400 md:text-lg">
                   Caisse, Cuisine, Gérant, Client QR — chaque écran est pensé pour son utilisateur.
@@ -385,7 +385,7 @@ export default function Landing() {
           <div className="container mx-auto px-4">
             <Reveal>
               <div className="mx-auto mb-14 max-w-2xl text-center">
-                <Badge className="mb-4 border-blue-400/30 bg-blue-500/10 text-blue-300">Tout-en-un</Badge>
+                <Badge className="mb-4 border-emerald-300/30 bg-emerald-400/10 text-emerald-200">Tout-en-un</Badge>
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
                   24 modules. Une seule plateforme.
                 </h2>
@@ -397,9 +397,9 @@ export default function Landing() {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {allFeatures.map((f, i) => (
                 <Reveal key={f.title} delay={i * 25}>
-                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-blue-400/40 hover:bg-white/[0.06]">
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500/0 via-blue-500/0 to-cyan-500/0 opacity-0 transition-opacity group-hover:opacity-100 group-hover:from-blue-500/10 group-hover:to-cyan-500/5" />
-                    <div className="mb-3 inline-flex rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/10 p-2.5 text-blue-300 ring-1 ring-blue-400/20 transition-transform group-hover:scale-110">
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all hover:-translate-y-1 hover:border-emerald-300/40 hover:bg-white/[0.06]">
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-emerald-400/0 via-emerald-400/0 to-teal-500/0 opacity-0 transition-opacity group-hover:opacity-100 group-hover:from-emerald-400/10 group-hover:to-teal-500/5" />
+                    <div className="mb-3 inline-flex rounded-xl bg-gradient-to-br from-emerald-400/20 to-teal-500/10 p-2.5 text-emerald-200 ring-1 ring-emerald-300/20 transition-transform group-hover:scale-110">
                       <f.icon className="h-5 w-5" />
                     </div>
                     <p className="text-sm font-semibold text-white">{f.title}</p>
@@ -447,7 +447,7 @@ export default function Landing() {
           <div className="container mx-auto px-4">
             <Reveal>
               <div className="mx-auto mb-12 max-w-2xl text-center">
-                <Badge className="mb-4 border-blue-400/30 bg-blue-500/10 text-blue-300">Démo Business</Badge>
+                <Badge className="mb-4 border-emerald-300/30 bg-emerald-400/10 text-emerald-200">Démo Business</Badge>
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
                   Testez avec chaque rôle
                 </h2>
@@ -459,8 +459,8 @@ export default function Landing() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {demoAccounts.map((a, i) => (
                 <Reveal key={a.email} delay={i * 80}>
-                  <div className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur transition-all hover:border-blue-400/40 hover:bg-white/[0.06]">
-                    <Badge className="mb-4 border-blue-400/30 bg-blue-500/10 text-blue-300">{a.role}</Badge>
+                  <div className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur transition-all hover:border-emerald-300/40 hover:bg-white/[0.06]">
+                    <Badge className="mb-4 border-emerald-300/30 bg-emerald-400/10 text-emerald-200">{a.role}</Badge>
                     <p className="text-sm font-medium text-white">{a.email}</p>
                     <p className="mt-1 font-mono text-sm text-slate-400">{a.password}</p>
                     <p className="mt-3 min-h-10 text-xs text-slate-500">{a.access}</p>
@@ -491,7 +491,7 @@ export default function Landing() {
               {testimonials.map((t, i) => (
                 <Reveal key={t.name} delay={i * 100}>
                   <figure className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur">
-                    <Quote className="h-6 w-6 text-blue-400/60" />
+                    <Quote className="h-6 w-6 text-emerald-300/60" />
                     <blockquote className="mt-4 text-base leading-relaxed text-slate-200">"{t.quote}"</blockquote>
                     <figcaption className="mt-5 border-t border-white/10 pt-4">
                       <div className="text-sm font-semibold text-white">{t.name}</div>
@@ -509,10 +509,10 @@ export default function Landing() {
           <div className="container mx-auto px-4">
             <Reveal>
               <div className="mx-auto mb-14 max-w-2xl text-center">
-                <Badge className="mb-4 border-blue-400/30 bg-blue-500/10 text-blue-300">Tarifs simples</Badge>
+                <Badge className="mb-4 border-emerald-300/30 bg-emerald-400/10 text-emerald-200">Tarifs simples</Badge>
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
                   Démarrez gratuitement,{" "}
-                  <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">scalez</span> quand vous voulez
+                  <span className="bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent">scalez</span> quand vous voulez
                 </h2>
                 <p className="mt-4 text-base text-slate-400 md:text-lg">Pas d'engagement. Annulez à tout moment.</p>
               </div>
@@ -523,19 +523,19 @@ export default function Landing() {
                   <div
                     className={`relative h-full rounded-2xl p-6 backdrop-blur transition-all sm:p-7 ${
                       plan.highlight
-                        ? "border-2 border-blue-400/60 bg-gradient-to-b from-blue-500/15 to-blue-900/5 shadow-[0_20px_60px_-20px_rgba(59,130,246,0.6)]"
+                        ? "border-2 border-emerald-300/60 bg-gradient-to-b from-emerald-400/15 to-emerald-950/5 shadow-[0_20px_60px_-20px_rgba(52,211,153,0.6)]"
                         : "border border-white/10 bg-white/[0.03] hover:border-white/25"
                     }`}
                   >
                     {plan.highlight && (
-                      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 border-0 bg-gradient-to-r from-blue-500 to-cyan-400 px-3 py-1 text-xs text-white shadow-lg">
+                      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 border-0 bg-gradient-to-r from-emerald-400 to-teal-400 px-3 py-1 text-xs text-white shadow-lg">
                         ⭐ Le plus populaire
                       </Badge>
                     )}
                     <h3 className="text-xl font-bold text-white">{plan.name}</h3>
                     <p className="mt-1 text-sm text-slate-400">{plan.description}</p>
                     <div className="mt-5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
-                      <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">{plan.price}</span>
+                      <span className="bg-gradient-to-r from-white to-emerald-100 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">{plan.price}</span>
                       <span className="text-xs text-slate-400 sm:text-sm">/{plan.cycle}</span>
                     </div>
                     <Link to="/auth" className="mt-6 block">
@@ -544,7 +544,7 @@ export default function Landing() {
                     <ul className="mt-6 space-y-2.5">
                       {plan.features.map((f) => (
                         <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
-                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" />
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
                           <span>{f}</span>
                         </li>
                       ))}
@@ -576,9 +576,9 @@ export default function Landing() {
 
         {/* FINAL CTA — explosif */}
         <section className="relative overflow-hidden border-t border-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-700 via-blue-600 to-cyan-500" />
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-600 via-emerald-500 to-teal-500" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.4),transparent_50%)]" />
-          <div className="absolute -top-20 right-1/3 h-96 w-96 rounded-full bg-cyan-300/30 blur-3xl animate-pulse-glow" />
+          <div className="absolute -top-20 right-1/3 h-96 w-96 rounded-full bg-teal-300/30 blur-3xl animate-pulse-glow" />
           <div className="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
           <div
             className="absolute inset-0 opacity-[0.08]"
@@ -598,8 +598,8 @@ export default function Landing() {
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/auth">
-                <button className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-white px-10 py-5 text-base font-bold text-blue-700 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] ring-2 ring-white/40 transition-all hover:scale-110 hover:shadow-[0_30px_80px_-15px_rgba(0,0,0,0.7)] active:scale-100">
-                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-blue-200/60 to-transparent group-hover:animate-shimmer" />
+                <button className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-white px-10 py-5 text-base font-bold text-teal-600 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] ring-2 ring-white/40 transition-all hover:scale-110 hover:shadow-[0_30px_80px_-15px_rgba(0,0,0,0.7)] active:scale-100">
+                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-emerald-100/60 to-transparent group-hover:animate-shimmer" />
                   <Zap className="h-5 w-5" />
                   Démarrer maintenant — Gratuit
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -668,14 +668,14 @@ function BentoCard({
   title, subtitle, icon: Icon, children, large = false,
 }: { title: string; subtitle: string; icon: any; children: React.ReactNode; large?: boolean }) {
   return (
-    <div className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 backdrop-blur transition-all hover:border-blue-400/40 hover:shadow-[0_20px_60px_-20px_rgba(59,130,246,0.5)]">
-      <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-500/10 blur-3xl transition-all group-hover:bg-blue-500/30" />
+    <div className="group relative h-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-6 backdrop-blur transition-all hover:border-emerald-300/40 hover:shadow-[0_20px_60px_-20px_rgba(52,211,153,0.5)]">
+      <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl transition-all group-hover:bg-emerald-400/30" />
       <div className="relative flex h-full flex-col">
         <div className="mb-3 flex items-center gap-2">
-          <div className="rounded-lg bg-gradient-to-br from-blue-500/20 to-cyan-400/10 p-1.5 text-blue-300 ring-1 ring-blue-400/30">
+          <div className="rounded-lg bg-gradient-to-br from-emerald-400/20 to-teal-400/10 p-1.5 text-emerald-200 ring-1 ring-emerald-300/30">
             <Icon className="h-4 w-4" />
           </div>
-          <span className="text-xs font-medium uppercase tracking-wider text-blue-300/80">Live</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-emerald-200/80">Live</span>
         </div>
         <h3 className={`font-bold tracking-tight text-white ${large ? "text-2xl md:text-3xl" : "text-lg md:text-xl"}`}>{title}</h3>
         <p className="mt-1 text-sm text-slate-400">{subtitle}</p>
@@ -717,16 +717,16 @@ function HeroMockup() {
             className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.03] px-3 py-2 animate-ticket-in"
           >
             <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/20 text-xs font-bold text-blue-300">{it.qty}</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-400/20 text-xs font-bold text-emerald-200">{it.qty}</span>
               <span className="text-sm text-white">{it.name}</span>
             </div>
             <span className="text-sm font-medium text-slate-300">{it.price} <span className="text-xs text-slate-500">F</span></span>
           </div>
         ))}
       </div>
-      <div className="mt-4 flex items-center justify-between rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-400/10 px-4 py-3 ring-1 ring-blue-400/30">
+      <div className="mt-4 flex items-center justify-between rounded-xl bg-gradient-to-r from-emerald-400/20 to-teal-400/10 px-4 py-3 ring-1 ring-emerald-300/30">
         <span className="text-sm font-semibold text-white">Total</span>
-        <span className="text-xl font-bold text-white">15 000 <span className="text-xs text-blue-200">FCFA</span></span>
+        <span className="text-xl font-bold text-white">15 000 <span className="text-xs text-emerald-100">FCFA</span></span>
       </div>
       {/* Floating mini cards */}
       <div className="absolute -left-6 top-1/3 hidden rounded-2xl border border-white/15 bg-[#0a1228]/90 p-3 shadow-2xl backdrop-blur md:block animate-float">
@@ -740,7 +740,7 @@ function HeroMockup() {
       </div>
       <div className="absolute -right-4 bottom-1/4 hidden rounded-2xl border border-white/15 bg-[#0a1228]/90 p-3 shadow-2xl backdrop-blur md:block animate-float" style={{ animationDelay: "1s" }}>
         <div className="flex items-center gap-2">
-          <div className="rounded-lg bg-blue-500/20 p-2 text-blue-300"><ChefHat className="h-4 w-4" /></div>
+          <div className="rounded-lg bg-emerald-400/20 p-2 text-emerald-200"><ChefHat className="h-4 w-4" /></div>
           <div>
             <p className="text-[10px] uppercase text-slate-400">Cuisine</p>
             <p className="text-sm font-bold text-white">3 tickets prêts</p>
@@ -764,11 +764,11 @@ function OrderTicketMock() {
           style={{ animationDelay: i.t }}
           className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 animate-ticket-in"
         >
-          <span className="text-xs text-slate-200"><span className="font-bold text-blue-300">{i.qty}×</span> {i.name}</span>
+          <span className="text-xs text-slate-200"><span className="font-bold text-emerald-200">{i.qty}×</span> {i.name}</span>
           <Check className="h-3.5 w-3.5 text-emerald-400" />
         </div>
       ))}
-      <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-blue-500/20 to-transparent px-3 py-1.5">
+      <div className="flex items-center justify-between rounded-lg bg-gradient-to-r from-emerald-400/20 to-transparent px-3 py-1.5">
         <span className="text-xs font-semibold text-white">Total</span>
         <span className="text-xs font-bold text-white">12 500 F</span>
       </div>
@@ -778,10 +778,10 @@ function OrderTicketMock() {
 
 function MobileMoneyOrbit() {
   const ops = [
-    { name: "Wave", color: "from-sky-400 to-blue-600" },
+    { name: "Wave", color: "from-sky-400 to-emerald-500" },
     { name: "Orange", color: "from-orange-400 to-orange-600" },
     { name: "MTN", color: "from-yellow-300 to-amber-500" },
-    { name: "Moov", color: "from-blue-400 to-indigo-600" },
+    { name: "Moov", color: "from-emerald-300 to-teal-700" },
   ];
   return (
     <div className="relative mx-auto h-32 w-32">
@@ -801,7 +801,7 @@ function MobileMoneyOrbit() {
           );
         })}
       </div>
-      <div className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-[0_0_30px_rgba(59,130,246,0.6)]">
+      <div className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 text-white shadow-[0_0_30px_rgba(52,211,153,0.6)]">
         <Wallet className="h-5 w-5" />
       </div>
     </div>
@@ -877,7 +877,7 @@ function MultiRestoMock() {
           className="rounded-xl border border-white/10 bg-white/[0.04] p-3 animate-ticket-in"
         >
           <div className="flex items-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-blue-400" />
+            <MapPin className="h-3.5 w-3.5 text-emerald-300" />
             <p className="truncate text-xs font-medium text-white">{r.name}</p>
           </div>
           <p className="mt-2 text-lg font-bold text-white">{r.ca} <span className="text-xs font-normal text-slate-400">F</span></p>
@@ -907,7 +907,7 @@ function ShowcaseTabs() {
             onClick={() => setActive(t.key)}
             className={`flex-1 rounded-xl px-4 py-2 text-sm font-medium transition-all ${
               active === t.key
-                ? "bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-lg"
+                ? "bg-gradient-to-b from-emerald-400 to-emerald-500 text-white shadow-lg"
                 : "text-slate-300 hover:text-white"
             }`}
           >
@@ -939,8 +939,8 @@ function CaisseScreen() {
     <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
         {items.map((it, i) => (
-          <div key={it} style={{ animationDelay: `${i * 40}ms` }} className="aspect-square rounded-xl border border-white/10 bg-gradient-to-br from-blue-500/10 to-cyan-400/5 p-3 text-center transition-all hover:scale-105 hover:border-blue-400/40 animate-ticket-in">
-            <div className="mx-auto mb-2 h-8 w-8 rounded-lg bg-gradient-to-br from-blue-400 to-cyan-300 opacity-80" />
+          <div key={it} style={{ animationDelay: `${i * 40}ms` }} className="aspect-square rounded-xl border border-white/10 bg-gradient-to-br from-emerald-400/10 to-teal-400/5 p-3 text-center transition-all hover:scale-105 hover:border-emerald-300/40 animate-ticket-in">
+            <div className="mx-auto mb-2 h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-300 to-teal-300 opacity-80" />
             <p className="text-xs font-medium text-white">{it}</p>
             <p className="text-[10px] text-slate-400">2 500 F</p>
           </div>
@@ -980,7 +980,7 @@ function CuisineScreen() {
           <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/80">{c.title} · {c.tickets.length}</p>
           <div className="space-y-2">
             {c.tickets.map((t, i) => (
-              <div key={t} style={{ animationDelay: `${i * 100}ms` }} className="rounded-lg border border-white/10 bg-[#050816]/60 p-3 backdrop-blur animate-ticket-in">
+              <div key={t} style={{ animationDelay: `${i * 100}ms` }} className="rounded-lg border border-white/10 bg-[#0a1612]/60 p-3 backdrop-blur animate-ticket-in">
                 <p className="text-sm font-bold text-white">{t}</p>
                 <p className="mt-1 text-xs text-slate-400">Thieb · Yassa · Bissap</p>
                 <div className="mt-2 flex items-center gap-1 text-[10px] text-slate-500"><Clock className="h-3 w-3" /> 4 min</div>
@@ -1046,12 +1046,12 @@ function QrScreen() {
             { n: "Mafé", p: "4 000" },
             { n: "Bissap", p: "500" },
           ].map((m) => (
-            <div key={m.n} className="flex items-center justify-between rounded-lg border border-white/5 bg-[#050816]/50 px-3 py-2">
+            <div key={m.n} className="flex items-center justify-between rounded-lg border border-white/5 bg-[#0a1612]/50 px-3 py-2">
               <div>
                 <p className="text-sm font-medium text-white">{m.n}</p>
                 <p className="text-[10px] text-slate-400">Plat traditionnel</p>
               </div>
-              <button className="rounded-lg bg-gradient-to-b from-blue-500 to-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg hover:scale-105 transition-transform">
+              <button className="rounded-lg bg-gradient-to-b from-emerald-400 to-emerald-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg hover:scale-105 transition-transform">
                 + {m.p} F
               </button>
             </div>
