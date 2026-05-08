@@ -41,6 +41,7 @@ Deno.serve(async (req) => {
     }
 
     const { messages = [] } = await req.json().catch(() => ({ messages: [] }));
+    const conversationIdInput: string | undefined = (await Promise.resolve()).constructor === Promise ? undefined : undefined;
 
     // Get the user's restaurant id
     const { data: profile } = await supabase
