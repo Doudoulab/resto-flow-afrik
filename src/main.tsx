@@ -10,21 +10,10 @@ import { initSentry } from "@/lib/monitoring/sentry";
 // Initialize Sentry as early as possible (no-op when VITE_SENTRY_DSN is absent)
 initSentry();
 
-// PWA: register service worker only outside iframe & lovable preview hosts
-const isInIframe = (() => {
-  try { return window.self !== window.top; } catch { return true; }
-})();
-const isPreviewHost =
-  window.location.hostname.includes("id-preview--") ||
-  window.location.hostname.includes("lovableproject.com");
-
-if (isPreviewHost || isInIframe) {
-  navigator.serviceWorker?.getRegistrations().then((regs) => regs.forEach((r) => r.unregister())).catch(() => {});
-} else if ("serviceWorker" in navigator) {
-  import("virtual:pwa-register").then(({ registerSW }) => {
-    registerSW({ immediate: true });
-  }).catch(() => {});
-}
+// We migrated to Capacitor for the native app. Any previously-registered
+// PWA service worker is replaced by the kill-switch SW served from /sw.js
+// (and /service-worker.js for legacy paths). The browser will fetch the
+// new SW on next visit, which then unregisters itself and clears caches.
 
 // Always start the offline sync engine (works without SW too)
 initOfflineSync();

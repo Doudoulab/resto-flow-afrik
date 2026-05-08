@@ -7,8 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, UserPlus, Copy, Trash2, Mail, IdCard, BadgeCheck, Wallet, CalendarDays, History } from "lucide-react";
+import { Loader2, UserPlus, Copy, Trash2, Mail, IdCard, BadgeCheck, Wallet, CalendarDays, History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { EmployeeProfileDialog } from "@/components/staff/EmployeeProfileDialog";
 import { AddEmployeeDialog } from "@/components/staff/AddEmployeeDialog";
 import { LeavesManager } from "@/components/staff/LeavesManager";
@@ -19,7 +25,7 @@ import { formatFCFA } from "@/lib/currency";
 interface Employee { id: string; first_name: string | null; last_name: string | null; is_owner: boolean; hourly_rate: number; }
 interface EmployeeDetail {
   user_id: string; job_title: string | null; base_salary: number; hourly_rate: number;
-  contract_type: string; hired_at: string | null; is_active: boolean;
+  contract_type: string; hired_at: string | null; is_active: boolean; deleted_at: string | null;
 }
 interface Role { user_id: string; role: string; }
 interface Invitation {
@@ -40,12 +46,14 @@ const Staff = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileEmp, setProfileEmp] = useState<Employee | null>(null);
+  const [showDeleted, setShowDeleted] = useState(false);
+  const [deletedEmps, setDeletedEmps] = useState<Employee[]>([]);
 
   const load = async () => {
     if (!restaurant) return;
     const [empRes, detRes, roleRes, invRes] = await Promise.all([
-      supabase.from("profiles").select("id, first_name, last_name, is_owner, hourly_rate").eq("restaurant_id", restaurant.id),
-      supabase.from("employee_details").select("user_id, job_title, base_salary, hourly_rate, contract_type, hired_at, is_active").eq("restaurant_id", restaurant.id),
+      supabase.from("profiles").select("id, first_name, last_name, is_owner, hourly_rate").eq("restaurant_id", restaurant.id).is("deleted_at", null),
+      supabase.from("employee_details").select("user_id, job_title, base_salary, hourly_rate, contract_type, hired_at, is_active, deleted_at").eq("restaurant_id", restaurant.id),
       supabase.from("user_roles").select("user_id, role").eq("restaurant_id", restaurant.id),
       supabase.from("employee_invitations").select("*").eq("restaurant_id", restaurant.id).is("accepted_at", null).order("created_at", { ascending: false }),
     ]);
@@ -53,6 +61,13 @@ const Staff = () => {
     setDetails((detRes.data ?? []) as EmployeeDetail[]);
     setRoles((roleRes.data ?? []) as Role[]);
     setInvitations((invRes.data ?? []) as Invitation[]);
+    // Soft-deleted (restaurant_id was nulled by RPC, look via employee_details)
+    const { data: del } = await supabase
+      .from("employee_details")
+      .select("user_id, deleted_at, profiles:user_id(id, first_name, last_name, is_owner, hourly_rate)")
+      .eq("restaurant_id", restaurant.id)
+      .not("deleted_at", "is", null);
+    setDeletedEmps((del ?? []).map((d: any) => d.profiles).filter(Boolean) as Employee[]);
     setLoading(false);
   };
 
@@ -72,6 +87,22 @@ const Staff = () => {
       .eq("user_id", uid).eq("restaurant_id", restaurant!.id);
     if (error) { toast.error(error.message); return; }
     toast.success(currentlyActive ? "Employé désactivé" : "Employé réactivé");
+    load();
+  };
+
+  const deleteEmployee = async (uid: string) => {
+    const { error } = await supabase.rpc("soft_delete_employee", { _user_id: uid });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Employé supprimé. L'historique est conservé.");
+    load();
+  };
+
+  const restoreEmployee = async (uid: string) => {
+    const { error } = await supabase.rpc("restore_employee", {
+      _user_id: uid, _restaurant_id: restaurant!.id, _role: "waiter",
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success("Employé restauré (rôle Serveur par défaut).");
     load();
   };
 
@@ -103,10 +134,39 @@ const Staff = () => {
         <TabsContent value="list" className="space-y-4">
           {profile?.is_owner && (
             <div className="flex justify-end">
-              <Button onClick={() => setAddOpen(true)} className="w-full sm:w-auto">
-                <UserPlus className="mr-2 h-4 w-4" /> Ajouter un employé
-              </Button>
+              <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-4">
+                {deletedEmps.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Switch id="show-deleted" checked={showDeleted} onCheckedChange={setShowDeleted} />
+                    <Label htmlFor="show-deleted" className="text-sm cursor-pointer">
+                      Voir supprimés ({deletedEmps.length})
+                    </Label>
+                  </div>
+                )}
+                <Button onClick={() => setAddOpen(true)}>
+                  <UserPlus className="mr-2 h-4 w-4" /> Ajouter un employé
+                </Button>
+              </div>
             </div>
+          )}
+
+          {showDeleted && deletedEmps.length > 0 && (
+            <Card className="border-dashed">
+              <CardHeader><CardTitle className="text-base text-muted-foreground">Employés supprimés</CardTitle></CardHeader>
+              <CardContent className="space-y-2">
+                {deletedEmps.map((e) => (
+                  <div key={e.id} className="flex flex-wrap items-center justify-between gap-3 rounded-md border bg-muted/30 p-3">
+                    <div>
+                      <p className="font-medium">{e.first_name} {e.last_name}</p>
+                      <p className="text-xs text-muted-foreground">Historique conservé. Restauration possible.</p>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={() => restoreEmployee(e.id)}>
+                      <RotateCcw className="mr-2 h-4 w-4" />Restaurer
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           )}
 
           {profile?.is_owner && invitations.length > 0 && (
@@ -195,6 +255,31 @@ const Staff = () => {
                                 <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => toggleActive(e.id, isActive)}>
                                   {isActive ? "Désactiver" : "Réactiver"}
                                 </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Supprimer cet employé ?</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        <strong>{e.first_name} {e.last_name}</strong> sera retiré de la liste et perdra immédiatement l'accès à l'application.
+                                        <br /><br />
+                                        L'historique (commandes prises, pointages, bulletins de paie, factures) est <strong>intégralement conservé</strong> pour la conformité comptable et fiscale.
+                                        <br /><br />
+                                        Vous pourrez le restaurer à tout moment depuis "Voir supprimés".
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => deleteEmployee(e.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                        Supprimer
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               </div>
                             ) : (
                               <span className="text-xs text-muted-foreground">—</span>

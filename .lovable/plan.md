@@ -1,70 +1,90 @@
-# Refonte Landing Page — Style "Aurora Dark"
+# Plan d'exécution
 
-Inspirée de l'image fournie : fond sombre profond, halos bleus lumineux, cartes glassmorphism, micro-animations partout, mockups visuels qui représentent les vraies fonctionnalités du SaaS.
+## 1. Suppression douce des employés (soft delete)
 
-## Direction visuelle
+**DB :**
+- Ajouter colonne `deleted_at TIMESTAMPTZ` sur `public.profiles` et sur `public.employee_details`.
+- Créer une fonction RPC `soft_delete_employee(_user_id uuid)` (SECURITY DEFINER) qui :
+  - vérifie que l'appelant est owner du même restaurant,
+  - empêche de se supprimer soi-même et de supprimer le propriétaire,
+  - met `deleted_at = now()` sur profile + employee_details,
+  - met `is_active = false`,
+  - supprime les `user_roles` du resto pour cet utilisateur (révoque l'accès),
+  - écrit un `audit_log`.
+- Fonction `restore_employee(_user_id uuid)` symétrique pour restaurer.
 
-- **Mode sombre permanent** sur la landing (bg `slate-950`), même si le reste de l'app reste en clair.
-- **Halos / glows bleus** en arrière-plan (radial gradients animés qui pulsent).
-- **Cartes glassmorphism** : `bg-white/5 backdrop-blur border-white/10`, lueur bleue au hover.
-- **Boutons "qui bombent"** : effet 3D avec shadow-glow, scale au hover, shimmer animé.
-- **Textes qui circulent** : marquee horizontal de logos/mots-clés (Wave, Orange Money, MTN, SYSCOHADA, KDS, Mobile Money…).
-- **Sections qui "explosent"** : fade-in + scale au scroll (Intersection Observer + classes `animate-fade-in`).
+**UI (`Staff.tsx` + `EmployeeProfileDialog.tsx`) :**
+- Filtrer par défaut les employés `deleted_at IS NULL`.
+- Bouton "Supprimer" (rouge, avec `AlertDialog` de confirmation) à côté de "Désactiver".
+- Onglet/toggle "Voir les supprimés" pour lister les supprimés et proposer "Restaurer".
+- Texte clair : "L'historique (commandes, paie, pointages) est conservé."
 
-## Sections (ordre)
+## 2. Page qui s'actualise au retour d'onglet
 
-1. **Hero refondu**
-   - Halo bleu animé en fond + grille subtile.
-   - Headline géant gradient bleu→cyan, sous-titre qui se tape (typewriter) parmi : "Commandes", "Cuisine", "Caisse", "Stock", "Paie", "SYSCOHADA".
-   - Double CTA bombé + badge "★ 4.9 par 200+ restaurateurs".
-   - Mockup flottant à droite : carte "Commande #142" avec items animés (apparition séquentielle), badge "Payée Wave ✓" qui pulse.
+Cause : `react-query` re-fetch par défaut quand la fenêtre regagne le focus.
+- Dans `src/App.tsx`, configurer le `QueryClient` avec :
+  - `refetchOnWindowFocus: false`
+  - `refetchOnReconnect: true` (utile si réseau coupé)
+  - `staleTime: 60_000`
 
-2. **Marquee de confiance** (texte qui circule)
-   - Bandeau infini : `Wave · Orange Money · MTN MoMo · Moov · SYSCOHADA · CNSS · IPRES · Mode Offline · Multi-sites · KDS · QR Menu …`
+## 3. Mises à jour qui ne s'appliquent pas (cache navigateur)
 
-3. **"Pourquoi choisir RestoFlow ?"** (style image fournie — bento grid)
-   - Grille bento 6 cartes asymétriques (grandes/petites), fond sombre + glow bleu :
-     - **Commandes éclair** : mockup ticket animé (lignes qui apparaissent).
-     - **Mobile Money natif** : 4 logos opérateurs en orbite.
-     - **Cuisine KDS** : mini écran avec tickets qui changent de couleur (rouge→vert).
-     - **Stock intelligent** : barres de stock animées + alerte qui clignote.
-     - **SYSCOHADA 1-clic** : icône document avec "✓ Conforme" qui s'écrit.
-     - **Multi-restaurants** : 3 pins sur une carte stylisée.
+Cause : un Service Worker PWA est déjà actif chez les utilisateurs et sert une coquille HTML cachée.
+- Retirer `vite-plugin-pwa` de `vite.config.ts` (on passe au natif via Capacitor, plus besoin de PWA web).
+- Désinstaller la dépendance `vite-plugin-pwa`.
+- Retirer l'import `virtual:pwa-register` dans `src/main.tsx`.
+- Créer `public/sw.js` et `public/service-worker.js` = **kill-switch SW** qui :
+  - vide tous les caches,
+  - se désinscrit lui-même,
+  - force un reload de toutes les pages ouvertes.
+- À garder en place 2-3 cycles de release puis supprimer.
 
-4. **Toutes les fonctionnalités du SaaS** (grille complète)
-   - 18+ tuiles compactes : Commandes & salle, KDS, Stock, Recettes, Mobile Money, SYSCOHADA, Factures fiscales, Paie CNSS/IPRES, Planning, Pointeuse PIN, Réservations, QR Menu, Plan de salle, Gueridon, Multi-établissements, Marque blanche, API/Webhooks, Mode hors-ligne, IA conseiller, Analytics & menu engineering, Imprimantes ESC/POS, Sauvegardes, Audit log, Exports comptables.
-   - Chaque tuile : icône colorée + glow au hover + scale.
+Résultat : à la prochaine visite, le vieux SW est remplacé par le kill-switch, qui se nettoie tout seul. Les futures mises à jour passent immédiatement.
 
-5. **"Vu dans l'app"** — mockups visuels des écrans
-   - 3 captures stylisées CSS (pas d'image) :
-     - **Caisse** : grille de plats + total qui s'incrémente.
-     - **Cuisine** : colonnes "À faire / En cours / Prêt" avec tickets qui glissent.
-     - **Dashboard** : mini graphe SVG animé (chiffre d'affaires) + KPIs.
-   - Tabs cliquables (Caisse / Cuisine / Gérant / QR Client) qui changent le mockup.
+## 4. Application installable (Capacitor) avec sons + push
 
-6. **Avant / Après** (existant, restylé sombre).
+**Installation des dépendances :**
+- `@capacitor/core`, `@capacitor/cli` (dev), `@capacitor/ios`, `@capacitor/android`
+- `@capacitor/local-notifications` (sons + alertes locales : nouvelles commandes)
+- `@capacitor/push-notifications` (notifications serveur)
+- `@capacitor/haptics` (vibration)
+- `@capacitor/app` (gestion cycle de vie)
 
-7. **Témoignages** (existant, en glass cards).
+**Fichier `capacitor.config.ts`** à la racine :
+- appId: `app.lovable.c93390b35d5f488191c31deb382d2107`
+- appName: `resto-flow-afrik`
+- server.url pointant vers le sandbox preview pour hot-reload pendant le dev
+- config notifications (icône, son par défaut)
 
-8. **Pricing** (existant, restylé : carte Pro avec gradient border animé).
+**Code applicatif :**
+- Helper `src/lib/native/notifications.ts` qui :
+  - détecte la plateforme native via `Capacitor.isNativePlatform()`,
+  - demande les permissions au démarrage,
+  - expose `notifyNewOrder()` qui joue un son natif + vibre + affiche une notification (et fallback sur le `playBeep` web existant si non-natif),
+  - s'enregistre pour les push et stocke le `device_token` dans une table `push_tokens`.
+- Brancher `notifyNewOrder()` dans `useStaffNotifications.ts` (déjà appelé sur nouvelles commandes via Realtime).
 
-9. **CTA final "explosif"**
-   - Pleine largeur, gros halo, headline géant, bouton mega-bombé "Démarrer gratuitement →".
-   - Liste en ligne : ✓ Sans CB ✓ 7 jours offerts ✓ Support FR ✓ Annulable.
+**DB pour les push :**
+- Table `push_tokens (id, user_id, restaurant_id, platform, token, created_at)` avec RLS : un user ne voit/édite que ses tokens.
 
-10. **FAQ + Footer** (existants, restylés sombre).
+**Documentation utilisateur :**
+- Petit composant/page expliquant la procédure pour publier sur App Store / Play Store (export GitHub → `npm install` → `npx cap add ios/android` → `npx cap sync` → `npx cap run`).
 
-## Détails techniques
+## Fichiers principaux modifiés / créés
 
-- Fichier modifié : `src/pages/Landing.tsx` (refonte complète, garde les data arrays existants + en ajoute).
-- Wrapper racine en `dark` class forcée pour ne pas casser le reste de l'app : `<div className="dark min-h-screen bg-slate-950 text-slate-100">`.
-- Ajout de keyframes dans `tailwind.config.ts` : `marquee`, `shimmer`, `float`, `pulse-glow`, `gradient-shift`, `typewriter`.
-- Ajout d'un petit hook `useInView` (Intersection Observer, ~15 lignes) pour déclencher animations au scroll — pas de dépendance.
-- Mockups = pure JSX/Tailwind/SVG (aucune image générée nécessaire).
-- Boutons "bombés" : nouvelle classe utilitaire `.btn-glow` (scale + shadow bleu + shimmer) appliquée localement.
-- Tout reste responsive (mobile : bento se simplifie en stack, marquee garde sa vitesse).
+- `supabase/migrations/...` (soft delete + push_tokens)
+- `src/App.tsx` (QueryClient options)
+- `src/pages/app/Staff.tsx`, `src/components/staff/EmployeeProfileDialog.tsx`
+- `vite.config.ts` (retirer VitePWA)
+- `src/main.tsx` (retirer registerSW)
+- `public/sw.js`, `public/service-worker.js` (kill-switch)
+- `capacitor.config.ts` (nouveau)
+- `src/lib/native/notifications.ts` (nouveau)
+- `src/hooks/useStaffNotifications.ts` (intégrer natif)
+- `package.json` (deps Capacitor)
 
-## Hors scope
-- Pas de changement aux autres pages (Pricing, Auth, app/...).
-- Pas de nouveaux assets uploadés.
-- Pas de changement DB / backend.
+## Notes importantes pour l'utilisateur
+
+- **Capacitor** : pour tester réellement sur ton téléphone tu devras exporter le projet vers GitHub, faire `npm install`, puis `npx cap add ios` (ou `android`) et `npx cap run`. Il faut Xcode (Mac) pour iOS et Android Studio pour Android. Pour publier sur les stores : compte Apple Developer (99 $/an) et Google Play Console (25 $ unique).
+- **Kill-switch SW** : les utilisateurs déjà touchés par le bug verront la mise à jour au prochain rechargement (1 à 2 visites max), sans avoir besoin de Ctrl+Shift+R.
+- **Soft delete** : un employé "supprimé" disparaît de la liste mais toutes ses données historiques restent intactes pour la conformité comptable et fiscale.
