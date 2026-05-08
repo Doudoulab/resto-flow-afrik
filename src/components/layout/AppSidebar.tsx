@@ -86,6 +86,8 @@ const SECTIONS: { id: string; label: string; items: Item[] }[] = [
       { to: "/app/menu-engineering", icon: TrendingUp, label: "Menu Engineering", module: "menu_engineering" },
       { to: "/app/analytics", icon: LineChart, label: "Analytics", module: "analytics" },
       { to: "/app/advisor", icon: Sparkles, label: "Conseil IA", module: "advisor" },
+      { to: "/app/weekly-report", icon: Sparkles, label: "Rapport hebdo IA", module: "weekly_report" },
+      { to: "/app/forecast", icon: TrendingUp, label: "Prévisions IA", module: "forecast" },
     ],
   },
   {
