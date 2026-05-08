@@ -4024,6 +4024,10 @@ export type Database = {
         Args: { _restaurant_id: string }
         Returns: boolean
       }
+      is_restaurant_writable: {
+        Args: { _restaurant_id: string }
+        Returns: boolean
+      }
       mark_order_paid: {
         Args: {
           _amount_paid: number
