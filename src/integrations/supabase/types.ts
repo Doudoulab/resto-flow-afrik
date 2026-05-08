@@ -527,6 +527,7 @@ export type Database = {
           contract_end_date: string | null
           contract_type: string
           created_at: string
+          deleted_at: string | null
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
           hired_at: string | null
@@ -546,6 +547,7 @@ export type Database = {
           contract_end_date?: string | null
           contract_type?: string
           created_at?: string
+          deleted_at?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           hired_at?: string | null
@@ -565,6 +567,7 @@ export type Database = {
           contract_end_date?: string | null
           contract_type?: string
           created_at?: string
+          deleted_at?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           hired_at?: string | null
@@ -2332,6 +2335,7 @@ export type Database = {
         Row: {
           clock_pin_hash: string | null
           created_at: string
+          deleted_at: string | null
           first_name: string | null
           hourly_rate: number
           id: string
@@ -2343,6 +2347,7 @@ export type Database = {
         Insert: {
           clock_pin_hash?: string | null
           created_at?: string
+          deleted_at?: string | null
           first_name?: string | null
           hourly_rate?: number
           id: string
@@ -2354,6 +2359,7 @@ export type Database = {
         Update: {
           clock_pin_hash?: string | null
           created_at?: string
+          deleted_at?: string | null
           first_name?: string | null
           hourly_rate?: number
           id?: string
@@ -2421,6 +2427,47 @@ export type Database = {
             columns: ["converted_order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_tokens: {
+        Row: {
+          created_at: string
+          device_label: string | null
+          id: string
+          platform: string
+          restaurant_id: string | null
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_label?: string | null
+          id?: string
+          platform: string
+          restaurant_id?: string | null
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_label?: string | null
+          id?: string
+          platform?: string
+          restaurant_id?: string | null
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_tokens_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
             referencedColumns: ["id"]
           },
         ]
@@ -3945,6 +3992,14 @@ export type Database = {
         Args: { _restaurant_id: string }
         Returns: string
       }
+      restore_employee: {
+        Args: {
+          _restaurant_id: string
+          _role?: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
       revoke_api_key: { Args: { _key_id: string }; Returns: Json }
       seed_syscohada_accounts: {
         Args: { _restaurant_id: string }
@@ -3954,6 +4009,7 @@ export type Database = {
         Args: { _pin: string; _user_id: string }
         Returns: undefined
       }
+      soft_delete_employee: { Args: { _user_id: string }; Returns: undefined }
       switch_active_restaurant: {
         Args: { _restaurant_id: string }
         Returns: Json
