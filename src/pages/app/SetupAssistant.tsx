@@ -198,25 +198,40 @@ const SetupAssistant = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="flex items-center gap-2 text-3xl font-bold">
-          <Wand2 className="h-7 w-7 text-primary" /> Configurateur IA
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Wizard guidé : à chaque étape, l'IA propose des valeurs adaptées à votre pays OHADA. Validez pour enregistrer.
-        </p>
+    <div className="dark relative -m-4 md:-m-8 min-h-[calc(100vh-3.5rem)] overflow-hidden bg-slate-950 p-4 md:p-8 text-slate-100">
+      {/* Aurora halos */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-32 h-[28rem] w-[28rem] rounded-full bg-blue-600/25 blur-3xl animate-pulse-glow" />
+        <div className="absolute top-1/3 -right-40 h-[32rem] w-[32rem] rounded-full bg-cyan-500/20 blur-3xl animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full bg-indigo-600/20 blur-3xl animate-pulse-glow" style={{ animationDelay: "2.5s" }} />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
       </div>
 
-      <Card>
+      <div className="relative z-10 mx-auto max-w-5xl space-y-6">
+        <div className="animate-fade-in">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 backdrop-blur">
+            <Sparkles className="h-3 w-3 text-cyan-400" /> Configurateur intelligent OHADA
+          </div>
+          <h1 className="mt-3 flex items-center gap-3 text-4xl font-bold tracking-tight">
+            <Wand2 className="h-8 w-8 text-cyan-400" />
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
+              Configurateur IA
+            </span>
+          </h1>
+          <p className="mt-2 max-w-2xl text-slate-400">
+            Wizard guidé : à chaque étape, l'IA propose des valeurs adaptées à votre pays OHADA. Validez pour enregistrer.
+          </p>
+        </div>
+
+      <Card className="border-white/10 bg-white/5 text-slate-100 shadow-[0_8px_40px_-12px_rgba(59,130,246,0.35)] backdrop-blur-xl">
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-2">
             {STEPS.map((s, i) => (
               <button key={s.key} onClick={() => setStepIdx(i)}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors ${
-                  i === stepIdx ? "border-primary bg-primary text-primary-foreground" :
-                  done[s.key] ? "border-green-500/40 bg-green-500/10 text-green-700 dark:text-green-400" :
-                  "border-border bg-muted text-muted-foreground hover:bg-accent"
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-all ${
+                  i === stepIdx ? "border-cyan-400/50 bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-[0_0_20px_rgba(34,211,238,0.45)]" :
+                  done[s.key] ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300" :
+                  "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:bg-white/10 hover:text-slate-200"
                 }`}>
                 {done[s.key] && <CheckCircle2 className="h-3 w-3" />}
                 <span>{i + 1}. {s.label}</span>
@@ -226,13 +241,14 @@ const SetupAssistant = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="relative overflow-hidden border-white/10 bg-white/5 text-slate-100 shadow-[0_8px_40px_-12px_rgba(59,130,246,0.35)] backdrop-blur-xl">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-slate-100">
             Étape {stepIdx + 1} / {STEPS.length} — {step.label}
           </CardTitle>
           {ohada && stepIdx > 0 && (
-            <Badge variant="secondary" className="text-xs">{ohada.flag} {ohada.name} · {ohada.currency}</Badge>
+            <Badge className="border border-white/10 bg-white/10 text-xs text-slate-200 backdrop-blur">{ohada.flag} {ohada.name} · {ohada.currency}</Badge>
           )}
         </CardHeader>
         <CardContent className="space-y-5">
@@ -570,14 +586,17 @@ const SetupAssistant = () => {
 
           {step.key === "done" && (
             <div className="space-y-3 py-6 text-center">
-              <Sparkles className="mx-auto h-12 w-12 text-primary" />
-              <h2 className="text-2xl font-bold">Configuration terminée 🎉</h2>
-              <p className="text-muted-foreground">Votre restaurant est prêt. Vous pouvez ajuster chaque section depuis le menu Configuration.</p>
-              <Button onClick={() => setStepIdx(0)} variant="outline">Recommencer</Button>
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 shadow-[0_0_40px_rgba(34,211,238,0.55)]">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+              <h2 className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-3xl font-bold text-transparent">Configuration terminée 🎉</h2>
+              <p className="text-slate-400">Votre restaurant est prêt. Vous pouvez ajuster chaque section depuis le menu Configuration.</p>
+              <Button onClick={() => setStepIdx(0)} variant="outline" className="border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">Recommencer</Button>
             </div>
           )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
