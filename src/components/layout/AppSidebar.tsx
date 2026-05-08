@@ -128,7 +128,7 @@ export const AppSidebar = () => {
   const enabled = (restaurant as any)?.enabled_modules as string[] | undefined;
   const isOwner = profile?.is_owner ?? false;
   const liveBadges = useLiveBadges();
-  const { hasTier, isTrialing, trialDaysLeft } = useSubscription();
+  const { hasTier, isTrialing, trialDaysLeft, isDemo } = useSubscription();
   const planBadgeFor = (mod?: ModuleKey): "PRO" | "BIZ" | null => {
     if (!mod) return null;
     const required = getRequiredTier(mod);
