@@ -53,7 +53,7 @@ export const useLiveBadges = () => {
 
     // Unique channel name per mount to avoid StrictMode double-subscribe collisions
     const channelName = `badges-${rid}-${Math.random().toString(36).slice(2, 10)}`;
-    const channel = supabase.channel(channelName);
+    const channel = supabase.channel(channelName, { config: { private: true } });
     channel.on("postgres_changes" as any, { event: "*", schema: "public", table: "public_orders", filter: `restaurant_id=eq.${rid}` }, refresh);
     channel.on("postgres_changes" as any, { event: "*", schema: "public", table: "reservations", filter: `restaurant_id=eq.${rid}` }, refresh);
     channel.on("postgres_changes" as any, { event: "*", schema: "public", table: "order_items" }, refresh);
