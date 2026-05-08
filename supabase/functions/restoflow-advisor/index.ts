@@ -40,7 +40,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { messages = [] } = await req.json().catch(() => ({ messages: [] }));
+    const body = await req.json().catch(() => ({}));
+    const messages: Array<{ role: string; content: string }> = body.messages ?? [];
+    let conversationId: string | undefined = body.conversationId;
 
     // Get the user's restaurant id
     const { data: profile } = await supabase
@@ -182,8 +184,32 @@ ${JSON.stringify(context, null, 2)}`;
     const data = await aiRes.json();
     const reply = data?.choices?.[0]?.message?.content ?? "";
 
+    // Persistance : crée/maj la conversation et insère les messages
+    try {
+      const lastUser = [...messages].reverse().find((m) => m.role === "user");
+      if (!conversationId) {
+        const title = (lastUser?.content ?? "Nouvelle conversation").slice(0, 80);
+        const { data: conv, error: convErr } = await supabase
+          .from("ai_conversations")
+          .insert({ restaurant_id: restaurantId, user_id: claims.claims.sub, title })
+          .select("id")
+          .single();
+        if (!convErr && conv) conversationId = conv.id;
+      } else {
+        await supabase.from("ai_conversations").update({ updated_at: new Date().toISOString() }).eq("id", conversationId);
+      }
+      if (conversationId) {
+        const rows: Array<{ conversation_id: string; role: string; content: string }> = [];
+        if (lastUser) rows.push({ conversation_id: conversationId, role: "user", content: lastUser.content });
+        if (reply) rows.push({ conversation_id: conversationId, role: "assistant", content: reply });
+        if (rows.length) await supabase.from("ai_messages").insert(rows);
+      }
+    } catch (persistErr) {
+      console.error("persist error", persistErr);
+    }
+
     return new Response(
-      JSON.stringify({ reply, context }),
+      JSON.stringify({ reply, context, conversationId }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

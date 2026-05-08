@@ -48,6 +48,8 @@ const Accounting = lazy(() => import("./pages/app/Accounting"));
 const Floor = lazy(() => import("./pages/app/Floor"));
 const TimeClock = lazy(() => import("./pages/app/TimeClock"));
 const Advisor = lazy(() => import("./pages/app/Advisor"));
+const WeeklyReport = lazy(() => import("./pages/app/WeeklyReport"));
+const Forecast = lazy(() => import("./pages/app/Forecast"));
 const SetupAssistant = lazy(() => import("./pages/app/SetupAssistant"));
 const Customers = lazy(() => import("./pages/app/Customers"));
 const IncomingOrders = lazy(() => import("./pages/app/IncomingOrders"));
@@ -163,6 +165,8 @@ const App = () => (
               <Route path="customers" element={gate("/app/customers", featureLabel("/app/customers"), <Customers />)} />
               <Route path="incoming" element={gate("/app/incoming", featureLabel("/app/incoming"), <IncomingOrders />)} />
               <Route path="advisor" element={gate("/app/advisor", featureLabel("/app/advisor"), <Advisor />)} />
+              <Route path="weekly-report" element={gate("/app/weekly-report", featureLabel("/app/weekly-report"), <WeeklyReport />)} />
+              <Route path="forecast" element={gate("/app/forecast", featureLabel("/app/forecast"), <Forecast />)} />
               <Route path="setup-ai" element={<SetupAssistant />} />
               <Route path="audit" element={gate("/app/audit", featureLabel("/app/audit"), <AuditLog />)} />
               <Route path="kitchen" element={gate("/app/kitchen", featureLabel("/app/kitchen"), <KitchenDisplay />)} />

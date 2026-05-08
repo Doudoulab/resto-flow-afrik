@@ -20,6 +20,8 @@ export type ModuleKey =
   | "menu_engineering"
   | "analytics"      // Analytics avancées
   | "advisor"        // Conseil IA
+  | "weekly_report"  // Rapport hebdo IA
+  | "forecast"       // Prévisions de ventes
   | "audit"          // Audit log
   | "security"       // 2FA
   | "backups"
@@ -67,6 +69,8 @@ export const ALL_MODULES: ModuleInfo[] = [
   { key: "menu_engineering", label: "Menu Engineering", description: "Matrice popularité × marge", category: "advanced" },
   { key: "analytics", label: "Analytics avancées", description: "Performance serveurs & marges", category: "advanced" },
   { key: "advisor", label: "Conseil IA", description: "Recommandations par IA", category: "advanced" },
+  { key: "weekly_report", label: "Rapport hebdo IA", description: "Synthèse + recos chaque semaine", category: "advanced" },
+  { key: "forecast", label: "Prévisions de ventes", description: "CA et commandes prévus J+7", category: "advanced" },
 
   // System
   { key: "audit", label: "Audit", description: "Journal d'audit", category: "system" },
@@ -120,6 +124,8 @@ export const MODULE_PLAN_MAP: Record<ModuleKey, PlanTier> = {
   gueridon: "pro",
   menu_engineering: "pro",
   advisor: "pro",
+  weekly_report: "pro",
+  forecast: "pro",
   fiscal: "pro",
 
   // Business tier (advanced finance / multi-site / integrations)
@@ -162,6 +168,8 @@ export const ROUTE_MODULE_MAP: Record<string, ModuleKey> = {
   "/app/gueridon": "gueridon",
   "/app/menu-engineering": "menu_engineering",
   "/app/advisor": "advisor",
+  "/app/weekly-report": "weekly_report",
+  "/app/forecast": "forecast",
   "/app/fiscal": "fiscal",
   "/app/accounting": "accounting",
   "/app/ledger": "accounting",
