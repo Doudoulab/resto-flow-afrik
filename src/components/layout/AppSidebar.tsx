@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { RestaurantSwitcher } from "@/components/layout/RestaurantSwitcher";
+import { useMyRole, ROLE_ROUTE_ALLOWLIST } from "@/hooks/useMyRole";
 
 type Item = { to: string; end?: boolean; icon: any; label: string; module?: ModuleKey };
 
@@ -129,6 +130,7 @@ export const AppSidebar = () => {
   const isOwner = profile?.is_owner ?? false;
   const liveBadges = useLiveBadges();
   const { hasTier, isTrialing, trialDaysLeft, isDemo } = useSubscription();
+  const { role } = useMyRole();
   const planBadgeFor = (mod?: ModuleKey): "PRO" | "BIZ" | null => {
     if (!mod) return null;
     const required = getRequiredTier(mod);
@@ -145,9 +147,17 @@ export const AppSidebar = () => {
   // Sections restricted to owners (employees won't see Finances or System)
   const OWNER_ONLY_SECTIONS = new Set(["finances", "system", "settings"]);
 
+  // Non-manager roles see only an allowlist of routes
+  const roleAllowlist =
+    !isOwner && role && role !== "manager" ? new Set(ROLE_ROUTE_ALLOWLIST[role]) : null;
+
   const filteredSections = SECTIONS.map(section => ({
     ...section,
-    items: section.items.filter(it => !it.module || isModuleEnabled(enabled, it.module)),
+    items: section.items.filter(it => {
+      if (it.module && !isModuleEnabled(enabled, it.module)) return false;
+      if (roleAllowlist && !roleAllowlist.has(it.to)) return false;
+      return true;
+    }),
   }))
     .filter(s => isOwner || !OWNER_ONLY_SECTIONS.has(s.id))
     .filter(s => s.items.length > 0);
