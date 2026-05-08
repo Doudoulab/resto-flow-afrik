@@ -209,9 +209,9 @@ export default function Landing() {
                 Nouvelle génération · Conçu pour l'Afrique
               </div>
 
-              <h1 className="text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-7xl">
-                Pilotez vos{" "}
-                <span className="relative inline-block">
+              <h1 className="text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-7xl">
+                <span className="block">Pilotez vos</span>
+                <span className="block h-[1.05em] overflow-hidden">
                   <span
                     key={wordIdx}
                     className="inline-block animate-slide-up bg-gradient-to-r from-emerald-300 via-teal-300 to-emerald-400 bg-clip-text text-transparent"
@@ -219,8 +219,7 @@ export default function Landing() {
                     {heroWords[wordIdx]}
                   </span>
                 </span>
-                <br />
-                <span className="bg-gradient-to-r from-white via-emerald-50 to-white bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-shift">
+                <span className="block bg-gradient-to-r from-white via-emerald-50 to-white bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-shift">
                   en un seul écran.
                 </span>
               </h1>
