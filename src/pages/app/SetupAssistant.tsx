@@ -51,7 +51,7 @@ interface MenuItemDraft {
   description?: string;
   image_url?: string | null;
   imgBusy?: boolean;
-  variants?: { name: string; price_delta: number }[];
+  variants?: { name: string; price_delta: number; image_url?: string | null; imgBusy?: boolean }[];
 }
 
 const SetupAssistant = () => {
@@ -162,6 +162,37 @@ const SetupAssistant = () => {
       toast.success("Image générée");
     } catch (e: any) {
       updateMenuItem(menuCats, setMenuCats, ci, ii, { imgBusy: false });
+      toast.error(e.message || "Erreur image");
+    }
+  };
+
+  const updateVariant = (ci: number, ii: number, vi: number, patch: any) => {
+    const it = menuCats[ci]?.items[ii]; if (!it) return;
+    const vs = [...(it.variants || [])]; vs[vi] = { ...vs[vi], ...patch };
+    updateMenuItem(menuCats, setMenuCats, ci, ii, { variants: vs });
+  };
+
+  const generateVariantImage = async (ci: number, ii: number, vi: number) => {
+    const dish = menuCats[ci]?.items[ii];
+    const variant = dish?.variants?.[vi];
+    if (!dish?.name) { toast.error("Donnez d'abord un nom au plat"); return; }
+    if (!variant?.name) { toast.error("Donnez d'abord un nom à la variante"); return; }
+    updateVariant(ci, ii, vi, { imgBusy: true });
+    try {
+      const { data, error } = await supabase.functions.invoke("setup-assistant", {
+        body: {
+          action: "generate_image",
+          dish: `${dish.name} — ${variant.name}`,
+          description: dish.description ? `${dish.description}. Variante: ${variant.name}` : `Variante: ${variant.name}`,
+          cuisine, country: ohada?.name,
+        },
+      });
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || "Erreur image");
+      updateVariant(ci, ii, vi, { image_url: data.url, imgBusy: false });
+      toast.success("Image variante générée");
+    } catch (e: any) {
+      updateVariant(ci, ii, vi, { imgBusy: false });
       toast.error(e.message || "Erreur image");
     }
   };
@@ -461,17 +492,20 @@ const SetupAssistant = () => {
                       <div className="space-y-1 pl-2">
                         {(it.variants || []).map((v, vi) => (
                           <div key={vi} className="flex items-center gap-2">
+                            {v.image_url ? (
+                              <img src={v.image_url} alt={v.name} className="h-10 w-10 rounded object-cover" />
+                            ) : (
+                              <div className="flex h-10 w-10 items-center justify-center rounded border border-dashed text-[9px] text-muted-foreground">img</div>
+                            )}
                             <span className="text-xs text-muted-foreground">Variante</span>
                             <Input className="flex-1 h-8 text-xs" placeholder="ex: Grande" value={v.name}
-                              onChange={(e) => {
-                                const vs = [...(it.variants || [])]; vs[vi] = { ...vs[vi], name: e.target.value };
-                                updateMenuItem(menuCats, setMenuCats, ci, ii, { variants: vs });
-                              }} />
+                              onChange={(e) => updateVariant(ci, ii, vi, { name: e.target.value })} />
                             <Input className="w-24 h-8 text-xs" type="number" placeholder="+ Prix" value={v.price_delta}
-                              onChange={(e) => {
-                                const vs = [...(it.variants || [])]; vs[vi] = { ...vs[vi], price_delta: parseFloat(e.target.value) || 0 };
-                                updateMenuItem(menuCats, setMenuCats, ci, ii, { variants: vs });
-                              }} />
+                              onChange={(e) => updateVariant(ci, ii, vi, { price_delta: parseFloat(e.target.value) || 0 })} />
+                            <Button size="icon" variant="ghost" title="Générer image variante" disabled={!!v.imgBusy}
+                              onClick={() => generateVariantImage(ci, ii, vi)}>
+                              {v.imgBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : <ImagePlus className="h-3 w-3" />}
+                            </Button>
                             <Button size="icon" variant="ghost" onClick={() => {
                               const vs = (it.variants || []).filter((_, k) => k !== vi);
                               updateMenuItem(menuCats, setMenuCats, ci, ii, { variants: vs });
