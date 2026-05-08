@@ -16,6 +16,18 @@ export interface Subscription {
   paddle_subscription_id: string;
 }
 
+const DEMO_EMAILS = new Set([
+  "demo@restoflow.africa",
+  "serveur@restoflow.africa",
+  "cuisine@restoflow.africa",
+  "caisse@restoflow.africa",
+]);
+
+export function isDemoUser(email?: string | null): boolean {
+  if (!email) return false;
+  return DEMO_EMAILS.has(email.toLowerCase().trim());
+}
+
 export function productToTier(productId?: string | null): PlanTier {
   if (productId === "starter_plan") return "starter";
   if (productId === "pro_plan") return "pro";
