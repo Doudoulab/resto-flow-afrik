@@ -523,19 +523,19 @@ export default function Landing() {
                   <div
                     className={`relative h-full rounded-2xl p-6 backdrop-blur transition-all sm:p-7 ${
                       plan.highlight
-                        ? "border-2 border-emerald-300/60 bg-gradient-to-b from-emerald-400/15 to-blue-900/5 shadow-[0_20px_60px_-20px_rgba(52,211,153,0.6)]"
+                        ? "border-2 border-emerald-300/60 bg-gradient-to-b from-emerald-400/15 to-emerald-950/5 shadow-[0_20px_60px_-20px_rgba(52,211,153,0.6)]"
                         : "border border-white/10 bg-white/[0.03] hover:border-white/25"
                     }`}
                   >
                     {plan.highlight && (
-                      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 border-0 bg-gradient-to-r from-emerald-400 to-cyan-400 px-3 py-1 text-xs text-white shadow-lg">
+                      <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 border-0 bg-gradient-to-r from-emerald-400 to-teal-400 px-3 py-1 text-xs text-white shadow-lg">
                         ⭐ Le plus populaire
                       </Badge>
                     )}
                     <h3 className="text-xl font-bold text-white">{plan.name}</h3>
                     <p className="mt-1 text-sm text-slate-400">{plan.description}</p>
                     <div className="mt-5 flex flex-wrap items-baseline gap-x-1.5 gap-y-1">
-                      <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">{plan.price}</span>
+                      <span className="bg-gradient-to-r from-white to-emerald-100 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">{plan.price}</span>
                       <span className="text-xs text-slate-400 sm:text-sm">/{plan.cycle}</span>
                     </div>
                     <Link to="/auth" className="mt-6 block">
@@ -599,7 +599,7 @@ export default function Landing() {
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/auth">
                 <button className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl bg-white px-10 py-5 text-base font-bold text-teal-600 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] ring-2 ring-white/40 transition-all hover:scale-110 hover:shadow-[0_30px_80px_-15px_rgba(0,0,0,0.7)] active:scale-100">
-                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-blue-200/60 to-transparent group-hover:animate-shimmer" />
+                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-emerald-100/60 to-transparent group-hover:animate-shimmer" />
                   <Zap className="h-5 w-5" />
                   Démarrer maintenant — Gratuit
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -672,7 +672,7 @@ function BentoCard({
       <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl transition-all group-hover:bg-emerald-400/30" />
       <div className="relative flex h-full flex-col">
         <div className="mb-3 flex items-center gap-2">
-          <div className="rounded-lg bg-gradient-to-br from-emerald-400/20 to-cyan-400/10 p-1.5 text-emerald-200 ring-1 ring-emerald-300/30">
+          <div className="rounded-lg bg-gradient-to-br from-emerald-400/20 to-teal-400/10 p-1.5 text-emerald-200 ring-1 ring-emerald-300/30">
             <Icon className="h-4 w-4" />
           </div>
           <span className="text-xs font-medium uppercase tracking-wider text-emerald-200/80">Live</span>
@@ -724,9 +724,9 @@ function HeroMockup() {
           </div>
         ))}
       </div>
-      <div className="mt-4 flex items-center justify-between rounded-xl bg-gradient-to-r from-emerald-400/20 to-cyan-400/10 px-4 py-3 ring-1 ring-emerald-300/30">
+      <div className="mt-4 flex items-center justify-between rounded-xl bg-gradient-to-r from-emerald-400/20 to-teal-400/10 px-4 py-3 ring-1 ring-emerald-300/30">
         <span className="text-sm font-semibold text-white">Total</span>
-        <span className="text-xl font-bold text-white">15 000 <span className="text-xs text-blue-200">FCFA</span></span>
+        <span className="text-xl font-bold text-white">15 000 <span className="text-xs text-emerald-100">FCFA</span></span>
       </div>
       {/* Floating mini cards */}
       <div className="absolute -left-6 top-1/3 hidden rounded-2xl border border-white/15 bg-[#0a1228]/90 p-3 shadow-2xl backdrop-blur md:block animate-float">
@@ -801,7 +801,7 @@ function MobileMoneyOrbit() {
           );
         })}
       </div>
-      <div className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-400 text-white shadow-[0_0_30px_rgba(52,211,153,0.6)]">
+      <div className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 text-white shadow-[0_0_30px_rgba(52,211,153,0.6)]">
         <Wallet className="h-5 w-5" />
       </div>
     </div>
@@ -939,7 +939,7 @@ function CaisseScreen() {
     <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
         {items.map((it, i) => (
-          <div key={it} style={{ animationDelay: `${i * 40}ms` }} className="aspect-square rounded-xl border border-white/10 bg-gradient-to-br from-emerald-400/10 to-cyan-400/5 p-3 text-center transition-all hover:scale-105 hover:border-emerald-300/40 animate-ticket-in">
+          <div key={it} style={{ animationDelay: `${i * 40}ms` }} className="aspect-square rounded-xl border border-white/10 bg-gradient-to-br from-emerald-400/10 to-teal-400/5 p-3 text-center transition-all hover:scale-105 hover:border-emerald-300/40 animate-ticket-in">
             <div className="mx-auto mb-2 h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-300 to-teal-300 opacity-80" />
             <p className="text-xs font-medium text-white">{it}</p>
             <p className="text-[10px] text-slate-400">2 500 F</p>
