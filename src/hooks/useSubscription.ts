@@ -83,18 +83,24 @@ export function useSubscription() {
     };
   }, [user, fetchSub]);
 
+  const isDemo = isDemoUser(user?.email);
+
   const isActive =
-    !!subscription &&
-    ["active", "trialing"].includes(subscription.status) &&
-    (!subscription.current_period_end || new Date(subscription.current_period_end) > new Date());
+    isDemo ||
+    (!!subscription &&
+      ["active", "trialing"].includes(subscription.status) &&
+      (!subscription.current_period_end || new Date(subscription.current_period_end) > new Date()));
 
-  const tier: PlanTier = isActive ? productToTier(subscription?.product_id) : "free";
+  const tier: PlanTier = isDemo ? "business" : (isActive ? productToTier(subscription?.product_id) : "free");
 
-  const hasTier = (required: PlanTier) => TIER_RANK[tier] >= TIER_RANK[required];
+  const hasTier = (required: PlanTier) => {
+    if (isDemo) return true;
+    return TIER_RANK[tier] >= TIER_RANK[required];
+  };
 
-  const isTrialing = !!subscription && subscription.status === "trialing" && isActive;
+  const isTrialing = !isDemo && !!subscription && subscription.status === "trialing" && isActive;
   const trialDaysLeft = (() => {
-    if (!isTrialing || !subscription?.current_period_end) return 0;
+    if (isDemo || !isTrialing || !subscription?.current_period_end) return 0;
     const ms = new Date(subscription.current_period_end).getTime() - Date.now();
     return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
   })();
@@ -109,5 +115,6 @@ export function useSubscription() {
     trialDaysLeft,
     environment: env,
     refetch: fetchSub,
+    isDemo,
   };
 }
